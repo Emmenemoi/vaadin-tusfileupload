@@ -336,14 +336,15 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	  public void setReceiverDatastore(Config receiverConfig) throws ConfigError {
 		  this.receiverConfig = receiverConfig;
 		  Composer c;
-		try {
-			c = new Composer(receiverConfig);
-		} catch (Exception e) {
-			throw new ConfigError(e.getMessage());
-		}
-		  setReceiverDatastore(c.getDatastore());
+			try {
+				c = new Composer(receiverConfig);
+			} catch (Exception e) {
+				throw new ConfigError(e.getMessage());
+			}
+			setReceiverDatastore(c.getDatastore());
 	  }
-	  public void setReceiverDatastore(Datastore receiverDataStore) {
+	  
+	  private void setReceiverDatastore(Datastore receiverDataStore) {
 		  this.receiverDataStore = receiverDataStore;
 	  }
 	  

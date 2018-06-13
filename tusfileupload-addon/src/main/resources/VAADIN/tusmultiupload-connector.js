@@ -81,6 +81,7 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
         console_log('chunkSize: ' + s.chunkSize);
         console_log('retryDelays: ' + s.retryDelays);
         console_log('removeFingerprintOnSuccess: ' + s.removeFingerprintOnSuccess);
+        console_log('withCredentials: ' + s.withCredentials);
         
         console_log('ownerId: ' + s.chunkSize);
         console_log('buttonCaption: ' + s.buttonCaption);
@@ -182,15 +183,14 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
         
     	uploader = new tus.Upload(fileQueue.file, {
 	        endpoint: this.translateVaadinUri(s.endpoint),
-	        retryDelays: [0, 1000, 3000, 5000],
 	        resume: s.resume,
 	        retryDelays: s.retryDelays,
 	        chunkSize: s.chunkSize <= 0 ? Infinity : s.chunkSize,
 	        removeFingerprintOnSuccess: s.removeFingerprintOnSuccess,
+	        withCredentials: s.withCredentials,
 	        metadata: {
 	            filename: fileQueue.file.name,
 	            filetype: fileQueue.file.type,
-	            owner: s.ownerId,
 	            queueId: fileQueue.id
 	        },
 	        onError: function(error) {

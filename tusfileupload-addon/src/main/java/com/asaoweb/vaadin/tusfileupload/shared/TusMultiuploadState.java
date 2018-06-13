@@ -13,9 +13,8 @@ public class TusMultiuploadState extends JavaScriptComponentState {
 	public long		chunkSize = 1024*1024*5; // 5 MB default chunks
 	// retries 11 times each time waiting the respective ms
 	public int[]	retryDelays = { 2000, 4000, 10000, 10000, 10000, 10000, 10000, 10000, 20000, 20000, 30000 };
-	public boolean removeFingerprintOnSuccess = true;
-	
-	public String	ownerId;
+	public boolean  removeFingerprintOnSuccess = true;
+	public boolean  withCredentials = false;
 	
 	public boolean rebuild = false;
 	public String buttonCaption;

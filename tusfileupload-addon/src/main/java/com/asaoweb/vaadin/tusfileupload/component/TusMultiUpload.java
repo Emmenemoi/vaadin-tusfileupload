@@ -115,6 +115,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	    }
 	    setReceiverDatastore(receiverConfig);
 	    setButtonCaption(buttonCaption);
+		this.addStyleName("tusmultiupload");
 	  }
 	  
 	  @Override
@@ -417,18 +418,18 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	  }
 	  
 	  /**
-	   * a string added to the file metadata during upload and used by 
-	   * the Datastore to verify the file owner and other security when
-	   * resuming upload.
+	   * withCredentials = false: a boolean which is be used as the value 
+	   * for withCredentials in all XMLHttpRequests to use Cookies in requests. 
+	   * The remote server must accept CORS and credentials
 	   *
-	   * @param set ownerId metadata during transfer
+	   * @param boolean allowing passing http credentials in requests
 	   */
-	  public void setFileOwnerId(String ownerId) {
-		  getState().ownerId = ownerId;
+	  public void setWithCredentials(boolean withCredentials) {
+		  getState().withCredentials = withCredentials;
 	  }
 	  
-	  public String getFileOwnerId() {
-		  return getState().ownerId;
+	  public boolean getWithCredentials() {
+		  return getState().withCredentials;
 	  }
 	  
 	  /**

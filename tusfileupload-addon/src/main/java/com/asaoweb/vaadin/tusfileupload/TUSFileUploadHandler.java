@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.asaoweb.vaadin.tusfileupload.exceptions.TusException;
 import com.asaoweb.vaadin.tusfileupload.exceptions.TusException.ConfigError;
+import com.asaoweb.vaadin.tusfileupload.handlers.BaseHandler;
 import com.asaoweb.vaadin.tusfileupload.handlers.DeleteHandler;
 import com.asaoweb.vaadin.tusfileupload.handlers.HeadHandler;
 import com.asaoweb.vaadin.tusfileupload.handlers.OptionsHandler;
@@ -255,6 +256,7 @@ public class TUSFileUploadHandler extends FileUploadHandler {
             StreamVariable streamVariable,
             String filename, String mimeType, ClientConnector connector, String variableName)
             throws UploadException {
+		
         session.lock();
         try {
             if (connector == null) {

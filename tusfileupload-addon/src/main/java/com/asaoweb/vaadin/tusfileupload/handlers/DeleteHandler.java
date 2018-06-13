@@ -24,6 +24,9 @@ public class DeleteHandler extends BaseHandler {
 			log.debug("No file id found in patch url");
 			throw new TusException.NotFound();
 		}
+		
+		checkAuthSecurity();
+		
 		boolean locked = false;
 		try {
 			locked = locker.lockUpload(id);

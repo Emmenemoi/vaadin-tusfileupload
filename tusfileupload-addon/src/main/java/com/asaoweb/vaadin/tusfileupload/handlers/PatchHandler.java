@@ -19,6 +19,7 @@ public class PatchHandler extends BaseHandler {
 
 	@Override
 	public void go() throws Exception {
+		
 		// Check content type header
 		String ct = request.getHeader("Content-Type");
 		if (ct == null || !ct.equals("application/offset+octet-stream")) {
@@ -39,6 +40,8 @@ public class PatchHandler extends BaseHandler {
 			log.debug("No file id found in patch url");
 			throw new TusException.NotFound();
 		}
+
+		checkAuthSecurity();
 
 		boolean locked = false;
 		try {

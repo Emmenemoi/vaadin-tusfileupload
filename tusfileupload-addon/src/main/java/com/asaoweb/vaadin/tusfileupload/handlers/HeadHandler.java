@@ -30,6 +30,9 @@ public class HeadHandler extends BaseHandler
 			log.debug("url has no valid id part");
 			throw new TusException.NotFound();
 		}
+		
+		checkAuthSecurity();
+
 		boolean locked = false;
 		try
 		{

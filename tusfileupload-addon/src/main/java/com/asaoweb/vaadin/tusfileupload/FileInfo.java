@@ -47,7 +47,7 @@ public class FileInfo {
 		// See if client sent suggested filename in metadata and log it.
 		this.suggestedFilename = decodedMetadata.get("filename");
 		this.suggestedFiletype = decodedMetadata.get("filetype");
-		log.debug("New file ID = {}, filename={}, queueId={}", id, suggestedFilename, queueId);
+		log.debug("New file ID = {}, filename={}, queueId={}, username={}", id, suggestedFilename, queueId, username);
 	}
 	public FileInfo(String queueId, long entityLength, long offset, String filename, String filetype) {
 		super();

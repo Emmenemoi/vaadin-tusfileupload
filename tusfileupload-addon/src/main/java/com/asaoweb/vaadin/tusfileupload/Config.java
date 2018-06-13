@@ -28,12 +28,16 @@ public class Config
 	// Default value. Folder where data will be stored.  Servlet will create the folder if it doesn't exist and
 	// parent dir does exist and permissions allow.  
 	String UPLOAD_FOLDER = "/tmp";
-
+	
+	// Default value. If set to true, we will check owner of the fileinfo and enforce security for it
+	boolean ENFORCE_SECURITY = true;
+	
 	public long maxSize;
 	public long maxStorage;
 	public long maxRequest;
 	public String uploadFolder;
 	public String datastoreProvider;
+	public boolean enforceAuthSecurity;
 
 	// Derived classes may need additional configuration.
 	public Properties allProperties = new Properties(); 
@@ -46,6 +50,7 @@ public class Config
         properties.setProperty("maxFileSize", "0");
 		properties.setProperty("maxStorage", "0");
 		properties.setProperty("maxRequest", "0");
+		properties.setProperty("enforceAuthSecurity", "true");
 		//properties.setProperty("datastoreProvider", null);
 		
 		init(properties);
@@ -60,6 +65,7 @@ public class Config
 	{
 		String tmp;
 		Long l; 
+		Boolean b;
 
 		this.allProperties.putAll(properties);
 
@@ -76,9 +82,13 @@ public class Config
 		l = getLongValue("maxRequest");
 		maxRequest = (l == null) ? MAX_REQUEST : l;
 
+		b = getBooleanValue("enforceAuthSecurity");
+		enforceAuthSecurity = (b == null) ? ENFORCE_SECURITY : b;
+		
 		datastoreProvider = properties.getProperty("datastoreProvider");
 		log.info("uploadFolder=" + uploadFolder + ", maxFileSize=" + maxSize + ", maxStorage=" + maxStorage +
-			", maxRequest=" + maxRequest + ", datastoreProvider=" + datastoreProvider);
+			", maxRequest=" + maxRequest + ", enforceAuthSecurity=" + enforceAuthSecurity + 
+			", datastoreProvider=" + datastoreProvider);
 	}
 
 
@@ -124,6 +134,27 @@ public class Config
 		catch(NumberFormatException ne)
 		{
 			msg = "Parameter must be a long.  Error parsing: " + value;
+			throw new TusException.ConfigError(msg);
+		}
+	}
+	
+	public Boolean getBooleanValue(String name) throws TusException.ConfigError
+	{
+		String msg;
+		String value = allProperties.getProperty(name);
+		if (value == null)
+		{
+			return null;
+		}
+		Boolean bValue = null;
+		try
+		{
+			bValue = Boolean.valueOf(value);
+			return bValue;
+		}
+		catch(NumberFormatException ne)
+		{
+			msg = "Parameter must be a boolean (true/false).  Error parsing: " + value;
 			throw new TusException.ConfigError(msg);
 		}
 	}

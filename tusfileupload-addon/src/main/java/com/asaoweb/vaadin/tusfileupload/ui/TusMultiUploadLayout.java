@@ -2,6 +2,7 @@ package com.asaoweb.vaadin.tusfileupload.ui;
 
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -72,6 +73,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	
 	protected boolean allowReorder = false;
 	protected FileInfoThumbProvider provider;
+	protected String infoLabelMessagePattern = "{0,,filenb} uploaded files / {2,,totalSize} (+{1,,queueSize} queued)";
 	
 	public TusMultiUploadLayout() throws ConfigError {
 		this(null, new ArrayList<FileInfo>(), null, false);
@@ -88,17 +90,21 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		
 		Panel listPanel = new Panel(fileListLayout);
 		listPanel.setSizeFull();
-		HorizontalLayout infobar = new HorizontalLayout(infoLabel, uploadButton);
+		HorizontalLayout infobar = new HorizontalLayout(uploadButton, infoLabel);
+		infobar.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 		infobar.setExpandRatio(infoLabel, 1f);
 		
 		this.setHeight(300, Unit.PIXELS);
 		this.setWidth(100, Unit.PERCENTAGE);
 		this.addComponents(listPanel, infobar);
-		this.setExpandRatio(listPanel, 1f);		
+		this.setExpandRatio(listPanel, 1f);
+		this.addStyleName("tusmultiuploadlayout");
+
 		files = existingFiles;
 		
 		uploadButton.addFileQueuedListener(e -> {
 			fileListLayout.addComponent(new FileListComponent(e.getFileInfo(), uploadButton));
+			refreshFilesInfos();
 		});
 		
 		setThumbProvider(provider);
@@ -126,10 +132,35 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	public void refreshFileList() {
 		fileListLayout.removeAllComponents();
 		files.forEach(f -> fileListLayout.addComponent(new FileListComponent(f, uploadButton)));
+		refreshFilesInfos();
+	}
+	
+	public void refreshFilesInfos() {
+		int fileNB = files.size();
+		int queueNB = fileListLayout.getComponentCount() - fileNB;
+		long totalUploadedSize = files.stream().mapToLong(fi -> fi.entityLength).sum();
+		infoLabel.setValue( MessageFormat.format(infoLabelMessagePattern, fileNB, queueNB, this.readableFileSize(totalUploadedSize) ));
+	}	
+	
+	/**
+	 * Default: "{0,,filenb} uploaded files / {2,,totalSize} (+{1,,queueSize} queued)"
+	 * 
+	 * @param String pattern used in MessageFormat.format
+	 */
+	public void setInfoPanelMessagePattern(String pattern) {
+		infoLabelMessagePattern = pattern;
 	}
 	
 	public void setChunkSize(long chunkSize) {
 		uploadButton.setChunkSize(chunkSize);
+	}
+	
+	public void setWithCredentials(boolean withCredentials) {
+		uploadButton.setWithCredentials(withCredentials);
+	}
+	
+	public TusMultiUpload getUploader() {
+		return uploadButton;
 	}
 	
 	public void allowReorder(boolean allowReorder) {
@@ -184,6 +215,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 			this.addComponents(thumb, filename, mimeType, fileSize, progressWrapper, action);
 			this.setExpandRatio(progressWrapper, 1f);
 			this.setWidth("100%");
+			this.addStyleName("tusmultiuploadlayout-filelistcomponent");
 			
 			if (fileInfo.isQueued()) {
 				rFailed = uploader.addFailedListener(this);
@@ -316,6 +348,8 @@ public class TusMultiUploadLayout extends VerticalLayout {
 					fileInfo.id = evt.getId();
 					fileInfo.offset = evt.getFileInfo().offset;
 				}
+				TusMultiUploadLayout.this.files.add(this.fileInfo);
+				TusMultiUploadLayout.this.refreshFilesInfos();
 				update();
 				unregisterListeners();
 			}

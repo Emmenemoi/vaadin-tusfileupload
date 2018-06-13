@@ -1,6 +1,5 @@
 package com.asaoweb.vaadin.tusfileupload.handlers;
 
-import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,15 +8,13 @@ import org.slf4j.LoggerFactory;
 
 import com.asaoweb.vaadin.tusfileupload.Composer;
 import com.asaoweb.vaadin.tusfileupload.Config;
+import com.asaoweb.vaadin.tusfileupload.FileInfo;
 import com.asaoweb.vaadin.tusfileupload.Locker;
 import com.asaoweb.vaadin.tusfileupload.TUSFileUploadHandler;
 import com.asaoweb.vaadin.tusfileupload.data.Datastore;
-import com.vaadin.server.ClientConnector;
+import com.asaoweb.vaadin.tusfileupload.exceptions.TusException;
 import com.vaadin.server.StreamVariable;
-import com.vaadin.server.UploadException;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinSession;
-import com.vaadin.ui.UI;
 
 public abstract class BaseHandler {
 	private static final Logger log = LoggerFactory.getLogger(BaseHandler.class.getName());
@@ -59,14 +56,37 @@ public abstract class BaseHandler {
 		}
 	}
 
+	public String getID() {
+		return getID(request);
+	}
+	
+	public void checkAuthSecurity() throws TusException {
+		if (config.enforceAuthSecurity) {
+			String username = TUSFileUploadHandler.getAuthenticatedUser(request);
+			String id = getID();
+			FileInfo fi;
+			try {
+				fi = datastore.getFileInfo(id);
+			} catch (Exception e) {
+				throw new TusException.Security(e.getMessage());
+			}
+			if (id != null && !id.isEmpty() && fi != null) {
+				// if file owner is set, enforce owner check
+				if (fi.username != null && !fi.username.isEmpty() && !fi.username.equals(username)) {
+					throw new TusException.Security("Owner mismatch: "+fi.username+" for auth user "+username);
+				}
+			}
+		}
+	}
+	
 	/*
 	 * Extract id from URL. If this returns null it means the URL was invalid.
 	 * Caller should return 404 not found or BAD_REQUEST?.
 	 */
-	public String getID() {
+	public static String getID(VaadinRequest vaadinRequest) {
 		// Returns everything after the servlet path and before the query string (if
 		// any)
-		String uppUri = TUSFileUploadHandler.getUppURI(request);
+		String uppUri = TUSFileUploadHandler.getUppURI(vaadinRequest);
 		log.debug("uppUri is: {}", uppUri);
 		if (uppUri == null) {
 			return null;

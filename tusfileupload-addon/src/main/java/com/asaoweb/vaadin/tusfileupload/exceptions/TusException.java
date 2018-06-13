@@ -31,6 +31,14 @@ public class TusException extends Exception
 		}
 	}
 	
+	public static class Security extends TusException
+	{
+		public Security(String problem) 
+		{
+			super(HttpServletResponse.SC_PRECONDITION_FAILED, "security problem: "+problem);
+		}
+	}
+	
 	public static class MaxSizeExceeded extends TusException
 	{
 		public MaxSizeExceeded()

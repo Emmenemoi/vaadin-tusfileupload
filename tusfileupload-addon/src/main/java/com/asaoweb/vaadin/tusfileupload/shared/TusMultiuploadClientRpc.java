@@ -7,6 +7,7 @@ public interface TusMultiuploadClientRpc extends ClientRpc {
 	  void pauseUpload();
 	  void resumeUpload();
 	  void abortUpload();
+	  void abortAllUploads();
 
 	  void removeFromQueue(String queueId);
 }

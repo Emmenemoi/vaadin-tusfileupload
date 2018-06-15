@@ -65,7 +65,7 @@ public class FileInfo {
 
 	@JsonIgnore
 	public boolean isFinished() {
-		return entityLength > 0 && entityLength == offset;
+		return entityLength == -1 || (entityLength > 0 && entityLength == offset);
 	}
 	
 	@JsonIgnore

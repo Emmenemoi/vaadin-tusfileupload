@@ -192,8 +192,12 @@ public class Events {
 	     * @param contentLength the content length in bytes provided by the client
 	     */
 	    public ProgressEvent(Component source, FileInfo fileInfo) {
-		      super(source, fileInfo);
-		    }
+	    	super(source, fileInfo);
+		}
+	    
+	    public float getProgressPct() {
+	    	return (float)this.getFileInfo().offset / (float)this.getFileInfo().entityLength;
+	    }
 	  }
 
 	  /**
@@ -333,6 +337,11 @@ public class Events {
 
 		public int getOldIndex() {
 			return oldIndex;
+		}
+
+		@Override
+		public String toString() {
+			return "FileIndexMovedEvent [newIndex=" + newIndex + ", oldIndex=" + oldIndex + "]";
 		}
 
 	  }

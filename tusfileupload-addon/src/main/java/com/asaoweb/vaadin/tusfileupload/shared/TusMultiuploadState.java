@@ -16,10 +16,12 @@ public class TusMultiuploadState extends JavaScriptComponentState {
 	public boolean  removeFingerprintOnSuccess = true;
 	public boolean  withCredentials = false;
 	
-	public boolean rebuild = false;
-	public String buttonCaption;
-	public String mimeAccept = "*/*";
-	public boolean multiple = true;
-	public long maxFileSize = 0;
-	
+	public boolean 	rebuild = false;
+	public String 	buttonCaption;
+	public String 	mimeAccept = "*/*";
+	public boolean 	multiple = true;
+	public long 	maxFileSize = 0;
+	public int 		maxFileCount = 0;
+	public int 		remainingQueueSeats = 0;
+
 }

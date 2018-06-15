@@ -2,8 +2,8 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
 
 	var BROWSE_BUTTON_CAPTION = "Choose File";
 	var BUTTON_CLASSNAME = "v-button v-widget";
-	var BROWSE_BUTTON_CLASSNAME = "plupload-browse " + BUTTON_CLASSNAME;
-	var SUBMIT_BUTTON_CLASSNAME = "plupload-submit " + BUTTON_CLASSNAME;
+	var BROWSE_BUTTON_CLASSNAME = "tusmultiupload-browse " + BUTTON_CLASSNAME;
+	var SUBMIT_BUTTON_CLASSNAME = "tusmultiupload-submit " + BUTTON_CLASSNAME;
 	var DEFAULT_STREAMING_PROGRESS_EVENT_INTERVAL_MS = 1000;
 	  
 	var t = this;
@@ -110,7 +110,7 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
       // Container
       container = document.createElement("div");
       container.setAttribute("id", "tusmultiupload_container_" + connectorId);
-      container.className = "tusmultiupload";
+      container.className = "tusmultiupload-container";
       e.appendChild(container);
 
       fileInput = document.createElement("input");
@@ -165,12 +165,24 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
     };
       
     this._buildTusUploadQueue = function(files) {
-    	fileInputQueuePosition = 0;      
+    	fileInputQueuePosition = 0;     
+    	if (s.maxFileCount > 0 && s.remainingQueueSeats < files.length ) {
+    		rpcProxy.onFileCountError(files.length);
+    		return;
+    	}
         var now = new Date().getTime();
+        fileInputQueueIgnored = [];
     	for (i = 0; i < files.length; i++) {
     		var queueId = "queue-"+now+"-"+i;
-        	fileInputQueue.push({id: queueId, file: files[i]});
-    		rpcProxy.onQueuedFile( queueId, files[i].name, files[i].type, files[i].size);
+    		if (s.maxFileSize > 0 && s.remainingQueueSeats < files[i].size ) {
+    			fileInputQueueIgnored.push({filename: files[i].name, filesize: files[i].size});
+        	} else {
+        		fileInputQueue.push({id: queueId, file: files[i]});
+        		rpcProxy.onQueuedFile( queueId, files[i].name, files[i].type, files[i].size);
+        	}
+    	}
+    	if (fileInputQueueIgnored.length > 0) {
+    		rpcProxy.onFileSizeError(fileInputQueueIgnored);
     	}
     	// Create a new tus upload
     	if (!isUploading) {
@@ -285,7 +297,7 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
      */
     this.submitUpload = function() {
         console_log("Starting upload due to server side submit."); 
-        uploader.start();
+        if (uploader) uploader.start();
     };
     
     /**
@@ -295,7 +307,7 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
      */
     this.resumeUpload = function() {
     	console_log("Resume upload due to server side submit."); 
-        uploader.start();
+    	if (uploader) uploader.start();
     }
     /**
      * Pause the upload if there is a file in progress.
@@ -303,7 +315,7 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
      * @returns {undefined}
      */
     this.pauseUpload = function() {
-    	uploader.abort();
+    	if (uploader) uploader.abort();
     	isUploading = false;
     };
     
@@ -313,7 +325,16 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
      * @returns {undefined}
      */
     this.abortUpload = function() {
-    	uploader.abort();
+    	if (uploader) uploader.abort();
+    	uploader = null;
+    	isUploading = false;
+    };
+    
+    this.abortAllUploads = function() {
+    	if (uploader) uploader.abort();
+    	uploader = null;
+    	fileInputQueue = [];
+    	
     	isUploading = false;
     };
     

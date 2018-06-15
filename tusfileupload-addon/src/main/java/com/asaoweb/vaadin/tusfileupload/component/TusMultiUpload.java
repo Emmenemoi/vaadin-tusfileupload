@@ -2,6 +2,7 @@ package com.asaoweb.vaadin.tusfileupload.component;
 
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -37,11 +38,16 @@ import com.vaadin.server.ServletPortletHelper;
 import com.vaadin.server.StreamVariable;
 import com.vaadin.shared.Registration;
 import com.vaadin.ui.AbstractJavaScriptComponent;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Upload;
+
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 
 
 @SuppressWarnings("serial")
-@JavaScript(value = {"//rawgit.com/tus/tus-js-client/v1.5.1/dist/tus.js", "vaadin://tusmultiupload-connector.js"})
+@JavaScript(value = {"//rawgit.com/tus/tus-js-client/v1.5.1/dist/tus.js", "vaadin://addons/tusfileupload/tusmultiupload-connector.js"})
 public class TusMultiUpload extends AbstractJavaScriptComponent {
 	  private final static Method SUCCEEDED_METHOD;
 	  private final static Method STARTED_METHOD;
@@ -75,8 +81,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	 /**
 	   * The list of native progress listeners to be notified during the upload.
 	   */
-	  protected final List<Upload.ProgressListener> progressListeners =
-	      new ArrayList<>();
+	  protected final List<Upload.ProgressListener> progressListeners = new ArrayList<>();
 
 	  /**
 	   * The receiver registered with the upload component that all data will be
@@ -90,7 +95,11 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 
 	  private StreamVariable streamVariable;
 	  private String currentQueuedFileId = "";
+	  private boolean hasUploadInProgress = false;
 	  
+	  protected String fileCountErrorMessagePattern = "Too many files uploaded: total {0,,max} files max and {1,,current} uploaded or queued but tried to add {2,,tried} more!";
+	  protected String fileSizeErrorMessagePattern = "Some files are too big (limit is {0,,limitStr}): {1,,fileListString}";
+
 	  /**
 	   * Constructs the upload component.
 	   * @throws ConfigError 
@@ -370,7 +379,27 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 
 	    return streamVariable;
 	  }
-
+	  
+	  /**
+	   * Sets the caption displayed on the error notification for bad file count.
+	   * Default: "Too many files uploaded: total {0,,max} files max and {1,,current} uploaded or queued but tried to add {2,,tried} more!";
+	   * 
+	   * @param String pattern
+	   */
+	  public void setFileCountErrorMessagePattern(String fileCountErrorMessagePattern) {
+		  this.fileCountErrorMessagePattern = fileCountErrorMessagePattern;
+	 }
+	  
+	  /**
+	   * Sets the caption displayed on the error notification for bad file count.
+	   * Default: "Some files are too big (limit is {0,,limitStr}): {1,,fileListString}";
+	   * 
+	   * @param String pattern
+	   */
+	  public void setFileSizeErrorMessagePattern(String fileSizeErrorMessagePattern) {
+		  this.fileSizeErrorMessagePattern = fileSizeErrorMessagePattern;
+	 }
+	  
 	  /**
 	   * Returns the caption displayed on the submit button.
 	   *
@@ -451,6 +480,23 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 		  return getState().retryDelays;
 	  }
 	  
+	  public void setAcceptFilter(String filter) {
+	    getState().mimeAccept = filter;
+	    getState().rebuild = true;
+	  }
+	  
+	  public void setMultiple(boolean multiple) {
+		  getState().multiple = multiple;
+	  }
+	  
+	  public boolean isMultiple() {
+		  return getState().multiple;
+	  }
+	  
+	  public void abortAll() {
+		  clientRpc.abortAllUploads();
+	  }
+	  
 	  public void removeFromQueue(String queueId) {
 		  if (queueId != null) {
 			  if (queueId.equals(currentQueuedFileId)) {
@@ -460,7 +506,43 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 			  }
 		  }
 	  }
-
+	  
+	  public void setMaxFileSize(long maxFileSize) {
+		  getState().maxFileSize = maxFileSize;
+	  }
+	  
+	  public long getMaxFileSize() {
+		  return getState().maxFileSize;
+	  }
+	  
+	  public void setMaxFileCount(int maxFileCount) {
+		  if (maxFileCount == 1) {
+			  this.setMultiple(false);
+		  } else {
+			  this.setMultiple(true);			  
+		  }
+		  getState().maxFileCount = maxFileCount;	  
+		  getState().remainingQueueSeats = maxFileCount;
+	  }
+	  
+	  public int getMaxFileCount() {
+		  return getState().maxFileCount;
+	  }
+	  
+	  public void setRemainingQueueSeats(int remainingQueueSeats) {
+		  if (remainingQueueSeats <= getMaxFileCount()) {
+			  getState().remainingQueueSeats = remainingQueueSeats;	
+		  }
+	  }
+	  
+	  public int getRemainingQueueSeats() {
+		  return getState().remainingQueueSeats;
+	  }
+	  
+	  public boolean hasUploadInProgress() {
+		  return hasUploadInProgress;
+	  }
+	  
 	  /******** PRIVATE CLASS ************/
 	  /**
 	   * The remote procedure call interface which allows calls from the client side
@@ -486,7 +568,8 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 			fi.suggestedFilename = name;
 			fi.suggestedFiletype = contentType;
 			logger.debug("onError(ui) for file info {}", fi);
-			fireFailed(new FailedEvent(TusMultiUpload.this, fi, new Exception(errorReason)));	
+			fireFailed(new FailedEvent(TusMultiUpload.this, fi, new Exception(errorReason)));
+			hasUploadInProgress = false;
 		}
 
 		@Override
@@ -518,6 +601,23 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 			clientRpc.submitUpload();
 		}
 
+		@Override
+		public void onFileCountError(int newlyAddedFiles) {
+			Notification.show(MessageFormat.format(fileCountErrorMessagePattern, TusMultiUpload.this.getMaxFileCount(), TusMultiUpload.this.getRemainingQueueSeats() ,newlyAddedFiles), Type.ERROR_MESSAGE);
+		}
+
+		@Override
+		public void onFileSizeError(JsonArray fileArray) {
+			List<String >fileList = new ArrayList<>();
+			for (int i=0; i < fileArray.length() ; i++) {
+				JsonObject o = (JsonObject)fileArray.get(i);
+				String filename = o.getString("filename");
+				String filesize = o.getString("filesize");
+				fileList.add(filename+" ("+filesize+")");
+			}
+			Notification.show(MessageFormat.format(fileSizeErrorMessagePattern, TusMultiUpload.this.getMaxFileSize(), String.join(", ", fileList)), Type.ERROR_MESSAGE);			
+		}
+
 	  }
 	  
 	  /*********/
@@ -544,7 +644,8 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 			TusStreamingEvent tevt = (TusStreamingEvent) event;
 			tevt.getFileInfo().queueId = currentQueuedFileId;
 			logger.debug("streamingStarted(StreamingStartEvent) for file info {}", tevt.getFileInfo());
-			fireStarted(new StartedEvent(TusMultiUpload.this, tevt.getFileInfo()));	
+			fireStarted(new StartedEvent(TusMultiUpload.this, tevt.getFileInfo()));
+			hasUploadInProgress = true;
 		}
 		
 		@Override
@@ -573,6 +674,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 					e.printStackTrace();
 				}
 			}
+			hasUploadInProgress = false;
 		}
 
 		@Override
@@ -581,6 +683,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 			tevt.getFileInfo().queueId = currentQueuedFileId;
 			logger.debug("streamingFailed(StreamingErrorEvent) for file info {}", tevt.getFileInfo());
 			fireFailed(new FailedEvent(TusMultiUpload.this, tevt.getFileInfo(), event.getException()));	
+			hasUploadInProgress = false;
 		}
 
 		@Override

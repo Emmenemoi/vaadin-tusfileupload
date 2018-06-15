@@ -174,12 +174,20 @@ public class Store implements Datastore {
 		log.debug("finish: {}", id);
 	}
 
+	protected String getBinPath() {
+		return binPath;
+	}
+
+	protected String getInfoPath() {
+		return infoPath;
+	}
+	
 	protected String getBinPath(String id) {
-		return binPath + File.separator + id + ".bin";
+		return this.getBinPath() + File.separator + id + ".bin";
 	}
 
 	protected String getInfoPath(String id) {
-		return infoPath + File.separator + id + ".info";
+		return this.getInfoPath() + File.separator + id + ".info";
 	}
 
 	// Given full path of .bin or .info file, return the corresponding ID
@@ -194,7 +202,7 @@ public class Store implements Datastore {
 
 	public List<FileInfo> getAllUploads() throws Exception {
 		// Get the names of all the .info files in the upload info dir
-		File dir = new File(infoPath);
+		File dir = new File( this.getInfoPath() );
 		File[] files = dir.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".info");

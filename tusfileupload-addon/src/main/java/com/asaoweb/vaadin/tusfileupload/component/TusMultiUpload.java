@@ -3,6 +3,7 @@ package com.asaoweb.vaadin.tusfileupload.component;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -623,9 +624,9 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 				JsonObject o = (JsonObject)fileArray.get(i);
 				String filename = o.getString("filename");
 				Long filesize = (long) o.getNumber("filesize");
-				fileList.add(filename+" ("+filesize+")");
+				fileList.add(filename+" ("+readableFileSize(filesize)+")");
 			}
-			Notification.show(MessageFormat.format(fileSizeErrorMessagePattern, TusMultiUpload.this.getMaxFileSize(), String.join(", ", fileList)), Type.ERROR_MESSAGE);			
+			Notification.show(MessageFormat.format(fileSizeErrorMessagePattern, readableFileSize(TusMultiUpload.this.getMaxFileSize()), String.join(", ", fileList)), Type.ERROR_MESSAGE);			
 		}
 
 	  }
@@ -721,4 +722,10 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 		  
 	  }
 
+	  public static String readableFileSize(long size) {
+		    if(size <= 0) return "0";
+		    final String[] units = new String[] { "B", "kB", "MB", "GB", "TB" };
+		    int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
+		    return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+		}
 }

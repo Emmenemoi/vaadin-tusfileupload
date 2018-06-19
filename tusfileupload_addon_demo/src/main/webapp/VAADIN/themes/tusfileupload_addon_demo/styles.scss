@@ -1,5 +1,6 @@
 @import "tusfileupload_addon_demo.scss";
 @import "addons.scss";
+@import "../../../VAADIN/addons/tusfileupload/tusfileupload.scss";
 
 // This file prefixes all rules with the theme name to avoid causing conflicts with other themes.
 // The actual styles should be defined in tusfileupload_addon_demo.scss
@@ -7,5 +8,5 @@
 .tusfileupload_addon_demo {
   @include addons;
   @include tusfileupload_addon_demo;
-
+  @include tusfileupload;
 }

@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import javax.servlet.annotation.WebServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.asaoweb.vaadin.tusfileupload.Config;
 import com.asaoweb.vaadin.tusfileupload.FileInfo;
 import com.asaoweb.vaadin.tusfileupload.component.TusMultiUpload;
 import com.asaoweb.vaadin.tusfileupload.data.FileInfoThumbProvider;
@@ -32,6 +34,7 @@ import com.vaadin.server.StreamResource.StreamSource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
@@ -64,7 +67,7 @@ public class MyUI extends UI {
         final Image image = new Image("Last Uploaded Image");
         
         final TextField tf = new TextField("Chunk size (bytes)");
-       
+        
         uploadSucceededHandler = (SucceededEvent event) -> {
             Notification.show("Handler: " + event.getFilename() + " uploaded (" + event.getLength() + " bytes). ");
             try {
@@ -96,18 +99,21 @@ public class MyUI extends UI {
         
         fileInfoThumbProvider = (FileInfo f) -> {
         	byte[] b = uploadedFiles.get(f.id);
-        	return b != null ? new StreamResource(() -> new ByteArrayInputStream(b), "thumb-"+f.suggestedFilename) : null;
+        	return b != null && f.suggestedFiletype.contains("image") ? new StreamResource(() -> new ByteArrayInputStream(b), "thumb-"+f.suggestedFilename) : null;
         };
         
 		try {
 			ArrayList<FileInfo> existingFiles = new ArrayList<>();
 			// Add 5 test images as existing in list
-			for (int i=0; i < 5; i++) {
+			for (int i=0; i < 8; i++) {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				InputStream is = null;
 				try {
 				  URL url = new URL("https://picsum.photos/200/300?random");
-				  is = url.openStream();
+				  URLConnection urlConn = url.openConnection();
+				  urlConn.setConnectTimeout(1000);
+				  urlConn.setReadTimeout(1000);
+				  is = urlConn.getInputStream();
 				  byte[] byteChunk = new byte[4096];
 				  int n;
 
@@ -125,16 +131,19 @@ public class MyUI extends UI {
 				}
 				
 			}
-			TusMultiUploadLayout mfUpload = new TusMultiUploadLayout("Send new files", existingFiles, fileInfoThumbProvider, true);
+			TusMultiUploadLayout mfUpload = new TusMultiUploadLayout("Send new files", new Config(), existingFiles, fileInfoThumbProvider, true);
 			mfUpload.addSucceededListener(uploadSucceededHandler);
+			mfUpload.getUploader().setRetryOnNetworkLoss(true);
+			mfUpload.getUploader().setClientSideDebug(true);
 			mfUpload.addFileDeletedClickListener(evt -> {
 				uploadedFiles.remove(evt.getFileInfo().id);
 				existingFiles.remove(evt.getFileInfo());
 			});
 			mfUpload.addFileIndexMovedListener(evt -> {
-				logger.debug("FileIndexMovedListener {}", evt);
-				existingFiles.add(evt.getNewIndex(), evt.getFileInfo());
+				logger.debug("FileIndexMovedListener: {}", evt);
 				int oldIndexNewRef = evt.getNewIndex() < evt.getOldIndex() ? evt.getOldIndex() + 1 : evt.getOldIndex();
+				int newIndexNewRef = evt.getNewIndex() > evt.getOldIndex() ? evt.getNewIndex() + 1 : evt.getNewIndex();
+				existingFiles.add(newIndexNewRef, evt.getFileInfo());
 				existingFiles.remove(oldIndexNewRef);
 				// to verify the new order: click refresh button
 			});
@@ -150,8 +159,13 @@ public class MyUI extends UI {
 
 	        Button refreshBtn = new Button("Refresh list");
 	        refreshBtn.addClickListener(e -> mfUpload.refreshFileList());
+	        CheckBox compactChk = new CheckBox("CompactLayout", false);
+	        compactChk.addValueChangeListener(e-> {
+	        	mfUpload.setCompactLayout(e.getValue());
+	        	mfUpload.refreshFileList();
+	        });
 	        
-	        layout.addComponents(image, tf, mfUpload, refreshBtn);
+	        layout.addComponents(image, tf, mfUpload, refreshBtn, compactChk);
 		} catch (ConfigError e) {
 			e.printStackTrace();
 		}   

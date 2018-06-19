@@ -4,7 +4,13 @@
 	$tusfileupload-compact-filesize-height: 20px !default;
 	$tusfileupload-compact-element-padding: 5px !default;
 	
-
+	.tusmultiuploadlayout-filelistcomponent {
+		.thumb { width: 30px; }
+		.filename { width: 150px; }
+		.filesize { width: 80px; }
+		.filetype { width: 80px; }
+	}
+	
 	.tusmultiuploadlayout-filelistcomponent-compact {
 		width: $tusfileupload-compact-size;
 		&.falied {

@@ -62,7 +62,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		    	FILE_DELETED_METHOD = FileDeletedClickListener.class.getMethod(
 		          "fileDeletedClick", FileDeletedClickEvent.class);
 		    	FILE_MOVED_METHOD = FileIndexMovedListener.class.getMethod(
-				          "fileIndexMoved", FileIndexMovedEvent.class);
+				  "fileIndexMoved", FileIndexMovedEvent.class);
 		    }
 		    catch (NoSuchMethodException | SecurityException ex) {
 		      throw new RuntimeException("Unable to find listener event method.", ex);
@@ -165,7 +165,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		int queueNB = fileListLayout.getComponentCount() - fileNB;
 		uploadButton.setRemainingQueueSeats(uploadButton.getMaxFileCount()-fileNB);
 		long totalUploadedSize = files.stream().mapToLong(fi -> fi.entityLength).sum();
-		infoLabel.setValue( MessageFormat.format(infoLabelMessagePattern, fileNB, queueNB, this.readableFileSize(totalUploadedSize) ));
+		infoLabel.setValue( MessageFormat.format(infoLabelMessagePattern, fileNB, queueNB, TusMultiUpload.readableFileSize(totalUploadedSize) ));
 	}	
 	
 	private void addFileInfoItem(FileInfo fi) {
@@ -260,11 +260,13 @@ public class TusMultiUploadLayout extends VerticalLayout {
 			super();
 			this.fileInfo = fileInfo;	
 			
+			thumb.addStyleName("thumb");
 			filename.setValue(fileInfo.suggestedFilename);
 			filename.addStyleName("filename");
 			mimeType.setValue(fileInfo.suggestedFiletype);
+			mimeType.addStyleName("filetype");
 			if (fileInfo.entityLength > 0) {
-				fileSize.setValue(readableFileSize(fileInfo.entityLength));
+				fileSize.setValue( TusMultiUpload.readableFileSize(fileInfo.entityLength));
 			} else {
 				fileSize.setVisible(false);
 			}
@@ -287,7 +289,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 				} else {
 					Notification.show(MessageFormat.format(TusMultiUploadLayout.this.fileMinCountErrorMessagePattern, TusMultiUploadLayout.this.minFileCount), Type.ERROR_MESSAGE);
 				}
-				if (canDelete) {
+				if (canDelete || fileInfo.isQueued()) {
 					TusMultiUploadLayout.this.files.remove(this.fileInfo);
 					TusMultiUploadLayout.this.fileListLayout.removeComponent(this);
 					TusMultiUploadLayout.this.refreshFilesInfos();
@@ -318,10 +320,10 @@ public class TusMultiUploadLayout extends VerticalLayout {
 				this.addStyleName("tusmultiuploadlayout-filelistcomponent-compact");
 				
 			} else {
-				thumb.setWidth(30, Unit.PIXELS);
+				/*thumb.setWidth(30, Unit.PIXELS);
 				filename.setWidth(150, Unit.PIXELS);
 				mimeType.setWidth(80, Unit.PIXELS);
-				fileSize.setWidth(80, Unit.PIXELS);
+				fileSize.setWidth(80, Unit.PIXELS);*/
 				this.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 				this.addComponents(thumb, filename, mimeType, fileSize, progressWrapper, action);
 				this.setExpandRatio(progressWrapper, 1f);
@@ -503,10 +505,5 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		
 	}
 	
-	public static String readableFileSize(long size) {
-	    if(size <= 0) return "0";
-	    final String[] units = new String[] { "B", "kB", "MB", "GB", "TB" };
-	    int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
-	    return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
-	}
+	
 }

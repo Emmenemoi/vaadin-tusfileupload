@@ -15049,3 +15049,91 @@ div.v-layout.v-horizontal.v-widget {
 	width: 19px;
 	overflow: hidden;
 }
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent .thumb {
+	width: 30px;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent .filename {
+	width: 150px;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent .filesize {
+	width: 80px;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent .filetype {
+	width: 80px;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent-compact {
+	width: 80px;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent-compact.falied .tusmultiuploadlayout-filelistcomponent-compact-thumbwrapper {
+	border: 1px solid #E34A4C;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent-compact .tusmultiuploadlayout-filelistcomponent-compact-thumbwrapper {
+	position: relative;
+	width: 80px;
+	height: 80px;
+	border: 1px solid #E3E3E3;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent-compact .tusmultiuploadlayout-filelistcomponent-compact-thumbwrapper > .v-caption {
+	font-size: 40px;
+	text-align: center;
+	width: 100%;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent-compact .tusmultiuploadlayout-filelistcomponent-compact-thumbwrapper .progress-wrapper {
+	position: absolute;
+	top: 50%;
+	left: 0px;
+	width: 80px;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent-compact .tusmultiuploadlayout-filelistcomponent-compact-thumbwrapper img {
+	width: 80px;
+	height: 80px;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent-compact .tusmultiuploadlayout-filelistcomponent-compact-thumbwrapper .v-button {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	border: 0;
+	box-shadow: none;
+	padding: 0px;
+	height: 25px;
+	width: 25px;
+	text-align: center;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent-compact .tusmultiuploadlayout-filelistcomponent-compact-thumbwrapper .v-label {
+	text-align: center;
+	background: rgba(255, 255, 255, 0.5);
+	font-size: 0.8em;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent-compact .tusmultiuploadlayout-filelistcomponent-compact-thumbwrapper .v-label.filesize {
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+	height: 20px;
+	width: 80px;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent-compact .v-slot-tusmultiuploadlayout-filelistcomponent-compact-thumbwrapper > .v-spacing {
+	height: 12px;
+}
+
+.tusfileupload_addon_demo .tusmultiuploadlayout-filelistcomponent-compact .v-label.filename {
+	font-size: 0.6em;
+}
+
+.tusfileupload_addon_demo .v-slot-tusmultiuploadlayout-filelistcomponent-compact {
+	float: left;
+	padding: 5px;
+}

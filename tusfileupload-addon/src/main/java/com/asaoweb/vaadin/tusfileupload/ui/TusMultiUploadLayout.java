@@ -45,9 +45,11 @@ import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.dnd.DragSourceExtension;
 import com.vaadin.ui.dnd.DropTargetExtension;
 
@@ -76,11 +78,14 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	protected final List<FileInfo> files;
 	
 	protected AbstractOrderedLayout fileListLayout;
-	protected boolean allowReorder = false;
-	protected boolean compactLayout = false;
+	protected boolean 	allowReorder = false;
+	protected boolean 	reverseOrder = false;
+	protected boolean 	compactLayout = false;
 	protected FileInfoThumbProvider provider;
-	protected String infoLabelMessagePattern = "{0,,filenb} uploaded files / {2,,totalSize} (+{1,,queueSize} queued)";
-	protected boolean shouldCancelDeleteEvent = false;
+	protected String 	infoLabelMessagePattern = "{0,,filenb} uploaded files / {2,,totalSize} (+{1,,queueSize} queued)";
+	protected String	fileMinCountErrorMessagePattern = "Can't delete any file: {0,,minCount} files must be attached. Upload new files first.";
+	protected boolean 	allowDelete = true;
+	protected int		minFileCount = 0;
 	
 	public TusMultiUploadLayout() throws ConfigError {
 		this(null, new Config(), new ArrayList<FileInfo>(), null, false);
@@ -108,7 +113,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 
 		files = existingFiles;
 		uploadButton.addFileQueuedListener(e -> {
-			fileListLayout.addComponent(new FileListComponent(e.getFileInfo(), uploadButton));
+			addFileInfoItem(e.getFileInfo());
 			refreshFilesInfos();
 		});
 		
@@ -151,7 +156,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		}
 		
 		fileListLayout.removeAllComponents();
-		files.forEach(f -> fileListLayout.addComponent(new FileListComponent(f, uploadButton)));
+		files.forEach(this::addFileInfoItem);
 		refreshFilesInfos();
 	}
 	
@@ -163,6 +168,14 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		infoLabel.setValue( MessageFormat.format(infoLabelMessagePattern, fileNB, queueNB, this.readableFileSize(totalUploadedSize) ));
 	}	
 	
+	private void addFileInfoItem(FileInfo fi) {
+		if (reverseOrder) {
+			fileListLayout.addComponentAsFirst(new FileListComponent(fi, uploadButton));
+		} else {
+			fileListLayout.addComponent(new FileListComponent(fi, uploadButton));
+		}
+	}
+	
 	/**
 	 * Default: "{0,,filenb} uploaded files / {2,,totalSize} (+{1,,queueSize} queued)"
 	 * 
@@ -170,6 +183,17 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	 */
 	public void setInfoPanelMessagePattern(String pattern) {
 		infoLabelMessagePattern = pattern;
+	}
+	
+	public void setFileMinCountErrorMessagePattern(String pattern) {
+		fileMinCountErrorMessagePattern = pattern;
+	}
+	
+	public void setMinFileCount(int minFileCount) {
+		this.minFileCount = minFileCount;
+		if (fileListLayout != null && fileListLayout.isAttached()) {
+			refreshFileList();
+		}
 	}
 	
 	public void setChunkSize(long chunkSize) {
@@ -198,8 +222,22 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		}
 	}
 	
-	public void shouldCancelNextDeleteEvent() {
-		shouldCancelDeleteEvent = true;
+	/**
+	 * Display file list in reverse order (last as first component)
+	 * 
+	 */
+	public void setReverseOrder(boolean reverseOrder) {
+		this.reverseOrder = reverseOrder;
+		if (fileListLayout != null && fileListLayout.isAttached()) {
+			refreshFileList();
+		}
+	}
+	
+	public void setAllowDelete(boolean allowDelete) {
+		this.allowDelete = allowDelete;
+		if (fileListLayout != null && fileListLayout.isAttached()) {
+			refreshFileList();
+		}
 	}
 	
 	protected class FileListComponent extends HorizontalLayout implements FailedListener, ProgressListener, SucceededListener, StartedListener {
@@ -240,16 +278,19 @@ public class TusMultiUploadLayout extends VerticalLayout {
 			progressWrapper.setMargin(false);
 			progressWrapper.addStyleName("progress-wrappe");
 			
-			//action.setWidth(30, Unit.PIXELS);
 			action.addClickListener((e) -> {
+				boolean canDelete = TusMultiUploadLayout.this.minFileCount <= TusMultiUploadLayout.this.files.size() - 1;
 				if (fileInfo.isQueued()) {
 					uploadButton.removeFromQueue(this.fileInfo.queueId);
-				} else {
+				} else if ( canDelete ) {
 					TusMultiUploadLayout.this.fireEvent(new FileDeletedClickEvent(this, this.fileInfo));
+				} else {
+					Notification.show(MessageFormat.format(TusMultiUploadLayout.this.fileMinCountErrorMessagePattern, TusMultiUploadLayout.this.minFileCount), Type.ERROR_MESSAGE);
 				}
-				if (!shouldCancelDeleteEvent) {
+				if (canDelete) {
 					TusMultiUploadLayout.this.files.remove(this.fileInfo);
 					TusMultiUploadLayout.this.fileListLayout.removeComponent(this);
+					TusMultiUploadLayout.this.refreshFilesInfos();
 				}
 			});
 			
@@ -323,7 +364,13 @@ public class TusMultiUploadLayout extends VerticalLayout {
 					    	} else {
 					    		TusMultiUploadLayout.this.fileListLayout.addComponent(sourceFlc, targetIndex);					    		
 					    	}
-					    	TusMultiUploadLayout.this.fireEvent(new FileIndexMovedEvent(this, sourceFlc.getFileInfo(), currentIndex, targetIndex));
+					    	
+					    	if (reverseOrder) {
+					    		int maxIndex = TusMultiUploadLayout.this.fileListLayout.getComponentCount() - 1;
+						    	TusMultiUploadLayout.this.fireEvent(new FileIndexMovedEvent(this, sourceFlc.getFileInfo(), maxIndex - currentIndex, maxIndex - targetIndex));
+					    	} else {
+					    		TusMultiUploadLayout.this.fireEvent(new FileIndexMovedEvent(this, sourceFlc.getFileInfo(), currentIndex, targetIndex));
+					    	}
 					    }
 					});
 				}
@@ -373,6 +420,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 				this.addStyleName("ui-finished");
 				action.setIcon(VaadinIcons.TRASH);
 				progress.setVisible(false);
+				action.setVisible(TusMultiUploadLayout.this.allowDelete);
 			}
 			
 			Resource thumbRsc;

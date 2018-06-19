@@ -4,7 +4,7 @@ import com.vaadin.shared.ui.JavaScriptComponentState;
 
 public class TusMultiuploadState extends JavaScriptComponentState {
 	//public TusMultiuploadTusConfig config;
-	public boolean debug = true;
+	public boolean debug = false;
 	public boolean clientSideProgress = true;
 	
 	public String 	endpoint;
@@ -14,6 +14,7 @@ public class TusMultiuploadState extends JavaScriptComponentState {
 	// retries 11 times each time waiting the respective ms
 	public int[]	retryDelays = { 2000, 4000, 10000, 10000, 10000, 10000, 10000, 10000, 20000, 20000, 30000 };
 	public boolean  removeFingerprintOnSuccess = true;
+	public boolean  retryOnNetworkLoss = false;
 	public boolean  withCredentials = false;
 	
 	public boolean 	rebuild = false;

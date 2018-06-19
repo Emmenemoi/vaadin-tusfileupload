@@ -48,7 +48,7 @@ import elemental.json.JsonObject;
 
 
 @SuppressWarnings("serial")
-@JavaScript(value = {"//rawgit.com/tus/tus-js-client/v1.5.1/dist/tus.js", "vaadin://addons/tusfileupload/tusmultiupload-connector.js"})
+@JavaScript(value = {"//rawgit.com/Emmenemoi/tus-js-client/master/dist/tus.js", "vaadin://addons/tusfileupload/tusmultiupload-connector.js"})
 public class TusMultiUpload extends AbstractJavaScriptComponent {
 	  private final static Method SUCCEEDED_METHOD;
 	  private final static Method STARTED_METHOD;
@@ -494,6 +494,14 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 		  return getState().multiple;
 	  }
 	  
+	  public void setClientSideDebug(boolean clientSideDebug) {
+		  getState().debug = clientSideDebug;
+	  }
+	  
+	  public void setRetryOnNetworkLoss(boolean retryOnNetworkLoss) {
+		  getState().retryOnNetworkLoss = retryOnNetworkLoss;
+	  }
+	  
 	  public void abortAll() {
 		  clientRpc.abortAllUploads();
 	  }
@@ -614,7 +622,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 			for (int i=0; i < fileArray.length() ; i++) {
 				JsonObject o = (JsonObject)fileArray.get(i);
 				String filename = o.getString("filename");
-				String filesize = o.getString("filesize");
+				Long filesize = (long) o.getNumber("filesize");
 				fileList.add(filename+" ("+filesize+")");
 			}
 			Notification.show(MessageFormat.format(fileSizeErrorMessagePattern, TusMultiUpload.this.getMaxFileSize(), String.join(", ", fileList)), Type.ERROR_MESSAGE);			

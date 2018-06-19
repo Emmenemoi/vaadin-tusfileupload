@@ -74,6 +74,7 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
         console_log('Dumping shared state information....');
         console_log('ClientSideProgress: ' + s.clientSideProgress);
         console_log('Debug: ' + s.debug);
+        console_log('Rebuild: ' + s.rebuild);
 
         console_log('Endpoint: ' + s.endpoint);
         console_log('Fingerprint: ' + s.fingerprint);
@@ -81,6 +82,7 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
         console_log('chunkSize: ' + s.chunkSize);
         console_log('retryDelays: ' + s.retryDelays);
         console_log('removeFingerprintOnSuccess: ' + s.removeFingerprintOnSuccess);
+        console_log('retryOnNetworkLoss: ' + s.retryOnNetworkLoss);
         console_log('withCredentials: ' + s.withCredentials);
         
         console_log('ownerId: ' + s.chunkSize);
@@ -88,6 +90,8 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
         console_log('mimeAccept: ' + s.mimeAccept);
         console_log('multiple: ' + s.multiple);
         console_log('maxFileSize: ' + s.maxFileSize);
+        console_log('maxFileCount: ' + s.maxFileCount);
+        console_log('remainingQueueSeats: ' + s.remainingQueueSeats);
         
     }
     
@@ -174,7 +178,7 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
         fileInputQueueIgnored = [];
     	for (i = 0; i < files.length; i++) {
     		var queueId = "queue-"+now+"-"+i;
-    		if (s.maxFileSize > 0 && s.remainingQueueSeats < files[i].size ) {
+    		if (s.maxFileSize > 0 && s.maxFileSize < files[i].size ) {
     			fileInputQueueIgnored.push({filename: files[i].name, filesize: files[i].size});
         	} else {
         		fileInputQueue.push({id: queueId, file: files[i]});
@@ -195,8 +199,10 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
         
     	uploader = new tus.Upload(fileQueue.file, {
 	        endpoint: this.translateVaadinUri(s.endpoint),
+	        fingerprint: s.fingerprint,
 	        resume: s.resume,
 	        retryDelays: s.retryDelays,
+	        retryOnNetworkLoss: s.retryOnNetworkLoss,
 	        chunkSize: s.chunkSize <= 0 ? Infinity : s.chunkSize,
 	        removeFingerprintOnSuccess: s.removeFingerprintOnSuccess,
 	        withCredentials: s.withCredentials,
@@ -209,7 +215,11 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
 	            console_log("Failed because: " + error);
 	            isUploading = false;
 	            lastProgressRpc = 0;
-	            rpcProxy.onError( this.metadata.queueId, this.metadata.filename, this.metadata.filetype, error);
+	            try {
+		            rpcProxy.onError( this.metadata.queueId, this.metadata.filename, this.metadata.filetype, error);
+            	} catch(error) {
+            		console_log("RPC Failed because: " + error);
+            	}
 	        },
 	        onProgress: function(bytesUploaded, bytesTotal) {
 	        	if (s.clientSideProgress) {
@@ -219,7 +229,11 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
 			            console_log("onProgress "+bytesUploaded +"/"+ bytesTotal +": "+ percentage + "%");
 			            isUploading = true;
 			            lastProgressRpc = now;
-			            rpcProxy.onProgress( this.metadata.queueId, this.metadata.filename, bytesUploaded, bytesTotal);
+			            try {
+				            rpcProxy.onProgress( this.metadata.queueId, this.metadata.filename, bytesUploaded, bytesTotal);
+		            	} catch(error) {
+		            		console_log("RPC Failed because: " + error);
+		            	}
 		            }
 	        	}
 	        },
@@ -227,7 +241,11 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
 	            console_log("Upload success "+ this.metadata.filename +" to "+ this.endpoint);
 	            isUploading = false;
 	            lastProgressRpc = 0;
-	            rpcProxy.onFileUploaded( this.metadata.queueId, this.metadata.filename, this.metadata.filetype);
+	            try {
+		            rpcProxy.onFileUploaded( this.metadata.queueId, this.metadata.filename, this.metadata.filetype);
+            	} catch(error) {
+            		console_log("RPC Failed because: " + error);
+            	}
 	            /* continue queue */
 	            var nextElement = fileInputQueue.shift();
 	            if( nextElement ) {
@@ -246,7 +264,7 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
      * @returns {undefined}
      */
     this.onUnregister = function() {
-      if (uploader) {
+      if (uploader && !isUploading) {
         console_log("Stopping and cleaning up component.");
 
         try {
@@ -257,6 +275,8 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
         }
 
         uploader = null;
+      } else {
+          console_log("Can't stop and clean up component: isUploading="+isUploading); 
       }
     };
     
@@ -273,20 +293,21 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
         
         console_log("State change!");
 
-        if (!uploader || s.rebuild) {
+        if ( !uploader || s.rebuild) {
           console_log("Building component for connector " + connectorId);
 
           // Cleanup the current uploader if there is one.
-          uploader = null;
+          // uploader = null; // not needed: recreated for each file upload
           e.innerHTML = "";
 
           try {
             // Build the new uploader.
             this._buildButtons(s);
-          }
-          catch (ex) {
+          } catch (ex) {
             console_log(ex);
           }
+        } else {
+            console_log("State changed without rebuild for connector " + connectorId);
         }
       };
     

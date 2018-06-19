@@ -276,7 +276,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 			VerticalLayout progressWrapper = new VerticalLayout(errorMessage, progress);
 			progressWrapper.setWidth("100%");
 			progressWrapper.setMargin(false);
-			progressWrapper.addStyleName("progress-wrappe");
+			progressWrapper.addStyleName("progress-wrapper");
 			
 			action.addClickListener((e) -> {
 				boolean canDelete = TusMultiUploadLayout.this.minFileCount <= TusMultiUploadLayout.this.files.size() - 1;
@@ -415,6 +415,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 			
 			if (fileInfo.isQueued()) {
 				this.addStyleName("ui-queued");
+				progress.setVisible(true);
 				action.setIcon(VaadinIcons.CLOSE);
 			} else if (fileInfo.isFinished()) {
 				this.addStyleName("ui-finished");

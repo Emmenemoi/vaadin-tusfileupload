@@ -311,6 +311,17 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
         }
       };
     
+      
+      /**
+       * Submits the upload if there is a file selected.
+       * 
+       * @returns {undefined}
+       */
+      this.inputClick = function() {
+          console_log("Server side input Click."); 
+          if (fileInput) fileInput.click();
+      };
+      
     /**
      * Submits the upload if there is a file selected.
      * 

@@ -118,6 +118,8 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
       e.appendChild(container);
 
       fileInput = document.createElement("input");
+      fileInput.setAttribute("id", "tusmultiupload_input_" + connectorId);
+      fileInput.setAttribute("name", "tusmultiupload_input_" + connectorId);
       fileInput.setAttribute("type", "file");
       fileInput.setAttribute("accept", state.mimeAccept);
       fileInput.setAttribute("multiple", state.multiple);
@@ -135,9 +137,9 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
       browseBtn.root.className = BROWSE_BUTTON_CLASSNAME;
       browseBtn.caption.innerHTML = BROWSE_BUTTON_CAPTION;
       browseBtn.root.enabled = true;
-      browseBtn.root.onclick = function() { 
+      /*browseBtn.root.onclick = function() { 
     	  fileInput.click(); 
-      };
+      };*/
       container.appendChild(browseBtn.root);
 
       if (state.buttonCaption) {
@@ -148,8 +150,9 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
         
     this._createPseudoVaadinButton = function() {
 
-        var btn = document.createElement("div");
+        var btn = document.createElement("label");
         btn.setAttribute("role", "button");
+        btn.setAttribute("for", "tusmultiupload_input_" + connectorId);
         btn.className = BUTTON_CLASSNAME;
 
         var btnWrap = document.createElement("span");
@@ -319,7 +322,7 @@ com_asaoweb_vaadin_tusfileupload_component_TusMultiUpload = function () {
        */
       this.inputClick = function() {
           console_log("Server side input Click."); 
-          if (fileInput) fileInput.click();
+          if (fileInput) fileInput.click(); 
       };
       
     /**

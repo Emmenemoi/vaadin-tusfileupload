@@ -159,13 +159,17 @@ public class MyUI extends UI {
 
 	        Button refreshBtn = new Button("Refresh list");
 	        refreshBtn.addClickListener(e -> mfUpload.refreshFileList());
+	        
+	        Button sendBtn = new Button("Native Vaadin select files Button");
+	        sendBtn.addClickListener(e -> Notification.show("Doesn't work yet"));
+	        
 	        CheckBox compactChk = new CheckBox("CompactLayout", false);
 	        compactChk.addValueChangeListener(e-> {
 	        	mfUpload.setCompactLayout(e.getValue());
 	        	mfUpload.refreshFileList();
 	        });
 	        
-	        layout.addComponents(image, tf, mfUpload, refreshBtn, compactChk);
+	        layout.addComponents(image, tf, mfUpload, refreshBtn, sendBtn, compactChk);
 		} catch (ConfigError e) {
 			e.printStackTrace();
 		}   

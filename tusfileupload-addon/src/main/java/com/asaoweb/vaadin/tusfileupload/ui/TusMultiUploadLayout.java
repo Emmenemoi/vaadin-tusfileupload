@@ -252,6 +252,8 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		protected final Label fileSize = new Label();
 		protected final Label errorMessage = new Label();
 		protected final ProgressBar progress = new ProgressBar();
+		protected final Label progressInfos = new Label();
+		protected final HorizontalLayout progressBarWrapper = new HorizontalLayout();
 		protected final Button action = new Button();
 		
 		protected Registration rFailed, rStarted, rProgress, rSucceeded;
@@ -272,10 +274,14 @@ public class TusMultiUploadLayout extends VerticalLayout {
 			}
 			fileSize.addStyleName("filesize");
 			progress.setWidth("100%");
-			progress.setVisible(false);
 			errorMessage.setVisible(false);
 			errorMessage.setWidth("100%");
-			VerticalLayout progressWrapper = new VerticalLayout(errorMessage, progress);
+			progressBarWrapper.addComponents(progress, progressInfos);
+			progressBarWrapper.setVisible(false);
+			progressBarWrapper.setWidth("100%");
+			progressBarWrapper.setExpandRatio(progress, 1.0f);
+			
+			VerticalLayout progressWrapper = new VerticalLayout(errorMessage, progressBarWrapper);
 			progressWrapper.setWidth("100%");
 			progressWrapper.setMargin(false);
 			progressWrapper.addStyleName("progress-wrapper");
@@ -325,8 +331,13 @@ public class TusMultiUploadLayout extends VerticalLayout {
 				mimeType.setWidth(80, Unit.PIXELS);
 				fileSize.setWidth(80, Unit.PIXELS);*/
 				this.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
-				this.addComponents(thumb, filename, mimeType, fileSize, progressWrapper, action);
-				this.setExpandRatio(progressWrapper, 1f);
+				VerticalLayout vLayout = new VerticalLayout();
+				vLayout.setWidth("100%");
+				HorizontalLayout infosLine = new HorizontalLayout(thumb, filename, mimeType, fileSize, action);
+				infosLine.setWidth("100%");
+				infosLine.setExpandRatio(filename, 1f);
+				vLayout.addComponents(infosLine, progressWrapper);
+				this.addComponents(vLayout);
 				this.setWidth("100%");
 				this.addStyleName("tusmultiuploadlayout-filelistcomponent");
 			}
@@ -417,12 +428,12 @@ public class TusMultiUploadLayout extends VerticalLayout {
 			
 			if (fileInfo.isQueued()) {
 				this.addStyleName("ui-queued");
-				progress.setVisible(true);
+				progressBarWrapper.setVisible(true);
 				action.setIcon(VaadinIcons.CLOSE);
 			} else if (fileInfo.isFinished()) {
 				this.addStyleName("ui-finished");
 				action.setIcon(VaadinIcons.TRASH);
-				progress.setVisible(false);
+				progressBarWrapper.setVisible(false);
 				action.setVisible(TusMultiUploadLayout.this.allowDelete);
 			}
 			
@@ -443,8 +454,10 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		public void setProgress(long value, long total) {
 			fileInfo.offset = value;
 			progress.setValue( (float)value/(float)total);
+			int pct = (int) ((float)value/(float)total);
+			progressInfos.setValue(TusMultiUpload.readableFileSize(value)+" / "+TusMultiUpload.readableFileSize(total)+" ("+pct+"%)");
 			errorMessage.setVisible(false);
-			progress.setVisible(true);
+			progressBarWrapper.setVisible(true);
 			if (progress.getValue() == 1) {
 				update();
 			}
@@ -452,7 +465,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		
 		public void setError(String message) {
 			errorMessage.setVisible(false);
-			progress.setVisible(false);
+			progressBarWrapper.setVisible(false);
 			errorMessage.setValue(message);
 			this.addStyleName(FAILED_STYLE);
 		}

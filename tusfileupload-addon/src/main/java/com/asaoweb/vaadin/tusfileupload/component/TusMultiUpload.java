@@ -163,10 +163,11 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 
 	    super.detach();
 	  }
-	  
+	  /**
+	   * DOES NOT WORK
 	  public void click() {
 		  clientRpc.inputClick();
-	  }
+	  }*/
 	  
 	  /**
 	   * Installs the {@link TUSFileUploadHandler} into the session if it is not

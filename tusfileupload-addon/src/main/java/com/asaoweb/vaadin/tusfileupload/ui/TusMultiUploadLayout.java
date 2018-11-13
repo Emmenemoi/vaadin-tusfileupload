@@ -210,6 +210,10 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	
 	public void allowReorder(boolean allowReorder) {
 		this.allowReorder = allowReorder;
+		if (allowReorder) {
+		    // loads external polyfill: https://vaadin.com/docs/v8/framework/advanced/advanced-dragndrop.html
+            getUI().setMobileHtml5DndEnabled(true);
+        }
 		if (fileListLayout != null && fileListLayout.isAttached()) {
 			refreshFileList();
 		}
@@ -252,8 +256,9 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		protected final Label fileSize = new Label();
 		protected final Label errorMessage = new Label();
 		protected final ProgressBar progress = new ProgressBar();
+		protected final VerticalLayout statusWrapper;
 		protected final Label progressInfos = new Label();
-		protected final HorizontalLayout progressBarWrapper = new HorizontalLayout();
+		protected final AbstractOrderedLayout progressBarWrapper;
 		protected final Button action = new Button();
 		
 		protected Registration rFailed, rStarted, rProgress, rSucceeded;
@@ -274,17 +279,23 @@ public class TusMultiUploadLayout extends VerticalLayout {
 			}
 			fileSize.addStyleName("filesize");
 			progress.setWidth("100%");
+			progress.setStyleName("progress-bar");
 			errorMessage.setVisible(false);
 			errorMessage.setWidth("100%");
+			progressInfos.addStyleName("progress-infos");
+
+            progressBarWrapper = TusMultiUploadLayout.this.compactLayout ? new VerticalLayout() : new HorizontalLayout();
 			progressBarWrapper.addComponents(progress, progressInfos);
 			progressBarWrapper.setVisible(false);
+            progressBarWrapper.setMargin(false);
+            progressBarWrapper.setSpacing(false);
 			progressBarWrapper.setWidth("100%");
 			progressBarWrapper.setExpandRatio(progress, 1.0f);
-			
-			VerticalLayout progressWrapper = new VerticalLayout(errorMessage, progressBarWrapper);
-			progressWrapper.setWidth("100%");
-			progressWrapper.setMargin(false);
-			progressWrapper.addStyleName("progress-wrapper");
+
+			statusWrapper = new VerticalLayout(errorMessage, progressBarWrapper);
+			statusWrapper.setWidth("100%");
+			statusWrapper.setMargin(false);
+			statusWrapper.addStyleName("progress-wrapper");
 			
 			action.addClickListener((e) -> {
 				boolean canDelete = TusMultiUploadLayout.this.minFileCount <= TusMultiUploadLayout.this.files.size() - 1;
@@ -304,15 +315,16 @@ public class TusMultiUploadLayout extends VerticalLayout {
 			
 			if (TusMultiUploadLayout.this.compactLayout) {
 				VerticalLayout compactWrapper = new VerticalLayout();
-				compactWrapper.addStyleName("tusmultiuploadlayout-filelistcomponent-compact-wrapper");
+                compactWrapper.setMargin(false);
+                compactWrapper.addStyleName("tusmultiuploadlayout-filelistcomponent-compact-wrapper");
 				CssLayout thumbWrapper = new CssLayout();
 				thumbWrapper.addStyleName("tusmultiuploadlayout-filelistcomponent-compact-thumbwrapper");
 				thumbWrapper.addComponent(thumb);
 				thumbWrapper.addComponent(action);
-				thumbWrapper.addComponent(progressWrapper);
+				thumbWrapper.addComponent(statusWrapper);
 				thumbWrapper.addComponent( fileSize);
 				fileSize.setWidth("100%");
-				progressWrapper.setWidth("100%");
+				statusWrapper.setWidth("100%");
 				
 				thumb.setSizeFull();				
 				filename.setWidth("100%");
@@ -320,7 +332,6 @@ public class TusMultiUploadLayout extends VerticalLayout {
 				//action.setHeight("auto");
 
 				compactWrapper.addComponents(thumbWrapper, filename);
-				compactWrapper.setMargin(false);
 				//this.setHeight(compactSize+20, Unit.PIXELS);
 				this.addComponents(compactWrapper);
 				this.addStyleName("tusmultiuploadlayout-filelistcomponent-compact");
@@ -332,12 +343,14 @@ public class TusMultiUploadLayout extends VerticalLayout {
 				fileSize.setWidth(80, Unit.PIXELS);*/
 				this.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
 				VerticalLayout vLayout = new VerticalLayout();
-				vLayout.setWidth("100%");
+                vLayout.setMargin(false);
+                vLayout.setWidth("100%");
 				HorizontalLayout infosLine = new HorizontalLayout(thumb, filename, mimeType, fileSize, action);
 				infosLine.setWidth("100%");
 				infosLine.setExpandRatio(filename, 1f);
-				vLayout.addComponents(infosLine, progressWrapper);
+				vLayout.addComponents(infosLine, statusWrapper);
 				this.addComponents(vLayout);
+				this.setExpandRatio(vLayout, 1.0f);
 				this.setWidth("100%");
 				this.addStyleName("tusmultiuploadlayout-filelistcomponent");
 			}
@@ -436,7 +449,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 				progressBarWrapper.setVisible(false);
 				action.setVisible(TusMultiUploadLayout.this.allowDelete);
 			}
-			
+			statusWrapper.setVisible(progressBarWrapper.isVisible() || errorMessage.isVisible());
 			Resource thumbRsc;
 			
 			if ( provider != null && (thumbRsc = provider.getThumb(fileInfo)) != null ) {
@@ -454,11 +467,16 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		public void setProgress(long value, long total) {
 			fileInfo.offset = value;
 			progress.setValue( (float)value/(float)total);
-			int pct = (int) ((float)value/(float)total);
-			progressInfos.setValue(TusMultiUpload.readableFileSize(value)+" / "+TusMultiUpload.readableFileSize(total)+" ("+pct+"%)");
+			int pct = (int) ((float)value/(float)total * 100);
+			if (TusMultiUploadLayout.this.compactLayout) {
+                progressInfos.setValue(TusMultiUpload.readableFileSize(value) + "/" + pct + "%");
+            } else {
+                progressInfos.setValue(TusMultiUpload.readableFileSize(value) + " / " + TusMultiUpload.readableFileSize(total) + " (" + pct + "%)");
+            }
 			errorMessage.setVisible(false);
 			progressBarWrapper.setVisible(true);
-			if (progress.getValue() == 1) {
+			statusWrapper.setVisible(true);
+			if (progress.getValue() >= 1) {
 				update();
 			}
 		}
@@ -466,6 +484,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		public void setError(String message) {
 			errorMessage.setVisible(false);
 			progressBarWrapper.setVisible(false);
+			statusWrapper.setVisible(true);
 			errorMessage.setValue(message);
 			this.addStyleName(FAILED_STYLE);
 		}

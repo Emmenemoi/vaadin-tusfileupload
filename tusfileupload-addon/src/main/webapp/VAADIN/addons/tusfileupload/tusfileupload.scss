@@ -9,11 +9,12 @@
 		.filename { width: 150px; }
 		.filesize { width: 80px; }
 		.filetype { width: 80px; }
+		.progress-infos { min-width: 180px;}
 	}
 	
 	.tusmultiuploadlayout-filelistcomponent-compact {
 		width: $tusfileupload-compact-size;
-		&.falied {
+		&.failed {
 			.tusmultiuploadlayout-filelistcomponent-compact-thumbwrapper {
 				border: 1px solid #E34A4C;
 			}
@@ -33,8 +34,16 @@
 			
 			.progress-wrapper {
 				position: absolute;
-				top: 50%; left:0px;
+				top: 30%; left:0px; right:0px;
 				width: $tusfileupload-compact-size;
+
+                .v-slot-progress-bar {
+                  height: round($v-unit-size/4);
+                }
+
+                .progress-infos {
+                  width: 100%;
+                }
 			}
 			
 			img {
@@ -57,7 +66,7 @@
 			
 			.v-label {
 				text-align: center;
-				background: rgba(255, 255, 255, 0.5);
+				background: rgba(255, 255, 255, 0.8);
 				font-size: 0.8em;
 				
 				&.filesize {
@@ -76,6 +85,8 @@
 			
 		.v-label.filename {
 			font-size: 0.6em;
+			width: $tusfileupload-compact-size;
+			white-space: normal;
 		}
 	}
 	

@@ -179,6 +179,11 @@ public class TusMultiUploadLayout extends VerticalLayout {
 			fileListLayout.addComponent(new FileListComponent(fi, uploadButton));
 		}
 	}
+
+	public void cancelSucceededEvent(SucceededEvent event) {
+	    this.files.removeIf(f -> f.id != null && f.id.equals(event.getId()) );
+	    refreshFileList();
+    }
 	
 	/**
 	 * Default: "{0,,filenb} uploaded files / {2,,totalSize} (+{1,,queueSize} queued)"

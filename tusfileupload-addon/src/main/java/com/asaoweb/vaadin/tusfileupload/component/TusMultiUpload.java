@@ -158,9 +158,12 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 
 	  @Override
 	  public void detach() {
-	    // Cleanup our stream variable.
-	    getUI().getConnectorTracker().cleanStreamVariable(getConnectorId(),"tusmultiupload");
-
+	  	try {
+			// Cleanup our stream variable.
+			getUI().getConnectorTracker().cleanStreamVariable(getConnectorId(), "tusmultiupload");
+		} catch (Exception e) {
+	  		logger.error("Error cleaning the streaming variable for connector {}:", getConnectorId(), e);
+		}
 	    super.detach();
 	  }
 	  /**

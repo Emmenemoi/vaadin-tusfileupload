@@ -86,6 +86,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	protected String	fileMinCountErrorMessagePattern = "Can't delete any file: {0,,minCount} files must be attached. Upload new files first.";
 	protected boolean 	allowDelete = true;
 	protected int		minFileCount = 0;
+	protected boolean   cachedHTML5DnD = false;
 	
 	public TusMultiUploadLayout() throws ConfigError {
 		this(null, new Config(), new ArrayList<FileInfo>(), null, false);
@@ -98,7 +99,6 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		super();
 		uploadButton = new TusMultiUpload(buttonCaption, config);
 		infoLabel = new Label();
-		
 		listPanel = new Panel();
 		listPanel.setSizeFull();
 		HorizontalLayout infobar = new HorizontalLayout(uploadButton, infoLabel);
@@ -116,7 +116,6 @@ public class TusMultiUploadLayout extends VerticalLayout {
 			addFileInfoItem(e.getFileInfo());
 			refreshFilesInfos();
 		});
-		
 		setThumbProvider(provider);
 		allowReorder(allowReorder);
 				
@@ -126,11 +125,20 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	public void attach() {
 		refreshFileList();
 		super.attach();
-        /*if (allowReorder && getUI() != null) {
+        if (allowReorder && getUI() != null) {
+            cachedHTML5DnD = getUI().isMobileHtml5DndEnabled();
             // loads external polyfill: https://vaadin.com/docs/v8/framework/advanced/advanced-dragndrop.html
             getUI().setMobileHtml5DndEnabled(true);
-        }*/
+        }
 	}
+
+    @Override
+    public void detach() {
+	    super.detach();
+        if (allowReorder && getUI() != null) {
+            getUI().setMobileHtml5DndEnabled(cachedHTML5DnD);
+        }
+    }
 	
 	public void setThumbProvider(FileInfoThumbProvider provider) {
 		this.provider = provider;

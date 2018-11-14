@@ -126,10 +126,10 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	public void attach() {
 		refreshFileList();
 		super.attach();
-        if (allowReorder && getUI() != null) {
+        /*if (allowReorder && getUI() != null) {
             // loads external polyfill: https://vaadin.com/docs/v8/framework/advanced/advanced-dragndrop.html
             getUI().setMobileHtml5DndEnabled(true);
-        }
+        }*/
 	}
 	
 	public void setThumbProvider(FileInfoThumbProvider provider) {

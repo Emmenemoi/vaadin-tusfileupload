@@ -128,6 +128,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
         if (allowReorder && getUI() != null) {
             cachedHTML5DnD = getUI().isMobileHtml5DndEnabled();
             // loads external polyfill: https://vaadin.com/docs/v8/framework/advanced/advanced-dragndrop.html
+            // Drag and Drop is mutually exclusive with context click on mobile devices
             getUI().setMobileHtml5DndEnabled(true);
         }
 	}

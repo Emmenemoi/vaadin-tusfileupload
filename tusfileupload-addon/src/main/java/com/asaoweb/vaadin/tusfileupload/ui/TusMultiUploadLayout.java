@@ -179,9 +179,28 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		uploadButton.setRemainingQueueSeats(uploadButton.getMaxFileCount()-fileNB);
 		long totalUploadedSize = files.stream().mapToLong(fi -> fi.entityLength).sum();
 		infoLabel.setValue( MessageFormat.format(infoLabelMessagePattern, fileNB, queueNB, TusMultiUpload.readableFileSize(totalUploadedSize) ));
-	}	
-	
-	private void addFileInfoItem(FileInfo fi) {
+	}
+
+    /**
+     * To replace with final files wrapper after upload succeeded
+     * @param originalFi
+     * @param newFi
+     */
+    public void replaceFileInfoItem(FileInfo originalFi, FileInfo newFi) {
+	    if (originalFi == null || newFi == null) {
+	        return;
+        }
+        fileListLayout.forEach( fl -> {
+            if (fl instanceof FileListComponent) {
+                FileListComponent flc = (FileListComponent) fl;
+                if (flc.fileInfo != null && flc.fileInfo.id != null && flc.fileInfo.id.equals(originalFi.id) ){
+                    flc.fileInfo = newFi;
+                }
+            }
+        });
+    }
+
+    private void addFileInfoItem(FileInfo fi) {
 		if (reverseOrder) {
 			fileListLayout.addComponentAsFirst(new FileListComponent(fi, uploadButton));
 		} else {
@@ -197,7 +216,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	/**
 	 * Default: "{0,,filenb} uploaded files / {2,,totalSize} (+{1,,queueSize} queued)"
 	 * 
-	 * @param String pattern used in MessageFormat.format
+	 * @param pattern used in MessageFormat.format
 	 */
 	public void setInfoPanelMessagePattern(String pattern) {
 		infoLabelMessagePattern = pattern;
@@ -261,9 +280,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	protected class FileListComponent extends HorizontalLayout implements FailedListener, ProgressListener, SucceededListener, StartedListener {
 		protected static final String PROGRESS_STYLE = "progress";
 		protected static final String FAILED_STYLE = "failed";
-				
-		protected final FileInfo fileInfo;
-		
+
 		protected final Image thumb = new Image();
 		protected final Label filename = new Label();
 		protected final Label mimeType = new Label();
@@ -274,8 +291,9 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		protected final Label progressInfos = new Label();
 		protected final AbstractOrderedLayout progressBarWrapper;
 		protected final Button action = new Button();
-		
-		protected Registration rFailed, rStarted, rProgress, rSucceeded;
+
+        protected FileInfo fileInfo;
+        protected Registration rFailed, rStarted, rProgress, rSucceeded;
 						
 		public FileListComponent(FileInfo fileInfo, TusMultiUpload uploader) {
 			super();
@@ -313,14 +331,14 @@ public class TusMultiUploadLayout extends VerticalLayout {
 			
 			action.addClickListener((e) -> {
 				boolean canDelete = TusMultiUploadLayout.this.minFileCount <= TusMultiUploadLayout.this.files.size() - 1;
-				if (fileInfo.isQueued()) {
+				if (this.fileInfo.isQueued()) {
 					uploadButton.removeFromQueue(this.fileInfo.queueId);
 				} else if ( canDelete ) {
 					TusMultiUploadLayout.this.fireEvent(new FileDeletedClickEvent(this, this.fileInfo));
 				} else {
 					Notification.show(MessageFormat.format(TusMultiUploadLayout.this.fileMinCountErrorMessagePattern, TusMultiUploadLayout.this.minFileCount), Type.ERROR_MESSAGE);
 				}
-				if (canDelete || fileInfo.isQueued()) {
+				if (canDelete || this.fileInfo.isQueued()) {
 					TusMultiUploadLayout.this.files.remove(this.fileInfo);
 					TusMultiUploadLayout.this.fileListLayout.removeComponent(this);
 					TusMultiUploadLayout.this.refreshFilesInfos();
@@ -521,11 +539,16 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		@Override
 		public void uploadSucceeded(SucceededEvent evt) {
 			if ( isEventOwner(evt) ) {
-				if ( evt.getId() != null && !evt.getId().isEmpty()) {
+			    logger.debug("uploadSucceeded for evt {}", evt);
+			    if (evt.getFinalFileInfo() != null) {
+			        fileInfo = evt.getFinalFileInfo();
+                } else if ( evt.getId() != null && !evt.getId().isEmpty()) {
 					fileInfo.id = evt.getId();
 					fileInfo.offset = evt.getFileInfo().offset;
 				}
-				TusMultiUploadLayout.this.files.add(this.fileInfo);
+				if (evt.shouldAddFileToList()) {
+                    TusMultiUploadLayout.this.files.add(this.fileInfo);
+                }
 				TusMultiUploadLayout.this.refreshFilesInfos();
 				update();
 				unregisterListeners();

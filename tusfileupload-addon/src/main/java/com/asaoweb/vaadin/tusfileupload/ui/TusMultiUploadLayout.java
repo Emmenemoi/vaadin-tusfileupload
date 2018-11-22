@@ -4,9 +4,11 @@ import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import com.vaadin.ui.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,20 +37,6 @@ import com.vaadin.shared.Registration;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.shared.ui.dnd.DropEffect;
 import com.vaadin.shared.ui.dnd.EffectAllowed;
-import com.vaadin.ui.AbsoluteLayout;
-import com.vaadin.ui.AbstractComponent;
-import com.vaadin.ui.AbstractLayout;
-import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Image;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Panel;
-import com.vaadin.ui.ProgressBar;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.dnd.DragSourceExtension;
 import com.vaadin.ui.dnd.DropTargetExtension;
@@ -198,6 +186,30 @@ public class TusMultiUploadLayout extends VerticalLayout {
                 }
             }
         });
+    }
+
+    public void removeFileInfoItem(FileInfo fi) {
+        if (fi.isUploading()) {
+            logger.info("Won't delete {}: is uploading. Wait finish.", fi);
+            return;
+        }
+        Iterator<Component> itr = this.fileListLayout.iterator();
+        List<Component> tbd = new ArrayList<>();
+        while ( itr.hasNext() ) {
+            Component c = itr.next();
+            if (c instanceof FileListComponent) {
+                FileListComponent flc = (FileListComponent) c;
+                if (flc.getFileInfo().equals(fi)) {
+                    if (flc.getFileInfo().isQueued()) {
+                        uploadButton.removeFromQueue(flc.getFileInfoQId());
+                    }
+                    tbd.add(c);
+                    files.remove(fi);
+                    break;
+                }
+            }
+        }
+        tbd.forEach(fileListLayout::removeComponent);
     }
 
     private void addFileInfoItem(FileInfo fi) {

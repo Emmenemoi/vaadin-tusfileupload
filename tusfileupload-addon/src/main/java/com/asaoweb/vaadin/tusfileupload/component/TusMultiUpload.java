@@ -5,9 +5,9 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
@@ -99,6 +99,8 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	  private StreamVariable streamVariable;
 	  private String currentQueuedFileId = "";
 	  private boolean hasUploadInProgress = false;
+
+	  protected Set<String> queue = Collections.synchronizedSet(new HashSet<>());
 	  
 	  protected String fileCountErrorMessagePattern = "Too many files uploaded: total {0,,max} files max and {1,,current} uploaded or queued but tried to add {2,,tried} more!";
 	  protected String fileSizeErrorMessagePattern = "Some files are too big (limit is {0,,limitStr}): {1,,fileListString}";
@@ -514,6 +516,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	  
 	  public void abortAll() {
 		  clientRpc.abortAllUploads();
+		  queue.clear();
 	  }
 	  
 	  public void removeFromQueue(String queueId) {
@@ -523,6 +526,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 			  } else {
 				  clientRpc.removeFromQueue(queueId);
 			  }
+			  queue.remove(queueId);
 		  }
 	  }
 	  
@@ -562,7 +566,11 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	  public boolean hasUploadInProgress() {
 		  return hasUploadInProgress;
 	  }
-	  
+
+	  public int getQueueCount() {
+		return queue.size();
+	}
+
 	  /******** PRIVATE CLASS ************/
 	  /**
 	   * The remote procedure call interface which allows calls from the client side
@@ -577,6 +585,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 			fi.suggestedFilename = name;
 			fi.suggestedFiletype = contentType;
 			fi.entityLength = contentLength;
+			queue.add(queueId);
 			logger.debug("onQueuedFile(ui) for file info {}", fi);
 			fireQueued(new FileQueuedEvent(TusMultiUpload.this, fi));				
 		}
@@ -588,6 +597,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 			fi.suggestedFilename = name;
 			fi.suggestedFiletype = contentType;
 			logger.debug("onError(ui) for file info {}", fi);
+			queue.remove(queueId);
 			fireFailed(new FailedEvent(TusMultiUpload.this, fi, new Exception(errorReason)));
 			hasUploadInProgress = false;
 		}
@@ -696,6 +706,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 					tevt.getFileInfo().queueId = currentQueuedFileId;
 					logger.debug("streamingFinished(StreamingEndEvent) for file info {}", tevt.getFileInfo());
 					InputStream is = dataStore.getInputStream(id);
+					queue.remove(currentQueuedFileId);
 					if (TusMultiUpload.this.getUI() != null && !TusMultiUpload.this.getUI().isClosing()) {
                         TusMultiUpload.this.getUI().access(() -> fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is)) );
 					} else {
@@ -714,6 +725,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 		public void streamingFailed(StreamingErrorEvent event) {
 			TusStreamingEvent tevt = (TusStreamingEvent) event;
 			tevt.getFileInfo().queueId = currentQueuedFileId;
+			queue.remove(currentQueuedFileId);
 			logger.debug("streamingFailed(StreamingErrorEvent) for file info {}", tevt.getFileInfo());
 			if (TusMultiUpload.this.getUI() != null && !TusMultiUpload.this.getUI().isClosing()) {
                 TusMultiUpload.this.getUI().access(() -> fireFailed(new FailedEvent(TusMultiUpload.this, tevt.getFileInfo(), event.getException())) );

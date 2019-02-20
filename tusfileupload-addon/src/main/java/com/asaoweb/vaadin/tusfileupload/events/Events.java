@@ -225,6 +225,7 @@ public class Events {
     public static class SucceededEvent extends FinishedEvent {
 
         final InputStream inputStream;
+        //final int remainingQueueSize;
         boolean addFileToList = true;
         FileInfo finalFileInfo;
 
@@ -244,6 +245,8 @@ public class Events {
         public InputStream getInputStream() {
             return inputStream;
         }
+
+        //public int getRemainingQueueSize() { return remainingQueueSize; }
 
         public boolean shouldAddFileToList() {
             return addFileToList;

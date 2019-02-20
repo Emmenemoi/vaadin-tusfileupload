@@ -182,8 +182,9 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	}
 
 	public int getQueueCount() {
-		int fileNB = files.size();
-		int queueNB = fileListLayout.getComponentCount() - fileNB;
+		/*int fileNB = files.size();
+		int queueNB = fileListLayout.getComponentCount() - fileNB;*/
+		int queueNB = this.getUploader().getQueueCount();
 		logger.debug("getQueueCount: {}", queueNB);
 		return queueNB;
 	}

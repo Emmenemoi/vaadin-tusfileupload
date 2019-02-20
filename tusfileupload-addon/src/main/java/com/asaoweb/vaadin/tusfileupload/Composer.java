@@ -6,8 +6,9 @@ import org.slf4j.LoggerFactory;
 import com.asaoweb.vaadin.tusfileupload.data.Datastore;
 import com.asaoweb.vaadin.tusfileupload.data.Store;
 
-public class Composer
-{
+import java.io.Serializable;
+
+public class Composer implements Serializable {
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(Composer.class.getName());
 

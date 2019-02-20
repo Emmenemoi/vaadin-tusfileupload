@@ -1,5 +1,6 @@
 package com.asaoweb.vaadin.tusfileupload;
 
+import java.io.Serializable;
 import java.util.HashSet;
 
 import org.slf4j.Logger;
@@ -12,7 +13,7 @@ Not persistent.
 
 You need a different Locker if multiple processes are involved.
 */
-public class SingleProcessLocker implements Locker {
+public class SingleProcessLocker implements Locker, Serializable {
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(SingleProcessLocker.class.getName());
 	protected HashSet<String> pool = new HashSet<String>();

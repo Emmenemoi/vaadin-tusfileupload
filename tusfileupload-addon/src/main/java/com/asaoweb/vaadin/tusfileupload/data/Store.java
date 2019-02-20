@@ -1,10 +1,6 @@
 package com.asaoweb.vaadin.tusfileupload.data;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -25,7 +21,7 @@ import com.vaadin.server.VaadinRequest;
 Different types of stores may be created by extending this store, hence
 the "protected" declarations.
 */
-public class Store implements Datastore {
+public class Store implements Datastore, Serializable {
 	protected static final Logger log = LoggerFactory.getLogger(Store.class.getName());
 
 	protected String binPath;

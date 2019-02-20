@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.vaadin.ui.*;
 import org.slf4j.Logger;
@@ -30,7 +32,6 @@ import com.asaoweb.vaadin.tusfileupload.events.Events.StartedListener;
 import com.asaoweb.vaadin.tusfileupload.events.Events.SucceededEvent;
 import com.asaoweb.vaadin.tusfileupload.events.Events.SucceededListener;
 import com.asaoweb.vaadin.tusfileupload.exceptions.TusException.ConfigError;
-import com.vaadin.annotations.StyleSheet;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.Registration;
@@ -75,6 +76,8 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	protected boolean 	allowDelete = true;
 	protected int		minFileCount = 0;
 	protected boolean   cachedHTML5DnD = false;
+
+	protected Lock		updateLock = new ReentrantLock();
 	
 	public TusMultiUploadLayout() throws ConfigError {
 		this(null, new Config(), new ArrayList<FileInfo>(), null, false);
@@ -157,7 +160,12 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		}
 		
 		fileListLayout.removeAllComponents();
-		files.forEach(this::addFileInfoItem);
+		updateLock.lock();
+		try {
+			files.forEach(this::addFileInfoItem);
+		} finally {
+			updateLock.unlock();
+		}
 		refreshFilesInfos();
 	}
 	
@@ -169,6 +177,21 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		infoLabel.setValue( MessageFormat.format(infoLabelMessagePattern, fileNB, queueNB, TusMultiUpload.readableFileSize(totalUploadedSize) ));
 	}
 
+	public boolean hasUploadInProgress() {
+		return this.getUploader().hasUploadInProgress();
+	}
+
+	public int getQueueCount() {
+		int fileNB = files.size();
+		int queueNB = fileListLayout.getComponentCount() - fileNB;
+		logger.debug("getQueueCount: {}", queueNB);
+		return queueNB;
+	}
+
+	public boolean hasRemainingQueue() {
+		return getQueueCount() > 0;
+	}
+
     /**
      * To replace with final files wrapper after upload succeeded
      * @param originalFi
@@ -178,14 +201,19 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	    if (originalFi == null || newFi == null) {
 	        return;
         }
-        fileListLayout.forEach( fl -> {
-            if (fl instanceof FileListComponent) {
-                FileListComponent flc = (FileListComponent) fl;
-                if (flc.fileInfo != null && flc.fileInfo.id != null && flc.fileInfo.id.equals(originalFi.id) ){
-                    flc.fileInfo = newFi;
-                }
-            }
-        });
+		updateLock.lock();
+	    try {
+			fileListLayout.forEach(fl -> {
+				if (fl instanceof FileListComponent) {
+					FileListComponent flc = (FileListComponent) fl;
+					if (flc.fileInfo != null && flc.fileInfo.id != null && flc.fileInfo.id.equals(originalFi.id)) {
+						flc.fileInfo = newFi;
+					}
+				}
+			});
+		} finally {
+			updateLock.unlock();
+		}
     }
 
     public void removeFileInfoItem(FileInfo fi) {
@@ -195,20 +223,25 @@ public class TusMultiUploadLayout extends VerticalLayout {
         }
         Iterator<Component> itr = this.fileListLayout.iterator();
         List<Component> tbd = new ArrayList<>();
-        while ( itr.hasNext() ) {
-            Component c = itr.next();
-            if (c instanceof FileListComponent) {
-                FileListComponent flc = (FileListComponent) c;
-                if (flc.getFileInfo().equals(fi)) {
-                    if (flc.getFileInfo().isQueued()) {
-                        uploadButton.removeFromQueue(flc.getFileInfoQId());
-                    }
-                    tbd.add(c);
-                    files.remove(fi);
-                    break;
-                }
-            }
-        }
+		updateLock.lock();
+		try {
+			while (itr.hasNext()) {
+				Component c = itr.next();
+				if (c instanceof FileListComponent) {
+					FileListComponent flc = (FileListComponent) c;
+					if (flc.getFileInfo().equals(fi)) {
+						if (flc.getFileInfo().isQueued()) {
+							uploadButton.removeFromQueue(flc.getFileInfoQId());
+						}
+						tbd.add(c);
+						files.remove(fi);
+						break;
+					}
+				}
+			}
+		} finally {
+			updateLock.unlock();
+		}
         tbd.forEach(fileListLayout::removeComponent);
     }
 
@@ -221,7 +254,12 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	}
 
 	public void cancelSucceededEvent(SucceededEvent event) {
-	    this.files.removeIf(f -> f.id != null && f.id.equals(event.getId()) );
+		updateLock.lock();
+		try {
+			this.files.removeIf(f -> f.id != null && f.id.equals(event.getId()));
+		} finally {
+			updateLock.unlock();
+		}
 	    refreshFileList();
     }
 	
@@ -304,6 +342,8 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		protected final AbstractOrderedLayout progressBarWrapper;
 		protected final Button action = new Button();
 
+		protected final Lock flcUpdateLock = new ReentrantLock();
+
         protected FileInfo fileInfo;
         protected Registration rFailed, rStarted, rProgress, rSucceeded;
 						
@@ -351,7 +391,12 @@ public class TusMultiUploadLayout extends VerticalLayout {
 					Notification.show(MessageFormat.format(TusMultiUploadLayout.this.fileMinCountErrorMessagePattern, TusMultiUploadLayout.this.minFileCount), Type.ERROR_MESSAGE);
 				}
 				if (canDelete || this.fileInfo.isQueued()) {
-					TusMultiUploadLayout.this.files.remove(this.fileInfo);
+					TusMultiUploadLayout.this.updateLock.lock();
+					try {
+						TusMultiUploadLayout.this.files.remove(this.fileInfo);
+					} finally {
+						TusMultiUploadLayout.this.updateLock.unlock();
+					}
 					TusMultiUploadLayout.this.fileListLayout.removeComponent(this);
 					TusMultiUploadLayout.this.refreshFilesInfos();
 				}
@@ -509,19 +554,24 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		}
 		
 		public void setProgress(long value, long total) {
-			fileInfo.offset = value;
-			progress.setValue( (float)value/(float)total);
-			int pct = (int) ((float)value/(float)total * 100);
-			if (TusMultiUploadLayout.this.compactLayout) {
-                progressInfos.setValue(TusMultiUpload.readableFileSize(value) + "/" + pct + "%");
-            } else {
-                progressInfos.setValue(TusMultiUpload.readableFileSize(value) + " / " + TusMultiUpload.readableFileSize(total) + " (" + pct + "%)");
-            }
-			errorMessage.setVisible(false);
-			progressBarWrapper.setVisible(true);
-			statusWrapper.setVisible(true);
-			if (progress.getValue() >= 1) {
-				update();
+			flcUpdateLock.lock();
+			try {
+				fileInfo.offset = value;
+				progress.setValue((float) value / (float) total);
+				int pct = (int) ((float) value / (float) total * 100);
+				if (TusMultiUploadLayout.this.compactLayout) {
+					progressInfos.setValue(TusMultiUpload.readableFileSize(value) + "/" + pct + "%");
+				} else {
+					progressInfos.setValue(TusMultiUpload.readableFileSize(value) + " / " + TusMultiUpload.readableFileSize(total) + " (" + pct + "%)");
+				}
+				errorMessage.setVisible(false);
+				progressBarWrapper.setVisible(true);
+				statusWrapper.setVisible(true);
+				if (progress.getValue() >= 1) {
+					update();
+				}
+			} finally {
+				flcUpdateLock.unlock();
 			}
 		}
 		
@@ -552,19 +602,30 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		public void uploadSucceeded(SucceededEvent evt) {
 			if ( isEventOwner(evt) ) {
 			    logger.debug("uploadSucceeded for evt {}", evt);
-			    if (evt.getFinalFileInfo() != null) {
-			        fileInfo = evt.getFinalFileInfo();
-                } else if ( evt.getId() != null && !evt.getId().isEmpty()) {
-					fileInfo.id = evt.getId();
-					fileInfo.offset = evt.getFileInfo().offset;
+				flcUpdateLock.lock();
+				try {
+					if (evt.getFinalFileInfo() != null) {
+						fileInfo = evt.getFinalFileInfo();
+					} else if (evt.getId() != null && !evt.getId().isEmpty()) {
+						fileInfo.id = evt.getId();
+						fileInfo.offset = evt.getFileInfo().offset;
+					}
+					if (evt.shouldAddFileToList()) {
+						TusMultiUploadLayout.this.updateLock.lock();
+						try {
+							TusMultiUploadLayout.this.files.add(this.fileInfo);
+						} finally {
+							TusMultiUploadLayout.this.updateLock.unlock();
+						}
+					}
+				} finally {
+					flcUpdateLock.unlock();
 				}
-				if (evt.shouldAddFileToList()) {
-                    TusMultiUploadLayout.this.files.add(this.fileInfo);
-                }
 				TusMultiUploadLayout.this.refreshFilesInfos();
 				update();
 				unregisterListeners();
 				this.removeStyleName(PROGRESS_STYLE);
+
 			}
 		}
 

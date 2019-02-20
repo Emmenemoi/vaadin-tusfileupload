@@ -1,6 +1,7 @@
 package com.asaoweb.vaadin.tusfileupload;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -8,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.asaoweb.vaadin.tusfileupload.exceptions.TusException;
 
-public class Config
+public class Config implements Serializable
 {
 	private static final Logger log = LoggerFactory.getLogger(Config.class.getName());
 

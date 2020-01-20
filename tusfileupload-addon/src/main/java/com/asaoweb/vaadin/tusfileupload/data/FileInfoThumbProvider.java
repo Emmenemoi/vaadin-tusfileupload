@@ -3,7 +3,9 @@ package com.asaoweb.vaadin.tusfileupload.data;
 import com.asaoweb.vaadin.tusfileupload.FileInfo;
 import com.vaadin.server.Resource;
 
-public interface FileInfoThumbProvider {
+import java.io.Serializable;
+
+public interface FileInfoThumbProvider extends Serializable {
 	/**
 	 * 
 	 * @param fileInfo

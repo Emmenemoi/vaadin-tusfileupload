@@ -22,7 +22,7 @@ import com.vaadin.server.VaadinRequest;
 Different types of stores may be created by extending this store, hence
 the "protected" declarations.
 */
-public class Store implements Datastore, Serializable {
+public class Store implements Datastore {
 	protected static final Logger log = LoggerFactory.getLogger(Store.class.getName());
 
 	protected String binPath;

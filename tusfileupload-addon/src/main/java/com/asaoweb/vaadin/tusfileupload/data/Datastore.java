@@ -2,6 +2,7 @@ package com.asaoweb.vaadin.tusfileupload.data;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.Serializable;
 
 import com.asaoweb.vaadin.tusfileupload.Config;
 import com.asaoweb.vaadin.tusfileupload.FileInfo;
@@ -11,7 +12,7 @@ import com.vaadin.server.VaadinRequest;
 /*
 A single instance of the  datastore will be created.
 */
-public interface Datastore {
+public interface Datastore extends Serializable {
 	/*
 	 * Initialize the datastore service
 	 */

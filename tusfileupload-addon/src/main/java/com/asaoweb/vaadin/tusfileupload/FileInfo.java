@@ -1,5 +1,6 @@
 package com.asaoweb.vaadin.tusfileupload;
 
+import java.io.Serializable;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +22,7 @@ Todo:
 		this.offset is not stored in serialized version of this struct, 
 		instead it is set by stat'ing the bin file with this.id.
 */
-public class FileInfo {
+public class FileInfo implements Serializable {
 	private static final Logger log = LoggerFactory.getLogger(FileInfo.class.getName());
 	public long entityLength = -1;
 	public String id;

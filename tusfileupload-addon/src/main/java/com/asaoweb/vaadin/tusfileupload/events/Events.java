@@ -1,6 +1,7 @@
 package com.asaoweb.vaadin.tusfileupload.events;
 
 import java.io.InputStream;
+import java.io.Serializable;
 
 import com.asaoweb.vaadin.tusfileupload.FileInfo;
 import com.vaadin.ui.Component;
@@ -99,7 +100,7 @@ public class Events {
     /**
      * A listener for finished events.
      */
-    public interface FinishedListener {
+    public interface FinishedListener extends Serializable {
 
         /**
          * Called when an upload finishes, either success or failure.
@@ -143,7 +144,7 @@ public class Events {
     /**
      * A listener for failed events.
      */
-    public interface FailedListener {
+    public interface FailedListener extends Serializable {
 
         /**
          * Called when an upload fails.
@@ -174,7 +175,7 @@ public class Events {
     /**
      * A listener that receives started events.
      */
-    public interface StartedListener {
+    public interface StartedListener extends Serializable {
 
         /**
          * Called when the upload is started.
@@ -209,7 +210,7 @@ public class Events {
     /**
      * A listener that receives started events.
      */
-    public interface ProgressListener {
+    public interface ProgressListener extends Serializable {
 
         /**
          * Called when the upload is started.
@@ -268,7 +269,7 @@ public class Events {
     /**
      * A listener that receives upload success events.
      */
-    public interface SucceededListener {
+    public interface SucceededListener extends Serializable {
 
         /**
          * Called when an upload is successful.
@@ -298,7 +299,7 @@ public class Events {
     /**
      * A listener that receives upload queued events.
      */
-    public interface FileQueuedListener {
+    public interface FileQueuedListener extends Serializable {
 
         /**
          * Called when is added to the queue.
@@ -328,7 +329,7 @@ public class Events {
     /**
      * A listener that receives file deleted click events.
      */
-    public interface FileDeletedClickListener {
+    public interface FileDeletedClickListener extends Serializable  {
 
         /**
          * Called when is added to the queue.
@@ -375,7 +376,7 @@ public class Events {
     /**
      * A listener that receives file deleted click events.
      */
-    public interface FileIndexMovedListener {
+    public interface FileIndexMovedListener extends Serializable {
 
         /**
          * Called when is added to the queue.

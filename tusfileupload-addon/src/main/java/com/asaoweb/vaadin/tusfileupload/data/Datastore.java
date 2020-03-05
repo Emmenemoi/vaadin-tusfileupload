@@ -1,13 +1,12 @@
 package com.asaoweb.vaadin.tusfileupload.data;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.Serializable;
-
 import com.asaoweb.vaadin.tusfileupload.Config;
 import com.asaoweb.vaadin.tusfileupload.FileInfo;
 import com.asaoweb.vaadin.tusfileupload.Locker;
 import com.vaadin.server.VaadinRequest;
+
+import java.io.InputStream;
+import java.io.Serializable;
 
 /*
 A single instance of the  datastore will be created.

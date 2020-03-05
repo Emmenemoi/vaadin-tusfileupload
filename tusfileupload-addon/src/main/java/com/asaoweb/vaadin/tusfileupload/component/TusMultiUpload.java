@@ -116,8 +116,8 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	  /**
 	   * Constructs the upload component.
 	   *
-	   * @param caption the caption of the component
-	   * @param receiver the receiver to create the output stream to receive upload
+	   * @param buttonCaption the caption of the component
+	   * @param receiverConfig the receiver to create the output stream to receive upload
 	   * data
 	   * @throws ConfigError 
 	   */
@@ -352,7 +352,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	   * Sets the receiver Datastore that will be used to create output streams when a file
 	   * starts uploading.
 	   *
-	   * @param receiver the receiver configuration to use for creating file output streams
+	   * @param receiverConfig the receiver configuration to use for creating file output streams
 	 * @throws Exception 
 	   */
 	  public void setReceiverDatastore(Config receiverConfig) throws ConfigError {
@@ -397,7 +397,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	   * Sets the caption displayed on the error notification for bad file count.
 	   * Default: "Too many files uploaded: total {0,,max} files max and {1,,current} uploaded or queued but tried to add {2,,tried} more!";
 	   * 
-	   * @param String pattern
+	   * @param fileCountErrorMessagePattern String pattern
 	   */
 	  public void setFileCountErrorMessagePattern(String fileCountErrorMessagePattern) {
 		  this.fileCountErrorMessagePattern = fileCountErrorMessagePattern;
@@ -407,7 +407,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	   * Sets the caption displayed on the error notification for bad file count.
 	   * Default: "Some files are too big (limit is {0,,limitStr}): {1,,fileListString}";
 	   * 
-	   * @param String pattern
+	   * @param fileSizeErrorMessagePattern String pattern
 	   */
 	  public void setFileSizeErrorMessagePattern(String fileSizeErrorMessagePattern) {
 		  this.fileSizeErrorMessagePattern = fileSizeErrorMessagePattern;
@@ -437,7 +437,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	  /**
 	   * Activates and receive the events on client side progress
 	   *
-	   * @param should manage client side progress
+	   * @param value should manage client side progress
 	   */
 	  public void setClientSideProgress(boolean value) {
 		  getState().clientSideProgress = value;
@@ -450,7 +450,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	   * specifying a chunk size which falls outside those hard limits 
 	   * will cause chunked uploads to fail.
 	   *
-	   * @param set chunk size in bytes (0 for no limit)
+	   * @param chunkSize set chunk size in bytes (0 for no limit)
 	   */
 	  public void setChunkSize(long chunkSize) {
 		  getState().chunkSize = chunkSize;
@@ -465,7 +465,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	   * for withCredentials in all XMLHttpRequests to use Cookies in requests. 
 	   * The remote server must accept CORS and credentials
 	   *
-	   * @param boolean allowing passing http credentials in requests
+	   * @param withCredentials boolean allowing passing http credentials in requests
 	   */
 	  public void setWithCredentials(boolean withCredentials) {
 		  getState().withCredentials = withCredentials;
@@ -483,7 +483,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	   * of retries and delays, read the Automated Retries section of 
 	   * TUS Protocol
 	   *
-	   * @param set the retry delays as an array of int or null
+	   * @param retryDelays set the retry delays as an array of int or null
 	   */
 	  public void setRetryDelays(int[] retryDelays) {
 		  getState().retryDelays = retryDelays;

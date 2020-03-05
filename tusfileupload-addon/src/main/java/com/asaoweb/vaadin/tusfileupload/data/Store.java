@@ -5,6 +5,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -92,25 +93,20 @@ public class Store implements Datastore {
 		// TODO: check that file offset matches request offset.
 
 		long transferred = 0L;
-		RandomAccessFile raf = null;
-		FileChannel dest = null;
-		ReadableByteChannel rbc = null;
-		try {
-			raf = new RandomAccessFile(getBinPath(id), "rwd"); // throws if file doesn't exist
-			dest = raf.getChannel();
+		/*
+		 * TODO: Is the rbc source blocking or async? This will only work if it blocks until
+		 * data is available. BUT blocking isn't so great if client loses network
+		 * connectivity and we block indefnitely because he hasn't closed the tcp
+		 * connection. Is there a way to set a timeout so we can close the connection?
+		 * fyi: request.getInputStream is returning a ServletInputStream
+		 */
+		try (	RandomAccessFile raf = new RandomAccessFile(getBinPath(id), "rwd"); // throws if file doesn't exist
+				FileChannel dest = raf.getChannel();
+				ReadableByteChannel rbc = Channels.newChannel(request.getInputStream()); ){
 
 			if (maxRequest > 0L && maxRequest < max) {
 				max = maxRequest;
 			}
-
-			/*
-			 * TODO: Is the source blocking or async? This will only work if it blocks until
-			 * data is available. BUT blocking isn't so great if client loses network
-			 * connectivity and we block indefnitely because he hasn't closed the tcp
-			 * connection. Is there a way to set a timeout so we can close the connection?
-			 * fyi: request.getInputStream is returning a ServletInputStream
-			 */
-			rbc = Channels.newChannel(request.getInputStream());
 
 			log.debug("Calling FileChannel.transferFrom ...");
 			transferred = dest.transferFrom(rbc, offset, max);
@@ -119,17 +115,6 @@ public class Store implements Datastore {
 		} catch (Exception e) {
 			log.error("write failed:", e);
 			throw e;
-		} finally {
-			if (dest != null) {
-				dest.close();
-			}
-			if (raf != null) {
-				raf.close();
-			}
-			if (rbc != null) {
-				rbc.close();
-			}
-			log.debug("finished with write");
 		}
 	}
 
@@ -235,10 +220,11 @@ public class Store implements Datastore {
 		return fiList;
 	}
 
+
 	@Override
 	public InputStream getInputStream(String id) throws Exception {
-		File bfile = new File(getBinPath(id));
-		return new FileInputStream(bfile);
+		//File bfile = new File(getBinPath(id));
+		return Files.newInputStream(Paths.get(getBinPath(id)));
 	}
 
 }	

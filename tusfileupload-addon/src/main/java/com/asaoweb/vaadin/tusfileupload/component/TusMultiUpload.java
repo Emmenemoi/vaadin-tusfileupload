@@ -50,7 +50,10 @@ import elemental.json.JsonObject;
 
 
 @SuppressWarnings("serial")
-@JavaScript(value = {"//rawgit.com/Emmenemoi/tus-js-client/master/dist/tus.js", "vaadin://addons/tusfileupload/tusmultiupload-connector.js"})
+@JavaScript(value = {
+		//"//rawgit.com/Emmenemoi/tus-js-client/master/dist/tus.js",
+		"vaadin://addons/tusfileupload/tus.min.js",
+		"vaadin://addons/tusfileupload/tusmultiupload-connector.js"})
 public class TusMultiUpload extends AbstractJavaScriptComponent {
 	  private final static Method SUCCEEDED_METHOD;
 	  private final static Method STARTED_METHOD;

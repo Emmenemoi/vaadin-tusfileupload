@@ -4,13 +4,14 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 import com.asaoweb.vaadin.tusfileupload.FileInfo;
+import com.asaoweb.vaadin.tusfileupload.component.TusMultiUpload;
 import com.vaadin.ui.Component;
 
 public class Events {
     public static abstract class AbstractTusUploadEvent extends Component.Event {
         private final FileInfo fileInfo;
 
-        protected AbstractTusUploadEvent(Component source, FileInfo fileInfo) {
+        protected AbstractTusUploadEvent(TusMultiUpload source, FileInfo fileInfo) {
             super(source);
             this.fileInfo = fileInfo;
         }
@@ -70,6 +71,11 @@ public class Events {
         }
 
         @Override
+        public TusMultiUpload getComponent() {
+            return (TusMultiUpload) super.getComponent();
+        }
+
+        @Override
         public String toString() {
             return this.getClass().getSimpleName() + "{" +
                     "fileInfo=" + fileInfo +
@@ -91,7 +97,7 @@ public class Events {
          * @param mimeType the mime-type provided by the client
          * @param length   the content length in bytes provided by the client
          */
-        public FinishedEvent(Component source, FileInfo fileInfo) {
+        public FinishedEvent(TusMultiUpload source, FileInfo fileInfo) {
             super(source, fileInfo);
         }
 
@@ -126,7 +132,7 @@ public class Events {
          * @param length   the content length in bytes provided by the client
          * @param reason   the root cause exception
          */
-        public FailedEvent(Component source, FileInfo fileInfo, Exception reason) {
+        public FailedEvent(TusMultiUpload source, FileInfo fileInfo, Exception reason) {
             super(source, fileInfo);
             this.reason = reason;
         }
@@ -167,7 +173,7 @@ public class Events {
          * @param mimeType      the mime-type provided by the client
          * @param contentLength the content length in bytes provided by the client
          */
-        public StartedEvent(Component source, FileInfo fileInfo) {
+        public StartedEvent(TusMultiUpload source, FileInfo fileInfo) {
             super(source, fileInfo);
         }
     }
@@ -198,7 +204,7 @@ public class Events {
          * @param mimeType      the mime-type provided by the client
          * @param contentLength the content length in bytes provided by the client
          */
-        public ProgressEvent(Component source, FileInfo fileInfo) {
+        public ProgressEvent(TusMultiUpload source, FileInfo fileInfo) {
             super(source, fileInfo);
         }
 
@@ -238,7 +244,7 @@ public class Events {
          * @param mimeType the mime-type provided by the client
          * @param length   the content length in bytes provided by the client
          */
-        public SucceededEvent(Component source, FileInfo fileInfo, InputStream inputStream) {
+        public SucceededEvent(TusMultiUpload source, FileInfo fileInfo, InputStream inputStream) {
             super(source, fileInfo);
             this.inputStream = inputStream;
         }
@@ -290,7 +296,7 @@ public class Events {
          * @param source   the source component
          * @param filename the FileIPnfo of the file provided by the client
          */
-        public FileQueuedEvent(Component source, FileInfo fileInfo) {
+        public FileQueuedEvent(TusMultiUpload source, FileInfo fileInfo) {
             super(source, fileInfo);
         }
 
@@ -320,7 +326,7 @@ public class Events {
          * @param source   the source component
          * @param filename the FileInfo of the file provided by the client
          */
-        public FileDeletedClickEvent(Component source, FileInfo fileInfo) {
+        public FileDeletedClickEvent(TusMultiUpload source, FileInfo fileInfo) {
             super(source, fileInfo);
         }
 
@@ -352,7 +358,7 @@ public class Events {
          * @param source   the source component
          * @param filename the FileInfo of the file provided by the client
          */
-        public FileIndexMovedEvent(Component source, FileInfo fileInfo, int oldIndex, int newIndex) {
+        public FileIndexMovedEvent(TusMultiUpload source, FileInfo fileInfo, int oldIndex, int newIndex) {
             super(source, fileInfo);
             this.oldIndex = oldIndex;
             this.newIndex = newIndex;

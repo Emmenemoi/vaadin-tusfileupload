@@ -73,6 +73,8 @@ public class TusMultiUploadLayout extends VerticalLayout {
 	protected FileInfoThumbProvider provider;
 	protected String 	infoLabelMessagePattern = "{0,,filenb} uploaded files / {2,,totalSize} (+{1,,queueSize} queued)";
 	protected String	fileMinCountErrorMessagePattern = "Can't delete any file: {0,,minCount} files must be attached. Upload new files first.";
+	protected String 	noFilesUploaded = "No files uploaded yet.";
+
 	protected boolean 	allowDelete = true;
 	protected int		minFileCount = 0;
 	protected boolean   cachedHTML5DnD = false;
@@ -175,6 +177,9 @@ public class TusMultiUploadLayout extends VerticalLayout {
 		uploadButton.setRemainingQueueSeats(uploadButton.getMaxFileCount()-fileNB);
 		long totalUploadedSize = files.stream().mapToLong(fi -> fi.entityLength).sum();
 		infoLabel.setValue( MessageFormat.format(infoLabelMessagePattern, fileNB, queueNB, TusMultiUpload.readableFileSize(totalUploadedSize) ));
+		if (fileNB == 0 && fileListLayout.getComponentCount() == 0) {
+			fileListLayout.addComponent(new Label(noFilesUploaded));
+		}
 	}
 
 	public boolean hasUploadInProgress() {
@@ -283,6 +288,14 @@ public class TusMultiUploadLayout extends VerticalLayout {
 			refreshFileList();
 		}
 	}
+
+	public int getMaxFileCount() {
+		return uploadButton.getMaxFileCount();
+	}
+
+	public int getMinFileCount() {
+		return minFileCount;
+	}
 	
 	public void setChunkSize(long chunkSize) {
 		uploadButton.setChunkSize(chunkSize);
@@ -387,7 +400,7 @@ public class TusMultiUploadLayout extends VerticalLayout {
 				if (this.fileInfo.isQueued()) {
 					uploadButton.removeFromQueue(this.fileInfo.queueId);
 				} else if ( canDelete ) {
-					TusMultiUploadLayout.this.fireEvent(new FileDeletedClickEvent(this, this.fileInfo));
+					TusMultiUploadLayout.this.fireEvent(new FileDeletedClickEvent(TusMultiUploadLayout.this.uploadButton, this.fileInfo));
 				} else {
 					Notification.show(MessageFormat.format(TusMultiUploadLayout.this.fileMinCountErrorMessagePattern, TusMultiUploadLayout.this.minFileCount), Type.ERROR_MESSAGE);
 				}
@@ -483,9 +496,9 @@ public class TusMultiUploadLayout extends VerticalLayout {
 					    	
 					    	if (reverseOrder) {
 					    		int maxIndex = TusMultiUploadLayout.this.fileListLayout.getComponentCount() - 1;
-						    	TusMultiUploadLayout.this.fireEvent(new FileIndexMovedEvent(this, sourceFlc.getFileInfo(), maxIndex - currentIndex, maxIndex - targetIndex));
+						    	TusMultiUploadLayout.this.fireEvent(new FileIndexMovedEvent(TusMultiUploadLayout.this.uploadButton, sourceFlc.getFileInfo(), maxIndex - currentIndex, maxIndex - targetIndex));
 					    	} else {
-					    		TusMultiUploadLayout.this.fireEvent(new FileIndexMovedEvent(this, sourceFlc.getFileInfo(), currentIndex, targetIndex));
+					    		TusMultiUploadLayout.this.fireEvent(new FileIndexMovedEvent(TusMultiUploadLayout.this.uploadButton, sourceFlc.getFileInfo(), currentIndex, targetIndex));
 					    	}
 					    }
 					});

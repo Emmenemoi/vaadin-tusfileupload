@@ -660,7 +660,10 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	   */
 	  private class StreamVariableImpl implements
 	      com.vaadin.server.StreamVariable {
-		
+		protected static final long THROTTLE_EVENTS_MS = 500L;
+
+		long lastProgress = 0L;
+
 		@Override
 		public OutputStream getOutputStream() {
 			// TODO add a receiver
@@ -676,6 +679,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 		public void streamingStarted(StreamingStartEvent event) {
 			TusStreamingEvent tevt = (TusStreamingEvent) event;
 			tevt.getFileInfo().queueId = currentQueuedFileId;
+			lastProgress = 0;
 			logger.debug("streamingStarted(StreamingStartEvent) for file info {}", tevt.getFileInfo());
             if (TusMultiUpload.this.getUI() != null && !TusMultiUpload.this.getUI().isClosing()) {
                 TusMultiUpload.this.getUI().access(() -> fireStarted(new StartedEvent(TusMultiUpload.this, tevt.getFileInfo())) );
@@ -687,14 +691,18 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 		
 		@Override
 		public void onProgress(StreamingProgressEvent event) {
-			fireUpdateProgress(event.getBytesReceived(), event.getContentLength());
-			TusStreamingEvent tevt = (TusStreamingEvent) event;
-			tevt.getFileInfo().queueId = currentQueuedFileId;
-			logger.debug("onProgress(StreamingProgressEvent) for file info {}", tevt.getFileInfo());
-			if (TusMultiUpload.this.getUI() != null && !TusMultiUpload.this.getUI().isClosing()) {
-                TusMultiUpload.this.getUI().access(() -> fireUpdateProgress(new ProgressEvent(TusMultiUpload.this, tevt.getFileInfo())) );
-			} else {
-				fireUpdateProgress(new ProgressEvent(TusMultiUpload.this, tevt.getFileInfo()));	
+			// throttle to speedup and avoid excessive session lock
+			if (System.currentTimeMillis() >= lastProgress + THROTTLE_EVENTS_MS) {
+				fireUpdateProgress(event.getBytesReceived(), event.getContentLength());
+				TusStreamingEvent tevt = (TusStreamingEvent) event;
+				tevt.getFileInfo().queueId = currentQueuedFileId;
+				logger.debug("onProgress(StreamingProgressEvent) for file info {}", tevt.getFileInfo());
+				if (TusMultiUpload.this.getUI() != null && !TusMultiUpload.this.getUI().isClosing()) {
+					TusMultiUpload.this.getUI().access(() -> fireUpdateProgress(new ProgressEvent(TusMultiUpload.this, tevt.getFileInfo())));
+				} else {
+					fireUpdateProgress(new ProgressEvent(TusMultiUpload.this, tevt.getFileInfo()));
+				}
+				lastProgress = System.currentTimeMillis();
 			}
 		}
 
@@ -702,6 +710,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 		public void streamingFinished(StreamingEndEvent event) {
 			TusStreamingEvent tevt = (TusStreamingEvent) event;
 			Datastore dataStore = getReceiverDataStore();
+			lastProgress = 0;
 			if (dataStore != null) {
 				try {
 					// uses TUS calculated uuid;
@@ -728,6 +737,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 		public void streamingFailed(StreamingErrorEvent event) {
 			TusStreamingEvent tevt = (TusStreamingEvent) event;
 			tevt.getFileInfo().queueId = currentQueuedFileId;
+			lastProgress = 0;
 			queue.remove(currentQueuedFileId);
 			logger.debug("streamingFailed(StreamingErrorEvent) for file info {}", tevt.getFileInfo());
 			if (TusMultiUpload.this.getUI() != null && !TusMultiUpload.this.getUI().isClosing()) {

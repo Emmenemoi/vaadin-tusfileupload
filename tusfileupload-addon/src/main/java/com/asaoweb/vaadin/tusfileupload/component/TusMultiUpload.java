@@ -660,7 +660,7 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 	   */
 	  private class StreamVariableImpl implements
 	      com.vaadin.server.StreamVariable {
-		protected static final long THROTTLE_EVENTS_MS = 500L;
+		protected static final long THROTTLE_EVENTS_MS = 1000L;
 
 		long lastProgress = 0L;
 

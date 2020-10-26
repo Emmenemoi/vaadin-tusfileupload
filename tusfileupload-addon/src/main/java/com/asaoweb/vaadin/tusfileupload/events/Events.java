@@ -2,6 +2,7 @@ package com.asaoweb.vaadin.tusfileupload.events;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.file.Path;
 
 import com.asaoweb.vaadin.tusfileupload.FileInfo;
 import com.asaoweb.vaadin.tusfileupload.component.TusMultiUpload;
@@ -232,6 +233,7 @@ public class Events {
     public static class SucceededEvent extends FinishedEvent {
 
         final InputStream inputStream;
+        final Path inputStreamPath;
         //final int remainingQueueSize;
         boolean addFileToList = true;
         FileInfo finalFileInfo;
@@ -244,14 +246,17 @@ public class Events {
          * @param mimeType the mime-type provided by the client
          * @param length   the content length in bytes provided by the client
          */
-        public SucceededEvent(TusMultiUpload source, FileInfo fileInfo, InputStream inputStream) {
+        public SucceededEvent(TusMultiUpload source, FileInfo fileInfo, InputStream inputStream, Path inputStreamPath) {
             super(source, fileInfo);
             this.inputStream = inputStream;
+            this.inputStreamPath = inputStreamPath;
         }
 
         public InputStream getInputStream() {
             return inputStream;
         }
+
+        public Path getInputStreamPath() { return inputStreamPath; }
 
         //public int getRemainingQueueSize() { return remainingQueueSize; }
 

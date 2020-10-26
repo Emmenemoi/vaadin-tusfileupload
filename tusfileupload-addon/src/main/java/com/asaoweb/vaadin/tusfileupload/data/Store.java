@@ -5,6 +5,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -224,7 +225,11 @@ public class Store implements Datastore {
 	@Override
 	public InputStream getInputStream(String id) throws Exception {
 		//File bfile = new File(getBinPath(id));
-		return Files.newInputStream(Paths.get(getBinPath(id)));
+		return Files.newInputStream(getInputStreamPath(id));
 	}
 
-}	
+	@Override
+	public Path getInputStreamPath(String id) {
+		return Paths.get(getBinPath(id));
+	}
+}

@@ -7,6 +7,7 @@ import com.vaadin.server.VaadinRequest;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.file.Path;
 
 /*
 A single instance of the  datastore will be created.
@@ -44,7 +45,14 @@ public interface Datastore extends Serializable {
 	 * if info or bin file for filename doesn't exist.
 	 */
 	public InputStream getInputStream(String id) throws Exception;
-	
+
+	/*
+	 * Retrieve FileInfo describing the upload identified by filename. Returns null
+	 * if info or bin file for filename doesn't exist.
+	 */
+	public Path getInputStreamPath(String id);
+
+
 	/*
 	 * Persist FileInfo
 	 */

@@ -3,6 +3,7 @@ package com.asaoweb.vaadin.tusfileupload.component;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.*;
@@ -718,11 +719,12 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 					tevt.getFileInfo().queueId = currentQueuedFileId;
 					logger.debug("streamingFinished(StreamingEndEvent) for file info {}", tevt.getFileInfo());
 					InputStream is = dataStore.getInputStream(id);
+					Path path = dataStore.getInputStreamPath(id);
 					queue.remove(currentQueuedFileId);
 					if (TusMultiUpload.this.getUI() != null && !TusMultiUpload.this.getUI().isClosing()) {
-                        TusMultiUpload.this.getUI().access(() -> fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is)) );
+                        TusMultiUpload.this.getUI().access(() -> fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is, path)) );
 					} else {
-						fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is));
+						fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is, path));
 					}
 					
 					dataStore.terminate(id);

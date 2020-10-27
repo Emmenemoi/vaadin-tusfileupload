@@ -722,14 +722,20 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 					Path path = dataStore.getInputStreamPath(id);
 					queue.remove(currentQueuedFileId);
 					if (TusMultiUpload.this.getUI() != null && !TusMultiUpload.this.getUI().isClosing()) {
-                        TusMultiUpload.this.getUI().access(() -> fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is, path)) );
+                        TusMultiUpload.this.getUI().access(() -> {
+								fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is, path));
+                        	try {
+								dataStore.terminate(id);
+							} catch (Exception e) {
+								logger.warn("dataStore terminate pb for file info {}", tevt.getFileInfo(), e);
+							}
+						});
 					} else {
 						fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is, path));
+						dataStore.terminate(id);
 					}
-					
-					dataStore.terminate(id);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.warn("streamingFinished pb for file info {}", tevt.getFileInfo(), e);
 				}
 			}
 			hasUploadInProgress = false;

@@ -723,8 +723,8 @@ public class TusMultiUpload extends AbstractJavaScriptComponent {
 					queue.remove(currentQueuedFileId);
 					if (TusMultiUpload.this.getUI() != null && !TusMultiUpload.this.getUI().isClosing()) {
                         TusMultiUpload.this.getUI().access(() -> {
-								fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is, path));
-                        	try {
+							fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is, path));
+							try {
 								dataStore.terminate(id);
 							} catch (Exception e) {
 								logger.warn("dataStore terminate pb for file info {}", tevt.getFileInfo(), e);

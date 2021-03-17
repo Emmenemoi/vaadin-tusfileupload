@@ -11,7 +11,6 @@ import com.asaoweb.vaadin.uppyfileupload.client.UppyUploaderComponentState;
 import com.asaoweb.vaadin.uppyfileupload.client.domain.File;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gwt.json.client.JSONObject;
 import com.vaadin.annotations.JavaScript;
 import elemental.json.Json;
 import elemental.json.JsonObject;
@@ -21,19 +20,16 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.net.URI;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 // This is the server-side UI component that provides public API 
 // for UppyComponent
 @JavaScript({
-        "bundle.uppy-44.js"
+        "bundle.uppy.js"
 })
 public class UppyUploaderComponent extends UploadComponent {
 

@@ -6,7 +6,7 @@ module.exports = {
     output: {
         //path: path.resolve(__dirname, 'src/main/resources/com/asaoweb/client'),
         path: path.resolve(__dirname, 'src/main/resources/com/asaoweb/vaadin/uppyfileupload'),
-        filename: 'bundle.uppy-44.js',
+        filename: 'bundle.uppy.js',
     },
     module: {
         rules: [

@@ -1,0 +1,122 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Uppy</title>
+    <link href="https://releases.transloadit.com/uppy/v1.25.2/uppy.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="uppy-item-dashboard">hellohello</div>
+    <script src="https://releases.transloadit.com/uppy/v1.25.2/uppy.js"></script>
+<script>
+    function init(coreoptions, dashboardparameters, companionUrl) {
+        console.log("Initializing uppy");
+        var uppy = new Uppy.Core()
+            .use(Uppy.Dashboard, dashboardparameters)
+           // .use(GoogleDrive, { target: Dashboard, companionUrl: companionUrl })
+           // .use(Dropbox, { target: Dashboard, companionUrl: companionUrl })
+           // .use(Instagram, { target: Dashboard, companionUrl: companionUrl })
+           // .use(Facebook, { target: Dashboard, companionUrl: companionUrl })
+           // .use(OneDrive, { target: Dashboard, companionUrl: companionUrl })
+           // .use(Webcam, { target: Dashboard })
+           // .use(ScreenCapture, { target: Dashboard })
+           // .use(ImageEditor, { target: Dashboard })
+            .use(Uppy.AwsS3Multipart, { limit : 2, companionUrl: 'http://localhost:3020'});
+
+        uppy.on( 'upload', (data) => {
+            console.log('Upload started : ' + data);
+           // rpcProxy.onUploadStarted(data);
+        })
+
+        uppy.on('progress', (progress) => {
+            console.log('Progress updated : ' + progress);
+          //  rpcProxy.onProgressUpdated(progress);
+        });
+
+        uppy.on('upload-progress', (file, progress) => {
+            //console.log('Progress updated for file ' + JSON.stringify(file) + ' : ' + JSON.stringify(progress));
+            console.log("Progress stringify : " +
+                this.safeStringify(progress));
+          //  rpcProxy.onUploadProgressUpdated(this.safeSerialize(file), this.safeSerialize(progress));
+        });
+
+        uppy.on( 'upload-success', (file, response) => {
+            console.log('File successfully uploaded ' + file.id);
+          //  rpcProxy.onUploadSuccess(file, this.safeSerialize(response));
+        });
+
+        uppy.on( 'upload-error', (file, error, response) => {
+            console.log('File failure id ' + file.id, ' ; error : ' + error);
+          //  rpcProxy.onUploadError(this.safeSerialize(file),
+         //       this.safeSerialize(error),
+        //        this.safeSerialize(response));
+        })
+
+        uppy.on('complete', (result) => {
+            console.log("Upload complete! We’ve uploaded these files:", result.successful);
+            console.log("Failures:", result.failed);
+          //  rpcProxy.onUploadComplete(this.safeSerialize(result.successful), this.safeSerialize(result.failed));
+        });
+
+  /*      uppy.addFile({
+            name: 'my-file.jpg', // file name
+            type: 'image/jpeg', // file type
+            size: 1500,
+            //extension: 'jpg',
+            data: {
+                size: 1500,
+               // name: 'my-file.jpg', // file name
+               // type: 'image/jpeg', // file type
+            },
+            preview: 'https://images-na.ssl-images-amazon.com/images/I/41Pyte45psL.png',
+            progress: {
+                bytesTotal: 1500,
+                bytesUploaded: 1500,
+                percentage: 100,
+                uploadComplete: true,
+                //uploadStarted: false
+            },
+            //data: blob, // file blob
+            //meta: {
+            // optional, store the directory path of a file so Uppy can tell identical files in different directories apart
+            //    relativePath: webkitFileSystemEntry.relativePath,
+            //},
+            //source: 'Local', // optional, determines the source of the file, for example, Instagram
+            isRemote: true // optional, set to true if actual file is not in the browser, but on some remote server, for example, when using companion in combination with Instagram
+        });
+
+  */
+        uppy.getFiles().forEach(file => {
+            uppy.setFileState(file.id, {
+                progress: { uploadComplete: true, uploadStarted: true }
+            })
+        });
+
+    }
+    // safely handles circular references
+    function safeStringify(obj, indent = 2)  {
+        let cache = [];
+        const retVal = JSON.stringify(
+            obj,
+            (key, value) => {
+                if (key == 'uploader') {
+                    return void(0);
+                }
+                var returnValue = typeof value === "object" && value !== null
+                    ? cache.includes(value)
+                        ? undefined // Duplicate reference found, discard key
+                        : cache.push(value) && value // Store value in our collection
+                    : value
+                return returnValue;
+            },
+            indent
+        );
+        cache = null;
+        return retVal;
+    }
+    function safeSerialize(obj) {
+        return JSON.parse(this.safeStringify(obj));
+    }
+    init({ }, { inline:true, target: '.uppy-item-dashboard', showRemoveButtonAfterComplete: true, showSelectedFiles: false}, 'http://localhot:3020');
+</script>
+</body>
+</html>

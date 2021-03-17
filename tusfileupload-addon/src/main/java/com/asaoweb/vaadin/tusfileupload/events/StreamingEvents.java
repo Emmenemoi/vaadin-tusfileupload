@@ -1,6 +1,6 @@
 package com.asaoweb.vaadin.tusfileupload.events;
 
-import com.asaoweb.vaadin.tusfileupload.FileInfo;
+import com.asaoweb.vaadin.fileupload.FileInfo;
 import com.vaadin.server.StreamVariable.StreamingEndEvent;
 import com.vaadin.server.StreamVariable.StreamingEvent;
 import com.vaadin.server.StreamVariable.StreamingProgressEvent;

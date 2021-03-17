@@ -1,10 +1,9 @@
 package com.asaoweb.vaadin.tusfileupload;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.asaoweb.vaadin.tusfileupload.data.Datastore;
 import com.asaoweb.vaadin.tusfileupload.data.Store;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 

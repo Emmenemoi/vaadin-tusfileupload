@@ -1,0 +1,18 @@
+<module>
+
+    <inherits name="com.vaadin.DefaultWidgetSet" />
+
+
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    <inherits name="com.asaoweb.vaadin.uppyfileupload.UppyUploaderWidgetSet" />
+</module>

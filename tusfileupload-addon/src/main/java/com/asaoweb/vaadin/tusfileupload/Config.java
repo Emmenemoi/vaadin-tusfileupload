@@ -4,10 +4,9 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Properties;
 
+import com.asaoweb.vaadin.tusfileupload.exceptions.TusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.asaoweb.vaadin.tusfileupload.exceptions.TusException;
 
 public class Config implements Serializable
 {

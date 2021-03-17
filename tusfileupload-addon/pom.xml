@@ -4,7 +4,7 @@
   <groupId>com.asaoweb.vaadin</groupId>
   <artifactId>tusfileupload</artifactId>
   <packaging>jar</packaging>
-  <version>1.5-SNAPSHOT</version>
+  <version>2.0-SNAPSHOT</version>
   <name>tusfileupload-addon</name>
   <url>http://maven.apache.org</url>
   
@@ -72,6 +72,30 @@
 		    <artifactId>slf4j-api</artifactId>
 		    <version>1.7.5</version>
 		</dependency>
+
+	  <dependency>
+		  <groupId>com.asaoweb.vaadin</groupId>
+		  <artifactId>multiuploadlayout</artifactId>
+		  <version>2.0-SNAPSHOT</version>
+	  </dependency>
+
+	  <!-- The tus_servlet uses these jars for json marshaling:  -->
+	  <dependency>
+		  <groupId>com.fasterxml.jackson.core</groupId>
+		  <artifactId>jackson-core</artifactId>
+		  <version>${jackson.version}</version>
+	  </dependency>
+	  <dependency>
+		  <groupId>com.fasterxml.jackson.core</groupId>
+		  <artifactId>jackson-databind</artifactId>
+		  <version>${jackson.version}</version>
+	  </dependency>
+	  <dependency>
+		  <groupId>com.fasterxml.jackson.core</groupId>
+		  <artifactId>jackson-annotations</artifactId>
+		  <version>${jackson.version}</version>
+	  </dependency>
+	  <!-- end for json marshaling -->
         
   </dependencies>
   

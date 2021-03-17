@@ -1,8 +1,8 @@
 package com.asaoweb.vaadin.tusfileupload.data;
 
 import com.asaoweb.vaadin.tusfileupload.Config;
-import com.asaoweb.vaadin.tusfileupload.FileInfo;
 import com.asaoweb.vaadin.tusfileupload.Locker;
+import com.asaoweb.vaadin.fileupload.FileInfo;
 import com.vaadin.server.VaadinRequest;
 
 import java.io.InputStream;

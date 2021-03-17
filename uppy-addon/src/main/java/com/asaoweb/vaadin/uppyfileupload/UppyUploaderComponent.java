@@ -220,6 +220,19 @@ public class UppyUploaderComponent extends UploadComponent {
         getState().coreOptions.restrictions.setAllowedFileTypes(filters);
     }
 
+    public void setMeta(Serializable meta) {
+        if (meta != null) {
+            metaProps = toMap(meta);
+        }
+        JsonObject metasJson = Json.createObject();
+        if (metaProps != null) {
+            for (Map.Entry<String, Object> entry : metaProps.entrySet()) {
+                metasJson.put(entry.getKey(), String.valueOf(entry.getValue()));
+            }
+        }
+        clientRpc.setMeta(metasJson);
+    }
+
     public void setDomain(String domain) {
         getState().coreOptions.setEdomain(domain);
     }

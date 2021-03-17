@@ -12,6 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import com.asaoweb.vaadin.fileupload.data.FileInfoThumbProvider;
 import com.asaoweb.vaadin.fileupload.FileInfo;
 import com.asaoweb.vaadin.fileupload.component.UploadComponent;
+import com.asaoweb.vaadin.fileupload.events.Events;
 import com.vaadin.ui.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +43,14 @@ import com.vaadin.ui.dnd.DropTargetExtension;
 public class MultiUploadLayout extends VerticalLayout {
 	  private final static Method FILE_DELETED_METHOD;
 	  private final static Method FILE_MOVED_METHOD;
+	private final static Method INTERNAL_DELETE_METHOD;
 
 	  static {
 		    try {
 		    	FILE_DELETED_METHOD = FileDeletedClickListener.class.getMethod(
 		          "fileDeletedClick", FileDeletedClickEvent.class);
+				INTERNAL_DELETE_METHOD = Events.InternalDeleteClickListener.class.getMethod(
+						"internalDeleteClick", Events.InternalDeleteClickEvent.class);
 		    	FILE_MOVED_METHOD = FileIndexMovedListener.class.getMethod(
 				  "fileIndexMoved", FileIndexMovedEvent.class);
 		    }
@@ -138,6 +142,10 @@ public class MultiUploadLayout extends VerticalLayout {
 	
 	public Registration addFileDeletedClickListener(FileDeletedClickListener listener) {
 	    return addListener(FileDeletedClickEvent.class, listener, FILE_DELETED_METHOD);
+	}
+
+	public Registration addInternalDeleteClickListener(Events.InternalDeleteClickListener listener) {
+		return addListener(Events.InternalDeleteClickEvent.class, listener, INTERNAL_DELETE_METHOD);
 	}
 
 	public Registration addFileIndexMovedListener(FileIndexMovedListener listener) {
@@ -394,6 +402,7 @@ public class MultiUploadLayout extends VerticalLayout {
 				boolean canDelete = MultiUploadLayout.this.minFileCount <= MultiUploadLayout.this.files.size() - 1;
 				if (this.fileInfo.isQueued()) {
 					uploadButton.removeFromQueue(this.fileInfo.queueId);
+					MultiUploadLayout.this.fireEvent(new Events.InternalDeleteClickEvent(MultiUploadLayout.this.uploadButton, this.fileInfo));
 				} else if ( canDelete ) {
 					MultiUploadLayout.this.fireEvent(new FileDeletedClickEvent(MultiUploadLayout.this.uploadButton, this.fileInfo));
 				} else {

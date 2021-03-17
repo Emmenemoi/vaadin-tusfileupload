@@ -1,5 +1,6 @@
 package com.asaoweb.vaadin.uppyfileupload.ui;
 
+import com.asaoweb.vaadin.fileupload.events.Events;
 import com.asaoweb.vaadin.uppyfileupload.UppyUploaderComponent;
 import com.asaoweb.vaadin.fileupload.FileInfo;
 import com.asaoweb.vaadin.fileupload.data.FileInfoThumbProvider;
@@ -14,15 +15,21 @@ public class UppyMultiUpload extends MultiUploadLayout {
                            boolean allowReorder) {
         super(new UppyUploaderComponent(metas), existingFiles, provider, allowReorder);
         getUploader().hideSelector();
+        addInternalDeleteClickListener(new Events.InternalDeleteClickListener() {
+            @Override
+            public void internalDeleteClick(Events.InternalDeleteClickEvent evt) {
+                getUploader().removeFile(evt.getFileInfo().id);
+            }
+        });
     }
 
     @Override
     public void setUploaderLocation() {
-        this.setHeight("780px");
+        this.setHeight("870px");
         this.addComponents(listPanel, uploadButton, infobar);
-        this.setExpandRatio(listPanel, 0.35f);
-        this.setExpandRatio(uploadButton, 0.55f);
-        this.setExpandRatio(infobar, 0.1f);
+        this.setExpandRatio(listPanel, 0.25f);
+        this.setExpandRatio(uploadButton, 0.65f);
+        this.setExpandRatio(infobar, 0.05f);
     }
 
     @Override

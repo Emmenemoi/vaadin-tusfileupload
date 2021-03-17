@@ -225,7 +225,7 @@ public class Events {
     public static class SucceededEvent extends FinishedEvent {
 
         final InputStream inputStream;
-        final URI inputStreamPath;
+        URI inputStreamPath;
         //final int remainingQueueSize;
         boolean addFileToList = true;
         FileInfo finalFileInfo;
@@ -247,6 +247,10 @@ public class Events {
         }
 
         public URI getInputStreamPath() { return inputStreamPath; }
+
+        public void setInputStreamPath(URI inputStreamPath) {
+            this.inputStreamPath = inputStreamPath;
+        }
 
         //public int getRemainingQueueSize() { return remainingQueueSize; }
 
@@ -328,6 +332,22 @@ public class Events {
     }
 
     /**
+     * An event describing a deleted upload.
+     */
+    public static class InternalDeleteClickEvent extends AbstractTusUploadEvent {
+
+        /**
+         * Constructs the event.
+         *
+         * @param fileInfo File information provided by the client
+         */
+        public InternalDeleteClickEvent(UploadComponent source, FileInfo fileInfo) {
+            super(source, fileInfo);
+        }
+
+    }
+
+    /**
      * A listener that receives file deleted click events.
      */
     public interface FileDeletedClickListener extends Serializable  {
@@ -338,6 +358,19 @@ public class Events {
          * @param evt the event details
          */
         void fileDeletedClick(FileDeletedClickEvent evt);
+    }
+
+    /**
+     * A listener that receives file deleted click events.
+     */
+    public interface InternalDeleteClickListener extends Serializable  {
+
+        /**
+         * Called when is added to the queue.
+         *
+         * @param evt the event details
+         */
+        void internalDeleteClick(InternalDeleteClickEvent evt);
     }
 
     /**

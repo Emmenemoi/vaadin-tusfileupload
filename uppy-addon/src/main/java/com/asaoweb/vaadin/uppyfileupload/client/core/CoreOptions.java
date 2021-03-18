@@ -23,7 +23,7 @@ public class CoreOptions {
      */
     private String id = "uppy";
 
-    private boolean autoProceed = false;
+    private boolean autoProceed = true;
 
     private boolean allowMultipleUploads = true;
 

@@ -12,8 +12,8 @@ import java.util.List;
 public class UppyMultiUpload extends MultiUploadLayout {
 
     public UppyMultiUpload(Serializable metas, List<FileInfo> existingFiles, FileInfoThumbProvider provider,
-                           boolean allowReorder) {
-        super(new UppyUploaderComponent(metas), existingFiles, provider, allowReorder);
+                           boolean allowReorder, String companionUrl) {
+        super(new UppyUploaderComponent(metas, companionUrl), existingFiles, provider, allowReorder);
         getUploader().hideSelector();
         addInternalDeleteClickListener(new Events.InternalDeleteClickListener() {
             @Override
@@ -25,9 +25,9 @@ public class UppyMultiUpload extends MultiUploadLayout {
 
     @Override
     public void setUploaderLocation() {
-        this.setHeight("870px");
+        this.setHeight("540px");
         this.addComponents(listPanel, uploadButton, infobar);
-        this.setExpandRatio(listPanel, 0.25f);
+        this.setExpandRatio(listPanel, 0.3f);
         this.setExpandRatio(uploadButton, 0.65f);
         this.setExpandRatio(infobar, 0.05f);
     }

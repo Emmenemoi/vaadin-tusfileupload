@@ -121,8 +121,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 .use(Webcam, { target: Dashboard })
                 .use(ScreenCapture, { target: Dashboard })
                 .use(ImageEditor, { target: Dashboard })
-                .use(AwsS3Multipart, { limit : 2, companionUrl: companionUrl, metaField: [ 'id', 'uId'],
-                    getKey: (req, filename, metadata) => `${metadata.uId}/123/${filename}`});
+                .use(AwsS3Multipart, { limit : 1000, companionUrl: companionUrl});
 
             uppy.on('file-added', (file) => {
                 console.log('Added file', file)

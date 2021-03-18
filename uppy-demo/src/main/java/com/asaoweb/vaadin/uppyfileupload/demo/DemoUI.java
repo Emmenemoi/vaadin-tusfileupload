@@ -41,7 +41,7 @@ public class DemoUI extends UI
         metas.setId(UUID.randomUUID().toString());
         metas.setUserId(23348L);
         final UppyMultiUpload component = new UppyMultiUpload(metas,
-                new ArrayList<FileInfo>(), null, true);
+                new ArrayList<FileInfo>(), null, true, "http://localhost:3020");
 
         // Show it in the middle of the screen
         final VerticalLayout layout = new VerticalLayout();
@@ -61,11 +61,11 @@ public class DemoUI extends UI
                     @Override
                     public void run() {
                         component.getUploader().setDomain("ES");
-                        component.getUploader().setMaxFileSize(1000000L);
-                        component.getUploader().setAcceptFilter(Arrays.asList("image/*"));
+                        //component.getUploader().setMaxFileSize(1000000L);
+                        //component.getUploader().setAcceptFilter(Arrays.asList("image/*"));
                         component.getUploader().setClientSideDebug(true);
-                        component.getUploader().setMaxFileSize(128000);
-                        component.getUploader().setMaxFileCount(3);
+                        //component.getUploader().setMaxFileSize(128000);
+                        //component.getUploader().setMaxFileCount(3);
                     }
                 });
         //    }

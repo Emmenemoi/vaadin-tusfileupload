@@ -29,13 +29,15 @@ import java.util.logging.Logger;
 // This is the server-side UI component that provides public API 
 // for UppyComponent
 @JavaScript({
-        "bundle.uppy.js"
+        "bundle.uppy.min.js"
 })
 public class UppyUploaderComponent extends UploadComponent {
 
     private final static Logger logger = Logger.getLogger(UppyUploaderComponent.class.getName());
 
     private Map<String, Object> metaProps;
+
+    private String companionUrl;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -103,8 +105,9 @@ public class UppyUploaderComponent extends UploadComponent {
     };
     private final UppyComponentClientRpc clientRpc;
 
-    public UppyUploaderComponent(Serializable meta) {
+    public UppyUploaderComponent(Serializable meta, String companionUrl) {
         super();
+        this.companionUrl = companionUrl;
         if (meta != null) {
             metaProps = toMap(meta);
         }
@@ -144,6 +147,9 @@ public class UppyUploaderComponent extends UploadComponent {
     @Override
     public void attach() {
         super.attach();
+        if (companionUrl != null) {
+            getState().setCompanionUrl(companionUrl);
+        }
         setSizeFull();
         clientRpc.initInline();
         JsonObject metasJson = Json.createObject();

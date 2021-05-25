@@ -1,18 +1,18 @@
-package com.asaoweb.vaadin.tusfileupload.events;
+package com.asaoweb.vaadin.fileupload.events;
 
 import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.file.Path;
+import java.net.URI;
 
-import com.asaoweb.vaadin.tusfileupload.FileInfo;
-import com.asaoweb.vaadin.tusfileupload.component.TusMultiUpload;
+import com.asaoweb.vaadin.fileupload.component.UploadComponent;
+import com.asaoweb.vaadin.fileupload.FileInfo;
 import com.vaadin.ui.Component;
 
 public class Events {
     public static abstract class AbstractTusUploadEvent extends Component.Event {
         private final FileInfo fileInfo;
 
-        protected AbstractTusUploadEvent(TusMultiUpload source, FileInfo fileInfo) {
+        protected AbstractTusUploadEvent(UploadComponent source, FileInfo fileInfo) {
             super(source);
             this.fileInfo = fileInfo;
         }
@@ -72,8 +72,8 @@ public class Events {
         }
 
         @Override
-        public TusMultiUpload getComponent() {
-            return (TusMultiUpload) super.getComponent();
+        public UploadComponent getComponent() {
+            return (UploadComponent) super.getComponent();
         }
 
         @Override
@@ -94,11 +94,9 @@ public class Events {
          * Constructs the event.
          *
          * @param source   the source component
-         * @param filename the name of the file provided by the client
-         * @param mimeType the mime-type provided by the client
-         * @param length   the content length in bytes provided by the client
+         * @param fileInfo File information provided by the client
          */
-        public FinishedEvent(TusMultiUpload source, FileInfo fileInfo) {
+        public FinishedEvent(UploadComponent source, FileInfo fileInfo) {
             super(source, fileInfo);
         }
 
@@ -128,12 +126,10 @@ public class Events {
          * Constructs the event.
          *
          * @param source   the source component
-         * @param filename the name of the file provided by the client
-         * @param mimeType the mime-type provided by the client
-         * @param length   the content length in bytes provided by the client
+         * @param fileInfo File information provided by the client
          * @param reason   the root cause exception
          */
-        public FailedEvent(TusMultiUpload source, FileInfo fileInfo, Exception reason) {
+        public FailedEvent(UploadComponent source, FileInfo fileInfo, Exception reason) {
             super(source, fileInfo);
             this.reason = reason;
         }
@@ -170,11 +166,9 @@ public class Events {
          * Constructs the event.
          *
          * @param source        the source component
-         * @param filename      the name of the file provided by the client
-         * @param mimeType      the mime-type provided by the client
-         * @param contentLength the content length in bytes provided by the client
+         * @param fileInfo File information provided by the client
          */
-        public StartedEvent(TusMultiUpload source, FileInfo fileInfo) {
+        public StartedEvent(UploadComponent source, FileInfo fileInfo) {
             super(source, fileInfo);
         }
     }
@@ -201,11 +195,9 @@ public class Events {
          * Constructs the event.
          *
          * @param source        the source component
-         * @param filename      the name of the file provided by the client
-         * @param mimeType      the mime-type provided by the client
-         * @param contentLength the content length in bytes provided by the client
+         * @param fileInfo File information provided by the client
          */
-        public ProgressEvent(TusMultiUpload source, FileInfo fileInfo) {
+        public ProgressEvent(UploadComponent source, FileInfo fileInfo) {
             super(source, fileInfo);
         }
 
@@ -233,7 +225,7 @@ public class Events {
     public static class SucceededEvent extends FinishedEvent {
 
         final InputStream inputStream;
-        final Path inputStreamPath;
+        URI inputStreamPath;
         //final int remainingQueueSize;
         boolean addFileToList = true;
         FileInfo finalFileInfo;
@@ -242,11 +234,9 @@ public class Events {
          * Constructs the event.
          *
          * @param source   the source component
-         * @param filename the name of the file provided by the client
-         * @param mimeType the mime-type provided by the client
-         * @param length   the content length in bytes provided by the client
+         * @param fileInfo File information provided by the client
          */
-        public SucceededEvent(TusMultiUpload source, FileInfo fileInfo, InputStream inputStream, Path inputStreamPath) {
+        public SucceededEvent(UploadComponent source, FileInfo fileInfo, InputStream inputStream, URI inputStreamPath) {
             super(source, fileInfo);
             this.inputStream = inputStream;
             this.inputStreamPath = inputStreamPath;
@@ -256,7 +246,11 @@ public class Events {
             return inputStream;
         }
 
-        public Path getInputStreamPath() { return inputStreamPath; }
+        public URI getInputStreamPath() { return inputStreamPath; }
+
+        public void setInputStreamPath(URI inputStreamPath) {
+            this.inputStreamPath = inputStreamPath;
+        }
 
         //public int getRemainingQueueSize() { return remainingQueueSize; }
 
@@ -299,9 +293,9 @@ public class Events {
          * Constructs the event.
          *
          * @param source   the source component
-         * @param filename the FileIPnfo of the file provided by the client
+         * @param fileInfo File information provided by the client
          */
-        public FileQueuedEvent(TusMultiUpload source, FileInfo fileInfo) {
+        public FileQueuedEvent(UploadComponent source, FileInfo fileInfo) {
             super(source, fileInfo);
         }
 
@@ -329,9 +323,25 @@ public class Events {
          * Constructs the event.
          *
          * @param source   the source component
-         * @param filename the FileInfo of the file provided by the client
+         * @param fileInfo File information provided by the client
          */
-        public FileDeletedClickEvent(TusMultiUpload source, FileInfo fileInfo) {
+        public FileDeletedClickEvent(UploadComponent source, FileInfo fileInfo) {
+            super(source, fileInfo);
+        }
+
+    }
+
+    /**
+     * An event describing a deleted upload.
+     */
+    public static class InternalDeleteClickEvent extends AbstractTusUploadEvent {
+
+        /**
+         * Constructs the event.
+         *
+         * @param fileInfo File information provided by the client
+         */
+        public InternalDeleteClickEvent(UploadComponent source, FileInfo fileInfo) {
             super(source, fileInfo);
         }
 
@@ -351,6 +361,19 @@ public class Events {
     }
 
     /**
+     * A listener that receives file deleted click events.
+     */
+    public interface InternalDeleteClickListener extends Serializable  {
+
+        /**
+         * Called when is added to the queue.
+         *
+         * @param evt the event details
+         */
+        void internalDeleteClick(InternalDeleteClickEvent evt);
+    }
+
+    /**
      * An event describing a deleted upload.
      */
     public static class FileIndexMovedEvent extends AbstractTusUploadEvent {
@@ -361,9 +384,9 @@ public class Events {
          * Constructs the event.
          *
          * @param source   the source component
-         * @param filename the FileInfo of the file provided by the client
+         * @param fileInfo File information provided by the client
          */
-        public FileIndexMovedEvent(TusMultiUpload source, FileInfo fileInfo, int oldIndex, int newIndex) {
+        public FileIndexMovedEvent(UploadComponent source, FileInfo fileInfo, int oldIndex, int newIndex) {
             super(source, fileInfo);
             this.oldIndex = oldIndex;
             this.newIndex = newIndex;

@@ -1,4 +1,4 @@
-package com.asaoweb.vaadin.tusfileupload.handlers;
+package com.asaoweb.vaadin.fileupload.handlers;
 
 import java.io.IOException;
 import java.io.PrintWriter;

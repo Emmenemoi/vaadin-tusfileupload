@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.asaoweb.vaadin.tusfileupload.Config;
+import com.asaoweb.vaadin.tusfileupload.Locker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asaoweb.vaadin.tusfileupload.Config;
-import com.asaoweb.vaadin.tusfileupload.FileInfo;
-import com.asaoweb.vaadin.tusfileupload.Locker;
+import com.asaoweb.vaadin.fileupload.FileInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.server.VaadinRequest;
 

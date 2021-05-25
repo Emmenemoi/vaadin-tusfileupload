@@ -1,21 +1,14 @@
 package com.asaoweb.vaadin.tusfileupload;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.Principal;
 
+import com.asaoweb.vaadin.tusfileupload.exceptions.TusException;
+import com.asaoweb.vaadin.tusfileupload.handlers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asaoweb.vaadin.tusfileupload.exceptions.TusException;
-import com.asaoweb.vaadin.tusfileupload.exceptions.TusException.ConfigError;
-import com.asaoweb.vaadin.tusfileupload.handlers.BaseHandler;
-import com.asaoweb.vaadin.tusfileupload.handlers.DeleteHandler;
-import com.asaoweb.vaadin.tusfileupload.handlers.HeadHandler;
-import com.asaoweb.vaadin.tusfileupload.handlers.OptionsHandler;
-import com.asaoweb.vaadin.tusfileupload.handlers.PatchHandler;
-import com.asaoweb.vaadin.tusfileupload.handlers.PostHandler;
-import com.asaoweb.vaadin.tusfileupload.handlers.Response;
+import com.asaoweb.vaadin.fileupload.handlers.Response;
 import com.vaadin.server.ClientConnector;
 import com.vaadin.server.StreamVariable;
 import com.vaadin.server.UploadException;
@@ -38,7 +31,7 @@ public class TUSFileUploadHandler extends FileUploadHandler {
 	private boolean doCreation;
 	private boolean shouldSetDestroyListener = true;
 	
-	public TUSFileUploadHandler() throws ConfigError {
+	public TUSFileUploadHandler() throws TusException.ConfigError {
 		this(new Config());
 	}
 	

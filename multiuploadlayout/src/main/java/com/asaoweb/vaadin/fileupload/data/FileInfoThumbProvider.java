@@ -1,6 +1,6 @@
-package com.asaoweb.vaadin.tusfileupload.data;
+package com.asaoweb.vaadin.fileupload.data;
 
-import com.asaoweb.vaadin.tusfileupload.FileInfo;
+import com.asaoweb.vaadin.fileupload.FileInfo;
 import com.vaadin.server.Resource;
 
 import java.io.Serializable;

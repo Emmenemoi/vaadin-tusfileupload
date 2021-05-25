@@ -1,4 +1,4 @@
-package com.asaoweb.vaadin;
+package com.asaoweb.vaadin.uppyfileupload.vaadin;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

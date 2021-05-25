@@ -1,4 +1,4 @@
-package com.asaoweb.vaadin.tusfileupload;
+package com.asaoweb.vaadin.fileupload;
 
 import java.io.Serializable;
 import java.util.Base64;
@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vaadin.server.Resource;
 
 /*
 Todo: 

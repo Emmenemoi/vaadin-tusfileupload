@@ -1,11 +1,12 @@
 package com.asaoweb.vaadin.tusfileupload.handlers;
 
+import com.asaoweb.vaadin.tusfileupload.Composer;
+import com.asaoweb.vaadin.tusfileupload.exceptions.TusException;
+import com.asaoweb.vaadin.fileupload.handlers.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.asaoweb.vaadin.tusfileupload.Composer;
-import com.asaoweb.vaadin.tusfileupload.FileInfo;
-import com.asaoweb.vaadin.tusfileupload.exceptions.TusException;
+import com.asaoweb.vaadin.fileupload.FileInfo;
 import com.vaadin.server.StreamVariable;
 import com.vaadin.server.VaadinRequest;
 

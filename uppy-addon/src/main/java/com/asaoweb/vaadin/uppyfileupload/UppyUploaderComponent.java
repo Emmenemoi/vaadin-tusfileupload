@@ -114,7 +114,7 @@ public class UppyUploaderComponent extends UploadComponent {
         addStyleName("v-panel");
         registerRpc(serverRpc);
         clientRpc = getRpcProxy(UppyComponentClientRpc.class);
-        
+
         // To receive events from the client, we register ServerRpc
         //UppyComponentServerRpc rpc = this::handleClick;
         //registerRpc(rpc);
@@ -124,6 +124,11 @@ public class UppyUploaderComponent extends UploadComponent {
     @Override
     protected UppyUploaderComponentState getState() {
         return (UppyUploaderComponentState) super.getState();
+    }
+
+    @Override
+    protected UppyUploaderComponentState getState(boolean markDirty) {
+        return (UppyUploaderComponentState) super.getState(markDirty);
     }
 
     public static Map<String, Object> toMap (Serializable t) {
@@ -171,6 +176,13 @@ public class UppyUploaderComponent extends UploadComponent {
     public void setRemainingQueueSeats(int remainingQueueSeats) {
 
     }
+
+    public void setEnableGoogleDrive(boolean enableGoogleDrive) { getState(true).enableGoogleDrive = enableGoogleDrive; }
+    public void setEnableDropbox(boolean enableDropbox) { getState(true).enableDropbox = enableDropbox; }
+    public void setEnableOneDrive(boolean enableOneDrive) { getState(true).enableOneDrive = enableOneDrive; }
+    public void setEnableFacebook(boolean enableFacebook) { getState(true).enableFacebook = enableFacebook; }
+    public void setEnableInstagram(boolean enableInstagram) { getState(true).enableInstagram = enableInstagram; }
+    public void setEnableLinks(boolean enableLinks) { getState(true).enableLinks = enableLinks; }
 
     @Override
     public Long getMaxFileSize() {

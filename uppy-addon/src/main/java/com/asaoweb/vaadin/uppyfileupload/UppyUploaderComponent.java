@@ -114,6 +114,7 @@ public class UppyUploaderComponent extends UploadComponent {
         addStyleName("v-panel");
         registerRpc(serverRpc);
         clientRpc = getRpcProxy(UppyComponentClientRpc.class);
+        
         // To receive events from the client, we register ServerRpc
         //UppyComponentServerRpc rpc = this::handleClick;
         //registerRpc(rpc);

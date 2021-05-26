@@ -10,6 +10,18 @@ public class UppyUploaderComponentState extends JavaScriptComponentState {
 
     public final CoreOptions coreOptions = new CoreOptions();
 
+    public final boolean enableGoogleDrive = true;
+
+    public final boolean enableDropbox = true;
+
+    public final boolean enableInstagram = true;
+
+    public final boolean enableFacebook = true;
+
+    public final boolean enableOneDrive = true;
+
+    public final boolean enableLinks = true;
+
     public InlineDashboardParameters dashboardparameters;
 
     /**

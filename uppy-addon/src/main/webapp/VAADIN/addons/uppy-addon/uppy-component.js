@@ -6,6 +6,7 @@ import Instagram from '@uppy/instagram';
 import Facebook from '@uppy/facebook';
 import OneDrive from '@uppy/onedrive';
 import Webcam from '@uppy/webcam';
+import Url from '@uppy/url';
 import ScreenCapture from '@uppy/screen-capture';
 import ImageEditor from '@uppy/image-editor';
 import AwsS3Multipart from '@uppy/aws-s3-multipart';
@@ -17,6 +18,8 @@ import '@uppy/dashboard/dist/style.css';
 import '@uppy/webcam/dist/style.css';
 import '@uppy/screen-capture/dist/style.css';
 import '@uppy/image-editor/dist/style.css';
+import '@uppy/url/dist/style.css';
+
 
 window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
 
@@ -113,15 +116,17 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
             console.log("Initializing uppy");
             uppy = new Uppy(coreoptions)
                 .use(Dashboard, dashboardparameters)
-                .use(GoogleDrive, { target: Dashboard, companionUrl: companionUrl })
-                .use(Dropbox, { target: Dashboard, companionUrl: companionUrl })
-                .use(Instagram, { target: Dashboard, companionUrl: companionUrl })
-                .use(Facebook, { target: Dashboard, companionUrl: companionUrl })
-                .use(OneDrive, { target: Dashboard, companionUrl: companionUrl })
                 .use(Webcam, { target: Dashboard })
-                .use(ScreenCapture, { target: Dashboard })
+                //.use(ScreenCapture, { target: Dashboard })
                 .use(ImageEditor, { target: Dashboard })
                 .use(AwsS3Multipart, { limit : 1000, companionUrl: companionUrl});
+            if(state.enableGoogleDrive) uppy.use(GoogleDrive, { target: Dashboard, companionUrl: companionUrl });
+            if(state.enableDropbox) uppy.use(Dropbox, { target: Dashboard, companionUrl: companionUrl });
+            if(state.enableInstagram) uppy.use(Instagram, { target: Dashboard, companionUrl: companionUrl });
+            if(state.enableFacebook) uppy.use(Facebook, { target: Dashboard, companionUrl: companionUrl });
+            if(state.enableOneDrive) uppy.use(OneDrive, { target: Dashboard, companionUrl: companionUrl });
+            if(state.enableLinks) uppy.use(Url, {target: Dashboard, companionUrl: companionUrl});
+
 
             uppy.on('file-added', (file) => {
                 console.log('Added file', file)

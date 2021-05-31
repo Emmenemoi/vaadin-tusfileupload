@@ -17,6 +17,8 @@ import com.vaadin.shared.ui.JavaScriptComponentState;
      */
     private String companionUrl= "http://localhost:3020";
 
+    private boolean debug = false;
+
     public UppyUploaderComponentState() { }
 
     public String getCompanionUrl() {
@@ -35,4 +37,7 @@ import com.vaadin.shared.ui.JavaScriptComponentState;
         this.retryDelays = retryDelays;
     }
 
-}
+    public boolean isDebug() { return debug; }
+
+    public void setDebug(boolean debug) { this.debug = debug; }
+    }

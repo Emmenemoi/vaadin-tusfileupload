@@ -23,6 +23,8 @@ public class InlineDashboardParameters extends AbstractDashboardParameters {
      */
     private int height = 550;
 
+    private boolean autoSize = true;
+
     public InlineDashboardParameters() {
         super();
         setInline(true);
@@ -52,4 +54,8 @@ public class InlineDashboardParameters extends AbstractDashboardParameters {
     public void setHeight(int height) {
         this.height = height;
     }
+
+    public boolean getAutoSize() { return autoSize; }
+
+    public void setAutoSize(boolean autoSize) { this.autoSize = autoSize; }
 }

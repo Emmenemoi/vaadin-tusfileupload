@@ -5,7 +5,7 @@ module.exports = {
     entry: './src/main/webapp/VAADIN/addons/uppy-addon/uppy-component.js',
     output: {
         //path: path.resolve(__dirname, 'src/main/resources/com/asaoweb/client'),
-        path: path.resolve(__dirname, 'src/main/resources/com/asaoweb/vaadin/uppyfileupload'),
+        path: path.resolve(__dirname, 'src/main/webapp/VAADIN/addons/uppy-addon'),
         filename: 'bundle.uppy.min.js',
     },
     module: {

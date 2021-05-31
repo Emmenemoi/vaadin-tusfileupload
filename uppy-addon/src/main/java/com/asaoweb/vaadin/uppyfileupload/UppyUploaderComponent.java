@@ -13,6 +13,7 @@ import com.asaoweb.vaadin.uppyfileupload.client.domain.File;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.annotations.JavaScript;
+import com.vaadin.annotations.StyleSheet;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 
@@ -31,7 +32,8 @@ import java.util.logging.Logger;
 // This is the server-side UI component that provides public API 
 // for UppyComponent
 @JavaScript({
-        "bundle.uppy.min.js"
+        "vaadin://addons/uppy-addon/bundle.uppy.min.js"
+        //"bundle.uppy.min.js"
 })
 public class UppyUploaderComponent extends UploadComponent {
 
@@ -40,8 +42,6 @@ public class UppyUploaderComponent extends UploadComponent {
     private Map<String, Object> metaProps;
 
     private String companionUrl;
-
-    ObjectMapper objectMapper = new ObjectMapper();
 
     private final UppyComponentServerRpc serverRpc = new UppyComponentServerRpc() {
         @Override
@@ -117,6 +117,7 @@ public class UppyUploaderComponent extends UploadComponent {
             getState(true).dashboardparameters.getPlugins().clear();
             getState(true).dashboardparameters.getPlugins().addAll(plugins);
         }
+        getState(true).setDebug(logger.isLoggable(Level.FINE));
 
         if (meta != null) {
             metaProps = toMap(meta);

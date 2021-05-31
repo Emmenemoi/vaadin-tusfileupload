@@ -1,0 +1,23 @@
+
+@mixin uppy {
+	div.uppy {
+		cursor: pointer;
+		user-select: none;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+	}
+
+	.uppy-size--md .uppy-Dashboard-AddFiles-title {
+		max-width: 100%;
+	}
+
+	.uppy-size--md .uppy-Dashboard-AddFiles-list {
+		max-width: 100%;
+	}
+
+	.uppy-item-dashboard {
+		height: 100%;
+		overflow-y: scroll;
+	}
+}

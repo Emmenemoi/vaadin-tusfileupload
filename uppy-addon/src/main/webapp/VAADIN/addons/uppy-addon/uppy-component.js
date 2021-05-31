@@ -104,6 +104,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
             let companionUrl = state.companionUrl;
             let dashboardparameters = state.dashboardparameters;
             let coreoptions = state.coreOptions;
+            let debug = state.debug;
             dashboardparameters.width=container.parentElement.offsetWidth;
             dashboardparameters.height=container.parentElement.offsetHeight-12;
             if (coreoptions.edomain == 'FR') {
@@ -113,7 +114,12 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
             }
             coreoptions.edomain = null;
 
-            console.log("Initializing uppy");
+            if(dashboardparameters.autoSize) {
+                dashboardparameters.width = '100%';
+                dashboardparameters.height = '100%';
+            }
+
+            if (debug) console.log("Initializing uppy");
             uppy = new Uppy(coreoptions)
                 .use(Dashboard, dashboardparameters)
                 .use(Webcam, { target: Dashboard })
@@ -129,49 +135,48 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
 
 
             uppy.on('file-added', (file) => {
-                console.log('Added file', file)
+                if (debug) console.log('Added file', file)
                 rpcProxy.onFileAdded(this.safeSerialize(file));
             });
 
             uppy.on('restriction-failed', (file, error) => {
-                console.log('Restriction failed', file)
+                if (debug)  console.log('Restriction failed', file)
                 rpcProxy.onRestrictionFailed(this.safeSerialize(file),
                     this.safeSerialize(error));
             });
 
             uppy.on( 'upload', (data) => {
-                console.log('Upload started : ' + data);
+                if (debug)  console.log('Upload started : ' + data);
                 rpcProxy.onUploadStarted(this.safeSerialize(data));
             });
 
             uppy.on('progress', (progress) => {
-                console.log('Progress updated : ' + progress);
+                if (debug)  console.log('Progress updated : ' + progress);
                 rpcProxy.onProgressUpdated(progress);
             });
 
             uppy.on('upload-progress', (file, progress) => {
-                //console.log('Progress updated for file ' + JSON.stringify(file) + ' : ' + JSON.stringify(progress));
-                console.log("Progress stringify : " +
-                    this.safeStringify(progress));
+                if (debug) console.log('Upload-progress updated for file ' + JSON.stringify(file) + ' : ' + JSON.stringify(progress));
+                //if (debug) console.log("Progress stringify : " + this.safeStringify(progress));
                 rpcProxy.onUploadProgressUpdated(this.safeSerialize(file), this.safeSerialize(progress));
             });
 
             uppy.on( 'upload-success', (file, response) => {
-                console.log('File successfully uploaded ' + file.id);
+                if (debug) console.log('File successfully uploaded ' + file.id);
                 rpcProxy.onUploadSuccess(file, this.safeSerialize(response));
                 uppy.removeFile(file.id);
             });
 
             uppy.on( 'upload-error', (file, error, response) => {
-                console.log('File failure id ' + file.id, ' ; error : ' + error);
+                if (debug) console.log('File failure id ' + file.id, ' ; error : ' + error);
                 rpcProxy.onUploadError(this.safeSerialize(file),
                     this.safeSerialize(error),
                     this.safeSerialize(response));
             })
 
             uppy.on('complete', (result) => {
-                console.log("Upload complete! We’ve uploaded these files:", result.successful);
-                console.log("Failures:", result.failed);
+                if (debug) console.log("Upload complete! We’ve uploaded these files:", result.successful);
+                if (debug) console.log("Failures:", result.failed);
                 rpcProxy.onUploadComplete(this.safeSerialize(result.successful), this.safeSerialize(result.failed));
             });
 

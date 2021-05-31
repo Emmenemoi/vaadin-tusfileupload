@@ -2,6 +2,9 @@ package com.asaoweb.vaadin.uppyfileupload.client.dashboard;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 public class AbstractDashboardParameters implements Serializable {
@@ -44,7 +47,7 @@ public class AbstractDashboardParameters implements Serializable {
      *
      * The target option may be changed in the future to only accept DOM elements, so it is recommended to use this plugins array instead.
      */
-    private List<DashboardPlugin> plugins = new ArrayList<>();
+    private final Collection<DashboardPlugin> plugins = new HashSet<>(Arrays.asList(DashboardPlugin.values()));
 
     /**
      * https://uppy.io/docs/dashboard/#inline-false
@@ -290,12 +293,13 @@ public class AbstractDashboardParameters implements Serializable {
         this.id = id;
     }
 
-    public List<DashboardPlugin> getPlugins() {
+    public Collection<DashboardPlugin> getPlugins() {
         return plugins;
     }
 
     public void setPlugins(List<DashboardPlugin> plugins) {
-        this.plugins = plugins;
+        this.plugins.clear();
+        this.plugins.addAll(plugins);
     }
 
     public boolean isInline() {
@@ -474,8 +478,12 @@ public class AbstractDashboardParameters implements Serializable {
     }
 
     public enum DashboardPlugin {
-
-
+        GoogleDrive,
+        Dropbox,
+        OneDrive,
+        Facebook,
+        Instagram,
+        Links
     }
 
     public enum Theme {

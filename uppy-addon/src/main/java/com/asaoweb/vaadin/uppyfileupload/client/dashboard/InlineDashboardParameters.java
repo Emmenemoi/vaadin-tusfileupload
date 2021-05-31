@@ -26,6 +26,7 @@ public class InlineDashboardParameters extends AbstractDashboardParameters {
     public InlineDashboardParameters() {
         super();
         setInline(true);
+        setTarget(".uppy-item-dashboard");
     }
 
     public String getTarget() {

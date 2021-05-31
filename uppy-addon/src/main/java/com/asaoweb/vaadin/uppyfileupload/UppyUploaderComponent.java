@@ -4,6 +4,7 @@ import com.asaoweb.vaadin.fileupload.FileInfo;
 import com.asaoweb.vaadin.fileupload.component.UploadComponent;
 import com.asaoweb.vaadin.fileupload.events.Events;
 import com.asaoweb.vaadin.uppyfileupload.client.UppyComponentServerRpc;
+import com.asaoweb.vaadin.uppyfileupload.client.dashboard.AbstractDashboardParameters;
 import com.asaoweb.vaadin.uppyfileupload.client.domain.UploadData;
 import com.asaoweb.vaadin.uppyfileupload.client.UppyComponentClientRpc;
 import com.asaoweb.vaadin.uppyfileupload.client.UppyUploaderComponentState;
@@ -22,6 +23,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -106,8 +108,16 @@ public class UppyUploaderComponent extends UploadComponent {
     private final UppyComponentClientRpc clientRpc;
 
     public UppyUploaderComponent(Serializable meta, String companionUrl) {
+        this(meta, companionUrl, null);
+    }
+    public UppyUploaderComponent(Serializable meta, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins) {
         super();
         this.companionUrl = companionUrl;
+        if(plugins != null) {
+            getState(true).dashboardparameters.getPlugins().clear();
+            getState(true).dashboardparameters.getPlugins().addAll(plugins);
+        }
+
         if (meta != null) {
             metaProps = toMap(meta);
         }
@@ -177,12 +187,9 @@ public class UppyUploaderComponent extends UploadComponent {
 
     }
 
-    public void setEnableGoogleDrive(boolean enableGoogleDrive) { getState(true).enableGoogleDrive = enableGoogleDrive; }
-    public void setEnableDropbox(boolean enableDropbox) { getState(true).enableDropbox = enableDropbox; }
-    public void setEnableOneDrive(boolean enableOneDrive) { getState(true).enableOneDrive = enableOneDrive; }
-    public void setEnableFacebook(boolean enableFacebook) { getState(true).enableFacebook = enableFacebook; }
-    public void setEnableInstagram(boolean enableInstagram) { getState(true).enableInstagram = enableInstagram; }
-    public void setEnableLinks(boolean enableLinks) { getState(true).enableLinks = enableLinks; }
+    public Collection<AbstractDashboardParameters.DashboardPlugin> getEnabledPlugins() {
+        return getState().dashboardparameters.getPlugins();
+    }
 
     @Override
     public Long getMaxFileSize() {
@@ -253,7 +260,7 @@ public class UppyUploaderComponent extends UploadComponent {
     }
 
     public void hideSelector() {
-        getState().dashboardparameters.setShowSelectedFiles(false);
+        getState(true).dashboardparameters.setShowSelectedFiles(false);
         //getState().dashboardparameters.setDisableThumbnailGenerator(true);
         //getState().dashboardparameters.setDisableStatusBar(true);
     }

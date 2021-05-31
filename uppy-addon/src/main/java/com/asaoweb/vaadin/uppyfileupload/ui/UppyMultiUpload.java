@@ -5,6 +5,7 @@ import com.asaoweb.vaadin.uppyfileupload.UppyUploaderComponent;
 import com.asaoweb.vaadin.fileupload.FileInfo;
 import com.asaoweb.vaadin.fileupload.data.FileInfoThumbProvider;
 import com.asaoweb.vaadin.fileupload.ui.MultiUploadLayout;
+import com.asaoweb.vaadin.uppyfileupload.client.dashboard.AbstractDashboardParameters;
 
 import java.io.Serializable;
 import java.util.List;
@@ -13,7 +14,12 @@ public class UppyMultiUpload extends MultiUploadLayout {
 
     public UppyMultiUpload(Serializable metas, List<FileInfo> existingFiles, FileInfoThumbProvider provider,
                            boolean allowReorder, String companionUrl) {
-        super(new UppyUploaderComponent(metas, companionUrl), existingFiles, provider, allowReorder);
+        this(metas, existingFiles, provider, allowReorder, companionUrl, null);
+    }
+
+    public UppyMultiUpload(Serializable metas, List<FileInfo> existingFiles, FileInfoThumbProvider provider,
+                           boolean allowReorder, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins) {
+        super(new UppyUploaderComponent(metas, companionUrl, plugins), existingFiles, provider, allowReorder);
         getUploader().hideSelector();
         addInternalDeleteClickListener(new Events.InternalDeleteClickListener() {
             @Override

@@ -26,6 +26,7 @@
 		<Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
 		<Vaadin-License-Title>Apache License 2.0</Vaadin-License-Title>
 		<Vaadin-Addon>${project.artifactId}-${project.version}.jar</Vaadin-Addon>
+		<npm.build.cmd>build</npm.build.cmd>
 	</properties>
 
     <!--
@@ -139,7 +140,7 @@
 							<executable>npm</executable>
 							<arguments>
 								<argument>run</argument>
-								<argument>build</argument>
+								<argument>${npm.build.cmd}</argument>
 							</arguments>
 						</configuration>
 					</execution>
@@ -239,6 +240,12 @@
 	</build>
 
 	<profiles>
+		<profile>
+			<id>debug</id>
+			<properties>
+				<npm.build.cmd>dev</npm.build.cmd>
+			</properties>
+		</profile>
 		<profile>
 			<!-- Vaadin pre-release repositories -->
 			<id>vaadin-prerelease</id>

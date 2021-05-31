@@ -5,3 +5,11 @@ div.uppy {
 	-moz-user-select: none;
 	-ms-user-select: none;
 }
+
+.uppy-size--md .uppy-Dashboard-AddFiles-title {
+	max-width: 100%;
+}
+
+.uppy-size--md .uppy-Dashboard-AddFiles-list {
+	max-width: 100%;
+}

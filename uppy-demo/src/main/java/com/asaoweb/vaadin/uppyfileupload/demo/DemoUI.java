@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 
+import static com.asaoweb.vaadin.uppyfileupload.client.dashboard.AbstractDashboardParameters.DashboardPlugin.Links;
+
 @Theme("demo")
 @Title("Vaadin 8 uppy integration add-on Demo")
 @Widgetset("com.asaoweb.vaadin.uppyfileupload.demo.UppyDemoWidgetSet")
@@ -41,7 +43,7 @@ public class DemoUI extends UI
         metas.setId(UUID.randomUUID().toString());
         metas.setUserId(23348L);
         final UppyMultiUpload component = new UppyMultiUpload(metas,
-                new ArrayList<FileInfo>(), null, true, "http://localhost:3020");
+                new ArrayList<FileInfo>(), null, true, "http://localhost:3020", Arrays.asList(Links));
 
         // Show it in the middle of the screen
         final VerticalLayout layout = new VerticalLayout();

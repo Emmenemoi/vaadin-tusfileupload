@@ -120,12 +120,12 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 //.use(ScreenCapture, { target: Dashboard })
                 .use(ImageEditor, { target: Dashboard })
                 .use(AwsS3Multipart, { limit : 1000, companionUrl: companionUrl});
-            if(state.enableGoogleDrive) uppy.use(GoogleDrive, { target: Dashboard, companionUrl: companionUrl });
-            if(state.enableDropbox) uppy.use(Dropbox, { target: Dashboard, companionUrl: companionUrl });
-            if(state.enableInstagram) uppy.use(Instagram, { target: Dashboard, companionUrl: companionUrl });
-            if(state.enableFacebook) uppy.use(Facebook, { target: Dashboard, companionUrl: companionUrl });
-            if(state.enableOneDrive) uppy.use(OneDrive, { target: Dashboard, companionUrl: companionUrl });
-            if(state.enableLinks) uppy.use(Url, {target: Dashboard, companionUrl: companionUrl});
+            if(dashboardparameters.plugins.includes("GoogleDrive")) uppy.use(GoogleDrive, { target: Dashboard, companionUrl: companionUrl });
+            if(dashboardparameters.plugins.includes("Dropbox")) uppy.use(Dropbox, { target: Dashboard, companionUrl: companionUrl });
+            if(dashboardparameters.plugins.includes("Instagram")) uppy.use(Instagram, { target: Dashboard, companionUrl: companionUrl });
+            if(dashboardparameters.plugins.includes("Facebook")) uppy.use(Facebook, { target: Dashboard, companionUrl: companionUrl });
+            if(dashboardparameters.plugins.includes("OneDrive")) uppy.use(OneDrive, { target: Dashboard, companionUrl: companionUrl });
+            if(dashboardparameters.plugins.includes("Links")) uppy.use(Url, {target: Dashboard, companionUrl: companionUrl});
 
 
             uppy.on('file-added', (file) => {

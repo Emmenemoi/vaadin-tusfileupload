@@ -66,7 +66,7 @@ public class UppyUploaderComponent extends UploadComponent {
         public void onUploadProgressUpdated(JsonObject file, JsonObject progress) {
             FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
                     Double.valueOf(progress.getNumber("bytesUploaded")).longValue(), file.getString("name"), file.getString("type"));
-            fireUpdateProgress(fi.offset, fi.entityLength);
+            //fireUpdateProgress(fi.offset, fi.entityLength);
             fireUpdateProgress(new Events.ProgressEvent(UppyUploaderComponent.this, fi));
         }
 

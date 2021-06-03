@@ -53,6 +53,10 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
      */
     var isUploading = false;
 
+    var lastTime = [];
+
+    var lastPercentProgress = [];
+
     /**
      * Builds the container divs and the buttons in the div.
      *
@@ -150,15 +154,32 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 rpcProxy.onUploadStarted(this.safeSerialize(data));
             });
 
-            uppy.on('progress', (progress) => {
+         /**   uppy.on('progress', (progress) => {
                 if (debug)  console.log('Progress updated : ' + progress);
                 rpcProxy.onProgressUpdated(progress);
-            });
+            });*/
 
             uppy.on('upload-progress', (file, progress) => {
-                if (debug) console.log('Upload-progress updated for file ' + JSON.stringify(file) + ' : ' + JSON.stringify(progress));
-                //if (debug) console.log("Progress stringify : " + this.safeStringify(progress));
-                rpcProxy.onUploadProgressUpdated(this.safeSerialize(file), this.safeSerialize(progress));
+                let newTime = Date.now();
+                let fileLastTime = 0;
+                if (lastTime[file.id]) {
+                    fileLastTime = lastTime[file.id];
+                }
+                let fileLastPercentProgress = -1;
+                if (lastPercentProgress[file.id]) {
+                    fileLastPercentProgress = lastPercentProgress[file.id];
+                }
+                // We notify the rpc server every second and every percent change maximum
+                if ((newTime - fileLastTime) > 1000 && (!progress.bytesTotal ||
+                        100*progress.bytesUploaded/progress.bytesTotal >= fileLastPercentProgress + 1)
+                    || progress.bytesUploaded == progress.bytesTotal) {
+                    if (debug) console.log("Progress stringify : " + this.safeStringify(progress));
+                    rpcProxy.onUploadProgressUpdated(this.safeSerialize(file), this.safeSerialize(progress));
+                    lastTime[file.id] = newTime;
+                    if (progress.bytesTotal) {
+                        lastPercentProgress[file.id] = 100*progress.bytesUploaded / progress.bytesTotal;
+                    }
+                }
             });
 
             uppy.on( 'upload-success', (file, response) => {

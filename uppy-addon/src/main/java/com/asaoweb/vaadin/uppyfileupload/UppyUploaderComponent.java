@@ -108,15 +108,19 @@ public class UppyUploaderComponent extends UploadComponent {
     private final UppyComponentClientRpc clientRpc;
 
     public UppyUploaderComponent(Serializable meta, String companionUrl) {
-        this(meta, companionUrl, null);
+        this(meta, companionUrl, null, false);
     }
-    public UppyUploaderComponent(Serializable meta, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins) {
+    public UppyUploaderComponent(Serializable meta, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins, boolean transferProgress) {
         super();
         this.companionUrl = companionUrl;
         if(plugins != null) {
             getState(true).dashboardparameters.getPlugins().clear();
             getState(true).dashboardparameters.getPlugins().addAll(plugins);
         }
+
+        getState(true).setTransferProgress(transferProgress);
+        getState(true).dashboardparameters.setShowProgressDetails(!transferProgress);
+
         getState(true).setDebug(logger.isLoggable(Level.FINE));
 
         if (meta != null) {
@@ -236,6 +240,10 @@ public class UppyUploaderComponent extends UploadComponent {
     @Override
     public void setAcceptFilter(Collection<String> filters) {
         getState().coreOptions.restrictions.setAllowedFileTypes(filters);
+    }
+
+    public void setTransfertProgress(boolean transfertProgress){
+        getState(true).setTransferProgress(transfertProgress);
     }
 
     public void removeFile(String id) {

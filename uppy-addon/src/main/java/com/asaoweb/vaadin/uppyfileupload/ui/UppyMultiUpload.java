@@ -14,12 +14,12 @@ public class UppyMultiUpload extends MultiUploadLayout {
 
     public UppyMultiUpload(Serializable metas, List<FileInfo> existingFiles, FileInfoThumbProvider provider,
                            boolean allowReorder, String companionUrl) {
-        this(metas, existingFiles, provider, allowReorder, companionUrl, null);
+        this(metas, existingFiles, provider, allowReorder, companionUrl, null, false);
     }
 
     public UppyMultiUpload(Serializable metas, List<FileInfo> existingFiles, FileInfoThumbProvider provider,
-                           boolean allowReorder, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins) {
-        super(new UppyUploaderComponent(metas, companionUrl, plugins), existingFiles, provider, allowReorder);
+                           boolean allowReorder, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins, boolean transferProgress) {
+        super(new UppyUploaderComponent(metas, companionUrl, plugins, transferProgress), existingFiles, provider, allowReorder);
         getUploader().hideSelector();
         addInternalDeleteClickListener(new Events.InternalDeleteClickListener() {
             @Override

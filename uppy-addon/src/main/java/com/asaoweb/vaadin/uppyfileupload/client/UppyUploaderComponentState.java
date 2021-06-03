@@ -4,9 +4,9 @@ import com.asaoweb.vaadin.uppyfileupload.client.core.CoreOptions;
 import com.asaoweb.vaadin.uppyfileupload.client.dashboard.InlineDashboardParameters;
 import com.vaadin.shared.ui.JavaScriptComponentState;
 
-    public class UppyUploaderComponentState extends JavaScriptComponentState {
+public class UppyUploaderComponentState extends JavaScriptComponentState {
 
-    private int[]	retryDelays = { 2000, 4000, 10000, 10000, 10000, 10000, 10000, 10000, 20000, 20000, 30000 };
+    private int[] retryDelays = {2000, 4000, 10000, 10000, 10000, 10000, 10000, 10000, 20000, 20000, 30000};
 
     public final CoreOptions coreOptions = new CoreOptions();
 
@@ -15,11 +15,14 @@ import com.vaadin.shared.ui.JavaScriptComponentState;
     /**
      * TODO Set in parameters the companion Url;
      */
-    private String companionUrl= "http://localhost:3020";
+    private String companionUrl = "http://localhost:3020";
 
     private boolean debug = false;
 
-    public UppyUploaderComponentState() { }
+    private boolean transferProgress = false;
+
+    public UppyUploaderComponentState() {
+    }
 
     public String getCompanionUrl() {
         return companionUrl;
@@ -40,4 +43,8 @@ import com.vaadin.shared.ui.JavaScriptComponentState;
     public boolean isDebug() { return debug; }
 
     public void setDebug(boolean debug) { this.debug = debug; }
-    }
+
+    public boolean isTransferProgress() { return transferProgress; }
+
+    public void setTransferProgress(boolean transferProgress) { this.transferProgress = transferProgress; }
+}

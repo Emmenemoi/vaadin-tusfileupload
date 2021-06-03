@@ -159,28 +159,30 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 rpcProxy.onProgressUpdated(progress);
             });*/
 
-            uppy.on('upload-progress', (file, progress) => {
-                let newTime = Date.now();
-                let fileLastTime = 0;
-                if (lastTime[file.id]) {
-                    fileLastTime = lastTime[file.id];
-                }
-                let fileLastPercentProgress = -1;
-                if (lastPercentProgress[file.id]) {
-                    fileLastPercentProgress = lastPercentProgress[file.id];
-                }
-                // We notify the rpc server every second and every percent change maximum
-                if ((newTime - fileLastTime) > 1000 && (!progress.bytesTotal ||
-                        100*progress.bytesUploaded/progress.bytesTotal >= fileLastPercentProgress + 1)
-                    || progress.bytesUploaded == progress.bytesTotal) {
-                    if (debug) console.log("Progress stringify : " + this.safeStringify(progress));
-                    rpcProxy.onUploadProgressUpdated(this.safeSerialize(file), this.safeSerialize(progress));
-                    lastTime[file.id] = newTime;
-                    if (progress.bytesTotal) {
-                        lastPercentProgress[file.id] = 100*progress.bytesUploaded / progress.bytesTotal;
+            if (state.transferProgress) {
+                uppy.on('upload-progress', (file, progress) => {
+                    let newTime = Date.now();
+                    let fileLastTime = 0;
+                    if (lastTime[file.id]) {
+                        fileLastTime = lastTime[file.id];
                     }
-                }
-            });
+                    let fileLastPercentProgress = -1;
+                    if (lastPercentProgress[file.id]) {
+                        fileLastPercentProgress = lastPercentProgress[file.id];
+                    }
+                    // We notify the rpc server every second and every percent change maximum
+                    if ((newTime - fileLastTime) > 1000 && (!progress.bytesTotal ||
+                        100 * progress.bytesUploaded / progress.bytesTotal >= fileLastPercentProgress + 1)
+                        || progress.bytesUploaded == progress.bytesTotal) {
+                        if (debug) console.log("Progress stringify : " + this.safeStringify(progress));
+                        rpcProxy.onUploadProgressUpdated(this.safeSerialize(file), this.safeSerialize(progress));
+                        lastTime[file.id] = newTime;
+                        if (progress.bytesTotal) {
+                            lastPercentProgress[file.id] = 100 * progress.bytesUploaded / progress.bytesTotal;
+                        }
+                    }
+                });
+            }
 
             uppy.on( 'upload-success', (file, response) => {
                 if (debug) console.log('File successfully uploaded ' + file.id);

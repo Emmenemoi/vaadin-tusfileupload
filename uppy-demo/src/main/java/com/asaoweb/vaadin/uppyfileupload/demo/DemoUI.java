@@ -43,7 +43,7 @@ public class DemoUI extends UI
         metas.setId(UUID.randomUUID().toString());
         metas.setUserId(23348L);
         final UppyMultiUpload component = new UppyMultiUpload(metas,
-                new ArrayList<FileInfo>(), null, true, "http://localhost:3020", Arrays.asList(Links));
+                new ArrayList<FileInfo>(), null, true, "http://localhost:3020", Arrays.asList(Links), false);
 
         // Show it in the middle of the screen
         final VerticalLayout layout = new VerticalLayout();

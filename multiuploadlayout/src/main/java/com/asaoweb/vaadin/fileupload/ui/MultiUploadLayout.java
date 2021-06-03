@@ -175,14 +175,22 @@ public class MultiUploadLayout extends VerticalLayout {
 	
 	public void refreshFilesInfos() {
 		int fileNB = files.size();
+		if (fileNB == 0 && fileListLayout.getComponentCount() == 0) {
+			fileListLayout.addComponent(new Label(noFilesUploaded));
+		} else if (fileNB == 0 && fileListLayout.getComponentCount() > 1) {
+			if (fileListLayout.getComponent(0) instanceof Label) {
+				fileListLayout.removeComponent(fileListLayout.getComponent(0));
+			}
+		}
 		int queueNB = fileListLayout.getComponentCount() - fileNB;
+		if (fileListLayout.getComponent(0) instanceof Label) {
+			queueNB--;
+		}
 		uploadButton.setRemainingQueueSeats(uploadButton.getMaxFileCount() != null ?
 				uploadButton.getMaxFileCount()-fileNB : Integer.MAX_VALUE);
 		long totalUploadedSize = files.stream().mapToLong(fi -> fi.entityLength).sum();
 		infoLabel.setValue( MessageFormat.format(infoLabelMessagePattern, fileNB, queueNB, UploadComponent.readableFileSize(totalUploadedSize) ));
-		if (fileNB == 0 && fileListLayout.getComponentCount() == 0) {
-			fileListLayout.addComponent(new Label(noFilesUploaded));
-		}
+
 	}
 
 	public boolean hasUploadInProgress() {

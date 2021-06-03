@@ -201,12 +201,12 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 rpcProxy.onUploadComplete(this.safeSerialize(result.successful), this.safeSerialize(result.failed));
             });
 
-        /**    uppy.on('thumbnail:generated', (file, preview) => {
+            uppy.on('thumbnail:generated', (file, preview) => {
                 const img = document.createElement('img')
                 img.src = preview
                 img.width = 100
                 document.body.appendChild(img)
-            })**/
+            })
 
             uppy.getFiles().forEach(file => {
                 uppy.setFileState(file.id, {

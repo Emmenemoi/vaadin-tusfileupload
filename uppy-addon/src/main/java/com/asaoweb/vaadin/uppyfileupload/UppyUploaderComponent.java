@@ -48,8 +48,14 @@ public class UppyUploaderComponent extends UploadComponent {
         public void onFileAdded(JsonObject file) {
             FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
                     0L, file.getString("name"), file.getString("type"));
-            queue.add(fi.queueId);
-            fireQueued(new Events.FileQueuedEvent(UppyUploaderComponent.this, fi));
+            this.addFileToQueue(fi);
+        }
+
+        private void addFileToQueue(FileInfo fi) {
+            if (!queue.contains(fi.queueId)) {
+                queue.add(fi.queueId);
+                fireQueued(new Events.FileQueuedEvent(UppyUploaderComponent.this, fi));
+            }
         }
 
         @Override
@@ -66,6 +72,7 @@ public class UppyUploaderComponent extends UploadComponent {
         public void onUploadProgressUpdated(JsonObject file, JsonObject progress) {
             FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
                     Double.valueOf(progress.getNumber("bytesUploaded")).longValue(), file.getString("name"), file.getString("type"));
+            this.addFileToQueue(fi);
             //fireUpdateProgress(fi.offset, fi.entityLength);
             fireUpdateProgress(new Events.ProgressEvent(UppyUploaderComponent.this, fi));
         }
@@ -91,18 +98,28 @@ public class UppyUploaderComponent extends UploadComponent {
         }
 
         @Override
-        public void onUploadError(JsonObject file, JsonObject error, JsonObject response) {
+        public void onUploadError(JsonObject file) {
             logger.log(Level.FINEST, "File " + file.getClass().getName() + " failed to upload.");
             FileInfo fi = new FileInfo(file.getString("id"), 0L,
                     0L, file.getString("name"), file.getString("type"));
             queue.remove(fi.queueId);
-            fireFailed(new Events.FailedEvent(UppyUploaderComponent.this, fi, new Exception(error.getString("error"))));
+            fireFailed(new Events.FailedEvent(UppyUploaderComponent.this, fi, new Exception("Failed to upload")));
             hasUploadInProgress = false;
         }
 
         @Override
         public void onUploadStarted(UploadData data) {
             logger.log(Level.FINEST, "Upload of id " + data.getId() + " started to upload " + data.getFileIDs().length + " files.");
+        }
+
+        @Override
+        public void onCancel() {
+            for (String fileId : queue) {
+                FileInfo file = new FileInfo();
+                file.id = fileId;
+                file.queueId = fileId;
+                fireFailed(new Events.FailedEvent(UppyUploaderComponent.this, file, new Exception("Canceled")));
+            }
         }
     };
     private final UppyComponentClientRpc clientRpc;

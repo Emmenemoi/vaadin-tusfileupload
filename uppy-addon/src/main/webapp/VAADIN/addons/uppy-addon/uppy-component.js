@@ -190,9 +190,30 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
 
             uppy.on( 'upload-error', (file, error, response) => {
                 if (debug) console.log('File failure id ' + file.id, ' ; error : ' + error);
-                rpcProxy.onUploadError(this.safeSerialize(file),
-                    this.safeSerialize(error),
-                    this.safeSerialize(response));
+                let fileSer = null;
+                if (file) {
+                    fileSer = this.safeSerialize(file);
+                }
+                let errorSer = null;
+                if (error) {
+                    errorSer = this.safeSerialize(error);
+                }
+                let responseSer = null;
+                if (response) {
+                    responseSer = this.safeSerialize(response);
+                }
+                rpcProxy.onUploadError(file);
+            });
+
+            uppy.on('upload-retry', (fileID) => {
+                if (debug) console.log('Retry File id ' + fileID);
+                rpcProxy.onFileAdded(uppy.getFile(fileID));
+            })
+
+            uppy.on('cancel-all', () => {
+                // progress was reset
+                if (debug) console.log('Cancel all');
+                rpcProxy.onCancel();
             })
 
             uppy.on('complete', (result) => {
@@ -230,24 +251,28 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
         },
         // safely handles circular references
         safeStringify: function(obj, indent = 2)  {
-            let cache = [];
-            const retVal = JSON.stringify(
-                obj,
-                (key, value) => {
-                    if (key == 'uploader') {
-                        return void(0);
-                    }
-                    var returnValue = typeof value === "object" && value !== null
-                        ? cache.includes(value)
-                        ? undefined // Duplicate reference found, discard key
-                        : cache.push(value) && value // Store value in our collection
-                        : value
-                    return returnValue;
-                },
-                indent
-            );
-            cache = null;
-            return retVal;
+            if (obj) {
+                let cache = [];
+                const retVal = JSON.stringify(
+                    obj,
+                    (key, value) => {
+                        if (key == 'uploader') {
+                            return void (0);
+                        }
+                        var returnValue = typeof value === "object" && value !== null
+                            ? cache.includes(value)
+                                ? undefined // Duplicate reference found, discard key
+                                : cache.push(value) && value // Store value in our collection
+                            : value
+                        return returnValue;
+                    },
+                    indent
+                );
+                cache = null;
+                return retVal;
+            } else {
+                return "{}";
+            }
         },
         safeSerialize: function (obj) {
             return JSON.parse(this.safeStringify(obj));

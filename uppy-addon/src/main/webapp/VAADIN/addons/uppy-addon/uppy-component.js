@@ -7,7 +7,6 @@ import Facebook from '@uppy/facebook';
 import OneDrive from '@uppy/onedrive';
 import Webcam from '@uppy/webcam';
 import Url from '@uppy/url';
-import ScreenCapture from '@uppy/screen-capture';
 import ImageEditor from '@uppy/image-editor';
 import AwsS3Multipart from '@uppy/aws-s3-multipart';
 import French from '@uppy/locales/lib/fr_FR';
@@ -129,7 +128,23 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 .use(Webcam, { target: Dashboard })
                 //.use(ScreenCapture, { target: Dashboard })
                 .use(ImageEditor, { target: Dashboard })
-                .use(AwsS3Multipart, { limit : 1000, companionUrl: companionUrl});
+                .use(AwsS3Multipart, { limit : 1000, companionUrl: companionUrl,
+                    createMultipartUpload (file) {
+                        return fetch(`${companionUrl}/s3/multipart`, {
+                            method: 'post',
+                            credentials: 'same-origin',
+                            headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                filename: file.name,
+                                type: file.type,
+                                metadata: {}
+                            })
+                        }).then((response) => response.json())
+                    }
+                });
             if(dashboardparameters.plugins.includes("GoogleDrive")) uppy.use(GoogleDrive, { target: Dashboard, companionUrl: companionUrl });
             if(dashboardparameters.plugins.includes("Dropbox")) uppy.use(Dropbox, { target: Dashboard, companionUrl: companionUrl });
             if(dashboardparameters.plugins.includes("Instagram")) uppy.use(Instagram, { target: Dashboard, companionUrl: companionUrl });
@@ -137,11 +152,6 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
             if(dashboardparameters.plugins.includes("OneDrive")) uppy.use(OneDrive, { target: Dashboard, companionUrl: companionUrl });
             if(dashboardparameters.plugins.includes("Links")) uppy.use(Url, {target: Dashboard, companionUrl: companionUrl});
 
-
-            uppy.on('file-added', (file) => {
-                if (debug) console.log('Added file', file)
-                rpcProxy.onFileAdded(this.safeSerialize(file));
-            });
 
             uppy.on('restriction-failed', (file, error) => {
                 if (debug)  console.log('Restriction failed', file)
@@ -153,11 +163,6 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 if (debug)  console.log('Upload started : ' + data);
                 rpcProxy.onUploadStarted(this.safeSerialize(data));
             });
-
-         /**   uppy.on('progress', (progress) => {
-                if (debug)  console.log('Progress updated : ' + progress);
-                rpcProxy.onProgressUpdated(progress);
-            });*/
 
             if (state.transferProgress) {
                 uppy.on('upload-progress', (file, progress) => {
@@ -182,6 +187,28 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                         }
                     }
                 });
+
+                uppy.on('file-added', (file) => {
+                    if (debug) console.log('Added file', file)
+                    rpcProxy.onFileAdded(this.safeSerialize(file));
+                });
+
+                uppy.on( 'upload-error', (file, error, response) => {
+                    if (debug) console.log('File failure id ' + file.id, ' ; error : ' + error);
+                    let fileSer = null;
+                    if (file) {
+                        fileSer = this.safeSerialize(file);
+                    }
+                    let errorSer = null;
+                    if (error) {
+                        errorSer = this.safeSerialize(error);
+                    }
+                    let responseSer = null;
+                    if (response) {
+                        responseSer = this.safeSerialize(response);
+                    }
+                    rpcProxy.onUploadError(fileSer, errorSer, responseSer);
+                });
             }
 
             uppy.on( 'upload-success', (file, response) => {
@@ -189,13 +216,6 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 rpcProxy.onUploadSuccess(file, this.safeSerialize(response));
                 uppy.removeFile(file.id);
             });
-
-            uppy.on( 'upload-error', (file, error, response) => {
-                if (debug) console.log('File failure id ' + file.id, ' ; error : ' + error);
-                rpcProxy.onUploadError(this.safeSerialize(file),
-                    this.safeSerialize(error),
-                    this.safeSerialize(response));
-            })
 
             uppy.on('complete', (result) => {
                 if (debug) console.log("Upload complete! We’ve uploaded these files:", result.successful);

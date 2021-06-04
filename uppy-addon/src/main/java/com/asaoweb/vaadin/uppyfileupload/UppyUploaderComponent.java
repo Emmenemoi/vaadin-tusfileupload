@@ -48,8 +48,14 @@ public class UppyUploaderComponent extends UploadComponent {
         public void onFileAdded(JsonObject file) {
             FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
                     0L, file.getString("name"), file.getString("type"));
-            queue.add(fi.queueId);
-            fireQueued(new Events.FileQueuedEvent(UppyUploaderComponent.this, fi));
+            this.addFileToQueue(fi);
+        }
+
+        private void addFileToQueue(FileInfo fi) {
+            if (!queue.contains(fi.queueId)) {
+                queue.add(fi.queueId);
+                fireQueued(new Events.FileQueuedEvent(UppyUploaderComponent.this, fi));
+            }
         }
 
         @Override
@@ -74,6 +80,7 @@ public class UppyUploaderComponent extends UploadComponent {
         public void onUploadSuccess(JsonObject file, JsonObject response) {
             FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
                     Double.valueOf(file.getNumber("size")).longValue(), file.getString("name"), file.getString("type"));
+            addFileToQueue(fi);
             try {
                 fireUploadSuccess(new Events.SucceededEvent(UppyUploaderComponent.this, fi, null,
                         new URI(response.getString("uploadURL"))));
@@ -119,7 +126,6 @@ public class UppyUploaderComponent extends UploadComponent {
         }
 
         getState(true).setTransferProgress(transferProgress);
-        getState(true).dashboardparameters.setShowProgressDetails(!transferProgress);
 
         getState(true).setDebug(logger.isLoggable(Level.FINE));
 

@@ -20,7 +20,9 @@ public class UppyMultiUpload extends MultiUploadLayout {
     public UppyMultiUpload(Serializable metas, List<FileInfo> existingFiles, FileInfoThumbProvider provider,
                            boolean allowReorder, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins, boolean transferProgress) {
         super(new UppyUploaderComponent(metas, companionUrl, plugins, transferProgress), existingFiles, provider, allowReorder);
-        getUploader().hideSelector();
+        if (transferProgress) {
+            getUploader().hideSelector();
+        }
         addInternalDeleteClickListener(new Events.InternalDeleteClickListener() {
             @Override
             public void internalDeleteClick(Events.InternalDeleteClickEvent evt) {

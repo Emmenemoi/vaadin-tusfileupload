@@ -79,8 +79,9 @@ public class UppyUploaderComponent extends UploadComponent {
         @Override
         public void onUploadSuccess(JsonObject file, JsonObject response) {
             FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
-                    Double.valueOf(file.getNumber("size")).longValue(), file.getString("name"), file.getString("type"));
+            0, file.getString("name"), file.getString("type"));
             addFileToQueue(fi);
+            fi.offset=Double.valueOf(file.getNumber("size")).longValue();
             try {
                 fireUploadSuccess(new Events.SucceededEvent(UppyUploaderComponent.this, fi, null,
                         new URI(response.getString("uploadURL"))));

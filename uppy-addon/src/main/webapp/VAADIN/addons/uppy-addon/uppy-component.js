@@ -130,6 +130,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 .use(ImageEditor, { target: Dashboard })
                 .use(AwsS3Multipart, { limit : 1000, companionUrl: companionUrl,
                     createMultipartUpload (file) {
+                        // Only stings are allowes in metadata, we're settings in the s3 metadata only the ui id and the user id
                         return fetch(`${companionUrl}/s3/multipart`, {
                             method: 'post',
                             credentials: 'same-origin',
@@ -140,7 +141,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                             body: JSON.stringify({
                                 filename: file.name,
                                 type: file.type,
-                                metadata: {}
+                                metadata: new UIUid(file.meta.id, file.meta.userId)
                             })
                         }).then((response) => response.json())
                     }
@@ -277,4 +278,12 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
     });
 
 
+    class UIUid {
+
+        constructor(id, userId) {
+            this.id = id;
+            this.userId = userId;
+        }
+    }
 }
+

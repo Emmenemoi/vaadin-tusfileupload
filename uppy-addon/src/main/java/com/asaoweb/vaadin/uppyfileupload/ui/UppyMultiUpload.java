@@ -33,8 +33,8 @@ public class UppyMultiUpload extends MultiUploadLayout {
 
     @Override
     public void setUploaderLocation() {
-        this.setHeight("540px");
         this.addComponents(listPanel, uploadButton, infobar);
+        this.setHeight("540px");
         this.setExpandRatio(listPanel, 0.3f);
         this.setExpandRatio(uploadButton, 0.65f);
         this.setExpandRatio(infobar, 0.05f);

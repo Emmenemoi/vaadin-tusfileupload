@@ -14,16 +14,16 @@ public class InlineDashboardParameters extends AbstractDashboardParameters {
      *
      * Width of the Dashboard in pixels. Used when inline: true.
      */
-    private int width = 750;
+    private String width = "100%";
 
     /**
      * https://uppy.io/docs/dashboard/#height-550
      *
      * Height of the Dashboard in pixels. Used when inline: true.
      */
-    private int height = 550;
+    private String height = "550px";
 
-    private boolean autoSize = true;
+    //private boolean autoSize = true;
 
     public InlineDashboardParameters() {
         super();
@@ -39,23 +39,23 @@ public class InlineDashboardParameters extends AbstractDashboardParameters {
         this.target = target;
     }
 
-    public int getWidth() {
+    public String getWidth() {
         return width;
     }
 
-    public void setWidth(int width) {
+    public void setWidth(String width) {
         this.width = width;
     }
 
-    public int getHeight() {
+    public String getHeight() {
         return height;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(String height) {
         this.height = height;
     }
 
-    public boolean getAutoSize() { return autoSize; }
+    /*public boolean getAutoSize() { return autoSize; }
 
-    public void setAutoSize(boolean autoSize) { this.autoSize = autoSize; }
+    public void setAutoSize(boolean autoSize) { this.autoSize = autoSize; }*/
 }

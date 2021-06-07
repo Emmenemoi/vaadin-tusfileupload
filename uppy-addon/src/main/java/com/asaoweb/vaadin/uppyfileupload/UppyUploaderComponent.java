@@ -14,6 +14,7 @@ import com.asaoweb.vaadin.uppyfileupload.client.domain.File;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.annotations.JavaScript;
 import com.vaadin.annotations.StyleSheet;
+import com.vaadin.server.SizeWithUnit;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 
@@ -125,6 +126,7 @@ public class UppyUploaderComponent extends UploadComponent {
             getState(true).dashboardparameters.getPlugins().clear();
             getState(true).dashboardparameters.getPlugins().addAll(plugins);
         }
+        setHeight(getState().dashboardparameters.getHeight()+"px");
 
         getState(true).setTransferProgress(transferProgress);
 
@@ -170,6 +172,12 @@ public class UppyUploaderComponent extends UploadComponent {
         } catch (Throwable ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    @Override
+    public void setHeight(float height, Unit unit) {
+        super.setHeight(height, unit);
+        getState(true).dashboardparameters.setHeight(height+unit.getSymbol());
     }
 
     @Override

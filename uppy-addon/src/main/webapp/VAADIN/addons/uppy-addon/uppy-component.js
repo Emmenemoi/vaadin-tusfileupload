@@ -97,6 +97,10 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
         } else {
             if (uppy) {
                 uppy.setOptions(s.coreOptions);
+                let dashboard = uppy.getPlugin('Dashboard')
+                if (uppy) {
+                    dashboard.setOptions(s.dashboardparameters);
+                }
             }
         }
     };
@@ -116,11 +120,6 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 coreoptions.locale = Spanish;
             }
             coreoptions.edomain = null;
-
-            if(dashboardparameters.autoSize) {
-                dashboardparameters.width = '100%';
-                dashboardparameters.height = '100%';
-            }
 
             if (debug) console.log("Initializing uppy");
             uppy = new Uppy(coreoptions)

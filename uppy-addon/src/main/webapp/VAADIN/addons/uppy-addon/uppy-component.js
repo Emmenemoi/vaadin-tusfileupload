@@ -253,24 +253,28 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
         },
         // safely handles circular references
         safeStringify: function(obj, indent = 2)  {
-            let cache = [];
-            const retVal = JSON.stringify(
-                obj,
-                (key, value) => {
-                    if (key == 'uploader') {
-                        return void(0);
-                    }
-                    var returnValue = typeof value === "object" && value !== null
-                        ? cache.includes(value)
-                        ? undefined // Duplicate reference found, discard key
-                        : cache.push(value) && value // Store value in our collection
-                        : value
-                    return returnValue;
-                },
-                indent
-            );
-            cache = null;
-            return retVal;
+            if (obj) {
+                let cache = [];
+                const retVal = JSON.stringify(
+                    obj,
+                    (key, value) => {
+                        if (key == 'uploader') {
+                            return void (0);
+                        }
+                        var returnValue = typeof value === "object" && value !== null
+                            ? cache.includes(value)
+                                ? undefined // Duplicate reference found, discard key
+                                : cache.push(value) && value // Store value in our collection
+                            : value
+                        return returnValue;
+                    },
+                    indent
+                );
+                cache = null;
+                return retVal;
+            } else {
+                return "{}";
+            }
         },
         safeSerialize: function (obj) {
             return JSON.parse(this.safeStringify(obj));

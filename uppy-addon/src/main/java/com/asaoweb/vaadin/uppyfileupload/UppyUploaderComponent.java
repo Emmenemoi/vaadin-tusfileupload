@@ -100,12 +100,12 @@ public class UppyUploaderComponent extends UploadComponent {
         }
 
         @Override
-        public void onUploadError(JsonObject file) {
+        public void onUploadError(JsonObject file, JsonObject error, JsonObject response) {
             logger.log(Level.FINEST, "File " + file.getClass().getName() + " failed to upload.");
             FileInfo fi = new FileInfo(file.getString("id"), 0L,
                     0L, file.getString("name"), file.getString("type"));
             queue.remove(fi.queueId);
-            fireFailed(new Events.FailedEvent(UppyUploaderComponent.this, fi, new Exception("Failed to upload")));
+            fireFailed(new Events.FailedEvent(UppyUploaderComponent.this, fi, new Exception(error.getString("error"))));
             hasUploadInProgress = false;
         }
 
@@ -114,15 +114,6 @@ public class UppyUploaderComponent extends UploadComponent {
             logger.log(Level.FINEST, "Upload of id " + data.getId() + " started to upload " + data.getFileIDs().length + " files.");
         }
 
-        @Override
-        public void onCancel() {
-            for (String fileId : queue) {
-                FileInfo file = new FileInfo();
-                file.id = fileId;
-                file.queueId = fileId;
-                fireFailed(new Events.FailedEvent(UppyUploaderComponent.this, file, new Exception("Canceled")));
-            }
-        }
     };
     private final UppyComponentClientRpc clientRpc;
 

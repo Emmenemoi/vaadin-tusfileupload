@@ -126,7 +126,7 @@ public class UppyUploaderComponent extends UploadComponent {
             getState(true).dashboardparameters.getPlugins().clear();
             getState(true).dashboardparameters.getPlugins().addAll(plugins);
         }
-        setHeight(getState().dashboardparameters.getHeight()+"px");
+        setHeight(getState().dashboardparameters.getHeight());
 
         getState(true).setTransferProgress(transferProgress);
 

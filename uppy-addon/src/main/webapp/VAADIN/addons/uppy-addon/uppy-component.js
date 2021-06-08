@@ -56,6 +56,8 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
 
     var lastPercentProgress = [];
 
+    var containerId = "uppymultiupload_container_" + connectorId;
+
     /**
      * Builds the container divs and the buttons in the div.
      *
@@ -64,10 +66,10 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
      */
     this._buildButtons = function(state) {
         container = document.createElement("div");
-        container.setAttribute("id", "uppymultiupload_container_" + connectorId);
+        container.setAttribute("id", containerId );
         container.className = "uppy-item-dashboard";
-        container.width = "100%";
         e.appendChild(container);
+        t.setSize(state.width, state.height)
     }
 
     /*
@@ -99,9 +101,21 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 uppy.setOptions(s.coreOptions);
                 let dashboard = uppy.getPlugin('Dashboard')
                 if (uppy) {
+                    s.dashboardparameters.target = "#" + containerId;
                     dashboard.setOptions(s.dashboardparameters);
                 }
             }
+        }
+    };
+
+    this.setSize = function(width, height) {
+        if (width > 0) {
+            container.width = width;
+            e.width = width;
+        }
+        if (height > 0) {
+            container.height = height;
+            e.height = height;
         }
     };
 
@@ -110,10 +124,18 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
             let state = t.getState();
             let companionUrl = state.companionUrl;
             let dashboardparameters = state.dashboardparameters;
+            dashboardparameters.target = "#" + containerId;
             let coreoptions = state.coreOptions;
             let debug = state.debug;
-            dashboardparameters.width=container.parentElement.offsetWidth;
-            dashboardparameters.height=container.parentElement.offsetHeight-12;
+            if(e.offsetWidth > 0 && e.style.width == '100%' ) {
+                dashboardparameters.width = e.offsetWidth;
+            }
+            if(e.offsetHeight > 0 &&  e.style.height == '100%' ) {
+                dashboardparameters.height = e.offsetHeight - 12;
+            }
+
+            t.setSize(dashboardparameters.width, dashboardparameters.height);
+
             if (coreoptions.edomain == 'FR') {
                 coreoptions.locale = French;
             } else if (coreoptions.edomain == 'ES') {

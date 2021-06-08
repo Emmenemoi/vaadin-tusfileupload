@@ -13,13 +13,13 @@ import java.util.List;
 public class UppyMultiUpload extends MultiUploadLayout {
 
     public UppyMultiUpload(Serializable metas, List<FileInfo> existingFiles, FileInfoThumbProvider provider,
-                           boolean allowReorder, String companionUrl) {
-        this(metas, existingFiles, provider, allowReorder, companionUrl, null, false);
+                           boolean allowReorder, String companionUrl, String dashboardHeight) {
+        this(metas, existingFiles, provider, allowReorder, companionUrl, null, false, dashboardHeight);
     }
 
     public UppyMultiUpload(Serializable metas, List<FileInfo> existingFiles, FileInfoThumbProvider provider,
-                           boolean allowReorder, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins, boolean transferProgress) {
-        super(new UppyUploaderComponent(metas, companionUrl, plugins, transferProgress), existingFiles, provider, allowReorder);
+                           boolean allowReorder, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins, boolean transferProgress, String dashboardHeight) {
+        super(new UppyUploaderComponent(metas, companionUrl, plugins, transferProgress, dashboardHeight), existingFiles, provider, allowReorder);
         if (transferProgress) {
             getUploader().hideSelector();
         }

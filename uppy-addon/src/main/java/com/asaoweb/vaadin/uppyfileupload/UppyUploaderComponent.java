@@ -119,16 +119,16 @@ public class UppyUploaderComponent extends UploadComponent {
     private final UppyComponentClientRpc clientRpc;
 
     public UppyUploaderComponent(Serializable meta, String companionUrl) {
-        this(meta, companionUrl, null, false);
+        this(meta, companionUrl, null, false, "550px");
     }
-    public UppyUploaderComponent(Serializable meta, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins, boolean transferProgress) {
+    public UppyUploaderComponent(Serializable meta, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins, boolean transferProgress, String dashboardHeight) {
         super();
         this.companionUrl = companionUrl;
         if(plugins != null) {
             getState(true).dashboardparameters.getPlugins().clear();
             getState(true).dashboardparameters.getPlugins().addAll(plugins);
         }
-        setHeight(getState().dashboardparameters.getHeight());
+        setHeight(dashboardHeight);
 
         getState(true).setTransferProgress(transferProgress);
 
@@ -179,7 +179,9 @@ public class UppyUploaderComponent extends UploadComponent {
     @Override
     public void setHeight(float height, Unit unit) {
         super.setHeight(height, unit);
-        getState(true).dashboardparameters.setHeight(height+unit.getSymbol());
+        if (unit == Unit.PIXELS) {
+            getState(true).dashboardparameters.setHeight((int)height);
+        }
     }
 
     @Override

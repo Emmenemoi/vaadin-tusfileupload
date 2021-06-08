@@ -10,6 +10,8 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
@@ -43,33 +45,46 @@ public class DemoUI extends UI
         metas.setId(UUID.randomUUID().toString());
         metas.setUserId(23348L);
         final UppyMultiUpload component = new UppyMultiUpload(metas,
-                new ArrayList<FileInfo>(), null, true, "http://localhost:3020", Arrays.asList(Links), false);
+                new ArrayList<FileInfo>(), null, true, "http://localhost:3020", Arrays.asList(Links), false, "240px");
 
         // Show it in the middle of the screen
         final VerticalLayout layout = new VerticalLayout();
         layout.setStyleName("demoContentLayout");
-        layout.setSizeFull();
         layout.setMargin(false);
         layout.setSpacing(false);
         layout.addComponent(component);
         layout.setComponentAlignment(component, Alignment.MIDDLE_CENTER);
-        setContent(layout);
+
+        final UppyMultiUpload component2 = new UppyMultiUpload(metas,
+                new ArrayList<FileInfo>(), null, true, "http://localhost:3020", Arrays.asList(Links), false, "240px") {
+
+            @Override
+            public void setUploaderLocation() {
+                this.addComponents(listPanel, uploadButton, infobar);
+                this.setHeightUndefined();
+                listPanel.setHeight("160px");
+                //uploadButton.setHeight("240px");
+                infobar.setHeight("30px");
+            }
+        };
+
+        layout.addComponents(new Label("size defined:"), component2);
+
+        Panel panel = new Panel(layout);
+        panel.setSizeFull();
+        setContent(panel);
 
       //  TimerTask task = new TimerTask() {
       //      @Override
       //      public void run() {
 
-                getUI().access(new Runnable() {
-                    @Override
-                    public void run() {
+
                         component.getUploader().setDomain("ES");
                         //component.getUploader().setMaxFileSize(1000000L);
                         //component.getUploader().setAcceptFilter(Arrays.asList("image/*"));
                         component.getUploader().setClientSideDebug(true);
                         //component.getUploader().setMaxFileSize(128000);
                         //component.getUploader().setMaxFileCount(3);
-                    }
-                });
         //    }
         //};
         //Timer timer = new Timer();

@@ -62,9 +62,6 @@ public interface UppyComponentServerRpc extends ServerRpc {
     /**
      * Fired each time a single upload has errored.
      * @param file The File Object for the file whose upload has just errored.
-     * @param error The error object.
-     * @param response an optional parameter with response data from the upload endpoint.
-     *                 It may be undefined or contain different data depending on the uploader plugin in use.
      */
     void onUploadError(JsonObject file, JsonObject error, JsonObject response);
 

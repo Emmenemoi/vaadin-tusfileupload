@@ -129,6 +129,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 .use(ImageEditor, { target: Dashboard })
                 .use(AwsS3Multipart, { limit : 1000, companionUrl: companionUrl,
                     createMultipartUpload (file) {
+                        // Only stings are allowes in metadata, we're settings in the s3 metadata only the ui id and the user id
                         return fetch(`${companionUrl}/s3/multipart`, {
                             method: 'post',
                             credentials: 'same-origin',
@@ -139,7 +140,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                             body: JSON.stringify({
                                 filename: file.name,
                                 type: file.type,
-                                metadata: {}
+                                metadata: new UIUid(file.meta.id, file.meta.userId)
                             })
                         }).then((response) => response.json())
                     }
@@ -251,24 +252,28 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
         },
         // safely handles circular references
         safeStringify: function(obj, indent = 2)  {
-            let cache = [];
-            const retVal = JSON.stringify(
-                obj,
-                (key, value) => {
-                    if (key == 'uploader') {
-                        return void(0);
-                    }
-                    var returnValue = typeof value === "object" && value !== null
-                        ? cache.includes(value)
-                        ? undefined // Duplicate reference found, discard key
-                        : cache.push(value) && value // Store value in our collection
-                        : value
-                    return returnValue;
-                },
-                indent
-            );
-            cache = null;
-            return retVal;
+            if (obj) {
+                let cache = [];
+                const retVal = JSON.stringify(
+                    obj,
+                    (key, value) => {
+                        if (key == 'uploader') {
+                            return void (0);
+                        }
+                        var returnValue = typeof value === "object" && value !== null
+                            ? cache.includes(value)
+                                ? undefined // Duplicate reference found, discard key
+                                : cache.push(value) && value // Store value in our collection
+                            : value
+                        return returnValue;
+                    },
+                    indent
+                );
+                cache = null;
+                return retVal;
+            } else {
+                return "{}";
+            }
         },
         safeSerialize: function (obj) {
             return JSON.parse(this.safeStringify(obj));
@@ -276,4 +281,12 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
     });
 
 
+    class UIUid {
+
+        constructor(id, userId) {
+            this.id = id;
+            this.userId = userId;
+        }
+    }
 }
+

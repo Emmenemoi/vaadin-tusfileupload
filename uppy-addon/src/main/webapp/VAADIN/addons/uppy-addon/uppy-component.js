@@ -11,6 +11,7 @@ import ImageEditor from '@uppy/image-editor';
 import AwsS3Multipart from '@uppy/aws-s3-multipart';
 import French from '@uppy/locales/lib/fr_FR';
 import Spanish from '@uppy/locales/lib/es_ES';
+import GoldenRetriever from '@uppy/golden-retriever/lib/ServiceWorker';
 
 import '@uppy/core/dist/style.css';
 import '@uppy/dashboard/dist/style.css';
@@ -18,7 +19,6 @@ import '@uppy/webcam/dist/style.css';
 import '@uppy/screen-capture/dist/style.css';
 import '@uppy/image-editor/dist/style.css';
 import '@uppy/url/dist/style.css';
-
 
 window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
 
@@ -174,6 +174,17 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
             if(dashboardparameters.plugins.includes("OneDrive")) uppy.use(OneDrive, { target: Dashboard, companionUrl: companionUrl });
             if(dashboardparameters.plugins.includes("Links")) uppy.use(Url, {target: Dashboard, companionUrl: companionUrl});
 
+            uppy.use(GoldenRetriever, {serviceWorker: true})
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker
+                    .register('/sw.js') // path to your bundled service worker with GoldenRetriever service worker
+                    .then((registration) => {
+                        if (debug) console.log('ServiceWorker registration successful with scope: ', registration.scope)
+                    })
+                    .catch((error) => {
+                        console.log('Registration failed with ' + error)
+                    })
+            }
 
             uppy.on('restriction-failed', (file, error) => {
                 if (debug)  console.log('Restriction failed', file)
@@ -248,7 +259,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
             uppy.on('thumbnail:generated', (file, preview) => {
                 const img = document.createElement('img')
                 img.src = preview
-                img.width = 100
+                img.width = t.getState().dashboardparameters.thumbnailWidth;
                 document.body.appendChild(img)
             })
 

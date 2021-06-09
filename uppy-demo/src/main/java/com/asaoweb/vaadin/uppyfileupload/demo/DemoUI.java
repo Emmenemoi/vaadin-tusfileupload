@@ -67,6 +67,7 @@ public class DemoUI extends UI
                 infobar.setHeight("30px");
             }
         };
+        component2.getUploader().setThumbnailWidth(100);
 
         layout.addComponents(new Label("size defined:"), component2);
 

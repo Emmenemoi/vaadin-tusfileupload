@@ -184,6 +184,10 @@ public class UppyUploaderComponent extends UploadComponent {
         }
     }
 
+    public void setThumbnailWidth(int thumbnailWidth) {
+        getState(true).dashboardparameters.setThumbnailWidth(thumbnailWidth);
+    }
+
     @Override
     public void attach() {
         super.attach();
@@ -243,22 +247,22 @@ public class UppyUploaderComponent extends UploadComponent {
 
     @Override
     public void setMaxFileCount(int maxFileCount) {
-        getState().coreOptions.restrictions.setMaxNumberOfFiles(maxFileCount);
+        getState(true).coreOptions.restrictions.setMaxNumberOfFiles(maxFileCount);
     }
 
     @Override
     public void setMaxFileSize(long maxFileSize) {
-        getState().coreOptions.restrictions.setMaxFileSize(maxFileSize);
+        getState(true).coreOptions.restrictions.setMaxFileSize(maxFileSize);
     }
 
     @Override
     public void setClientSideDebug(boolean debugMode) {
-        getState().coreOptions.setDebug(debugMode);
+        getState(true).coreOptions.setDebug(debugMode);
     }
 
     @Override
     public void setAcceptFilter(Collection<String> filters) {
-        getState().coreOptions.restrictions.setAllowedFileTypes(filters);
+        getState(true).coreOptions.restrictions.setAllowedFileTypes(filters);
     }
 
     public void setTransfertProgress(boolean transfertProgress){

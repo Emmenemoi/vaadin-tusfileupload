@@ -18,6 +18,7 @@
     "@uppy/dashboard": "^1.16.1",
     "@uppy/dropbox": "^1.4.23",
     "@uppy/facebook": "^1.1.23",
+    "@uppy/golden-retriever": "^1.4.1",
     "@uppy/google-drive": "^1.5.23",
     "@uppy/image-editor": "^0.2.1",
     "@uppy/instagram": "^1.4.23",

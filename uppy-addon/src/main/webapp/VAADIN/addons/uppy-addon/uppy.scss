@@ -19,5 +19,9 @@
 	.uppy-item-dashboard {
 		height: 100%;
 		overflow-y: scroll;
+
+		.uppy-DashboardContent-panel {
+			overflow: scroll;
+		}
 	}
 }

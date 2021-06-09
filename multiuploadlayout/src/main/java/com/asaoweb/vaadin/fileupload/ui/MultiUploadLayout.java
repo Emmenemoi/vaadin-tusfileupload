@@ -177,7 +177,7 @@ public class MultiUploadLayout extends VerticalLayout {
 		int fileNB = files.size();
 		if (fileNB == 0 && fileListLayout.getComponentCount() == 0) {
 			fileListLayout.addComponent(new Label(noFilesUploaded));
-		} else if (fileNB == 0 && fileListLayout.getComponentCount() > 1) {
+		} else if (fileNB > 0 && fileListLayout.getComponentCount() >= 1) {
 			if (fileListLayout.getComponent(0) instanceof Label) {
 				fileListLayout.removeComponent(fileListLayout.getComponent(0));
 			}

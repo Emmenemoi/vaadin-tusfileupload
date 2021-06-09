@@ -278,6 +278,9 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
         removeFile: function (fileId) {
             uppy.removeFile(fileId);
         },
+        cancelAll: function () {
+            uppy.cancelAll();
+        },
         initModal: function () {
             this.init();
         },

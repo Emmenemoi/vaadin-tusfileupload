@@ -284,6 +284,12 @@ public class UppyUploaderComponent extends UploadComponent {
         queue.remove(id);
     }
 
+    @Override
+    public void abortAll() {
+        clientRpc.cancelAll();
+        queue.clear();
+    }
+
     public void setMeta(Serializable meta) {
         if (meta != null) {
             metaProps = toMap(meta);

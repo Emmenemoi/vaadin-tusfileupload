@@ -30,4 +30,5 @@ public interface UppyComponentClientRpc extends ClientRpc {
      */
     void removeFile(String fileid);
 
+    void cancelAll();
 }

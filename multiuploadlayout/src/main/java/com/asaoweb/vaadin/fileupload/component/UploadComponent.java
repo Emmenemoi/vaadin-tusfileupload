@@ -239,6 +239,8 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
         return hasUploadInProgress;
     }
 
+    public abstract void abortAll();
+
     public abstract void setChunkSize(long chunkSize);
 
     public abstract void setWithCredentials(boolean withCredentials);

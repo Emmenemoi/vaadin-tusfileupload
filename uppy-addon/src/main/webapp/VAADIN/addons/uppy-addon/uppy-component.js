@@ -11,7 +11,7 @@ import ImageEditor from '@uppy/image-editor';
 import AwsS3Multipart from '@uppy/aws-s3-multipart';
 import French from '@uppy/locales/lib/fr_FR';
 import Spanish from '@uppy/locales/lib/es_ES';
-import GoldenRetriever from '@uppy/golden-retriever/lib/ServiceWorker';
+import GoldenRetriever from '@uppy/golden-retriever';
 
 import '@uppy/core/dist/style.css';
 import '@uppy/dashboard/dist/style.css';
@@ -19,6 +19,7 @@ import '@uppy/webcam/dist/style.css';
 import '@uppy/screen-capture/dist/style.css';
 import '@uppy/image-editor/dist/style.css';
 import '@uppy/url/dist/style.css';
+import '@uppy/golden-retriever/lib/ServiceWorker';
 
 window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
 

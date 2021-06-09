@@ -69,6 +69,7 @@ public class DemoUI extends UI
         };
         component2.getUploader().setThumbnailWidth(100);
         component2.getUploader().setMultiple(false);
+        component2.getUploader().setButtonCaption("test caption");
 
         layout.addComponents(new Label("size defined + non multiple upload:"), component2);
 

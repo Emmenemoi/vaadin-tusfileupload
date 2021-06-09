@@ -290,6 +290,13 @@ public class UppyUploaderComponent extends UploadComponent {
         queue.clear();
     }
 
+    @Override
+    public void setButtonCaption(String caption) {
+        getState(true).dashboardparameters.putLocale("dropPasteImport", caption);
+        getState(true).dashboardparameters.putLocale("dropPaste", caption);
+        getState(true).dashboardparameters.putLocale("dropHint", caption);
+    }
+
     public void setMeta(Serializable meta) {
         if (meta != null) {
             metaProps = toMap(meta);

@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 public class AbstractDashboardParameters implements Serializable {
 
@@ -244,6 +246,7 @@ public class AbstractDashboardParameters implements Serializable {
      *
      */
     //locale: defaultLocale,
+    private Map<String,Map<String,String>> locale = null;
 
     /**
      * https://uppy.io/docs/dashboard/#theme-39-light-39
@@ -380,6 +383,22 @@ public class AbstractDashboardParameters implements Serializable {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public void putLocale(String key, String value){
+        if(locale == null) {
+            locale = new HashMap<>();
+            locale.put("strings", new HashMap<>());
+        }
+        locale.get("strings").put(key, value);
+    }
+
+    public void setLocale(Map<String,Map<String,String>> locale) {
+        this.locale = locale;
+    }
+
+    public Map<String, Map<String,String>> getLocale(){
+        return locale;
     }
 
     public boolean isDisableStatusBar() {

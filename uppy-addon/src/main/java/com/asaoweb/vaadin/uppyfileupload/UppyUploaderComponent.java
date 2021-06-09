@@ -256,6 +256,16 @@ public class UppyUploaderComponent extends UploadComponent {
     }
 
     @Override
+    public void setMultiple(boolean multiple) {
+        getState(true).coreOptions.setAllowMultipleUploads(multiple);
+    }
+
+    @Override
+    public boolean isMultiple() {
+        return getState(true).coreOptions.isAllowMultipleUploads();
+    }
+
+    @Override
     public void setClientSideDebug(boolean debugMode) {
         getState(true).coreOptions.setDebug(debugMode);
     }

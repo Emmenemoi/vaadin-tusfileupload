@@ -220,6 +220,10 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
         return getState().maxFileCount;
     }*/
 
+    public abstract void setMultiple(boolean multiple);
+
+    public abstract boolean isMultiple();
+
     public int getQueueCount() {
         return queue.size();
     }

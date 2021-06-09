@@ -68,9 +68,9 @@ public class DemoUI extends UI
             }
         };
         component2.getUploader().setThumbnailWidth(100);
-        component2.getUploader().setMaxFileCount(1);
+        component2.getUploader().setMultiple(false);
 
-        layout.addComponents(new Label("size defined + max 1 file:"), component2);
+        layout.addComponents(new Label("size defined + non multiple upload:"), component2);
 
         Panel panel = new Panel(layout);
         panel.setSizeFull();

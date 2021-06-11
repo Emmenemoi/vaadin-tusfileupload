@@ -175,15 +175,21 @@ public class MultiUploadLayout extends VerticalLayout {
 	
 	public void refreshFilesInfos() {
 		int fileNB = files.size();
+		int last = fileListLayout.getComponentCount()-1;
 		if (fileNB == 0 && fileListLayout.getComponentCount() == 0) {
 			fileListLayout.addComponent(new Label(noFilesUploaded));
 		} else if (fileNB > 0 && fileListLayout.getComponentCount() >= 1) {
-			if (fileListLayout.getComponent(0) instanceof Label) {
-				fileListLayout.removeComponent(fileListLayout.getComponent(0));
+			if (last >= 0 && fileListLayout.getComponent(last) instanceof Label) {
+				fileListLayout.removeComponent(fileListLayout.getComponent(last));
+			}
+			last = fileListLayout.getComponentCount()-1;
+			if (last >= 0 && fileListLayout.getComponent(last) instanceof Label) {
+				fileListLayout.removeComponent(fileListLayout.getComponent(last));
 			}
 		}
+		last = fileListLayout.getComponentCount()-1;
 		int queueNB = fileListLayout.getComponentCount() - fileNB;
-		if (fileListLayout.getComponent(0) instanceof Label) {
+		if (last >= 0  && fileListLayout.getComponent(last) instanceof Label) {
 			queueNB--;
 		}
 		uploadButton.setRemainingQueueSeats(uploadButton.getMaxFileCount() != null ?

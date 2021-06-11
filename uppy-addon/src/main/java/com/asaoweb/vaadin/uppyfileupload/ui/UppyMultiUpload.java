@@ -1,5 +1,6 @@
 package com.asaoweb.vaadin.uppyfileupload.ui;
 
+import com.asaoweb.vaadin.fileupload.component.UploadComponent;
 import com.asaoweb.vaadin.fileupload.events.Events;
 import com.asaoweb.vaadin.uppyfileupload.UppyUploaderComponent;
 import com.asaoweb.vaadin.fileupload.FileInfo;
@@ -19,8 +20,12 @@ public class UppyMultiUpload extends MultiUploadLayout {
 
     public UppyMultiUpload(Serializable metas, List<FileInfo> existingFiles, FileInfoThumbProvider provider,
                            boolean allowReorder, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins, boolean transferProgress, String dashboardHeight) {
-        super(new UppyUploaderComponent(metas, companionUrl, plugins, transferProgress, dashboardHeight), existingFiles, provider, allowReorder);
-        if (transferProgress) {
+        this(new UppyUploaderComponent(metas, companionUrl, plugins, transferProgress, dashboardHeight), existingFiles, provider, allowReorder);
+    }
+
+    public UppyMultiUpload(UppyUploaderComponent component, List<FileInfo> existingFiles, FileInfoThumbProvider provider, boolean allowReorder ) {
+        super(component, existingFiles, provider, allowReorder);
+        if (component.isTransfertProgress()) {
             getUploader().hideSelector();
         }
         addInternalDeleteClickListener(new Events.InternalDeleteClickListener() {

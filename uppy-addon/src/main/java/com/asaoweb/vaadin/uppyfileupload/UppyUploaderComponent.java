@@ -279,6 +279,10 @@ public class UppyUploaderComponent extends UploadComponent {
         getState(true).setTransferProgress(transfertProgress);
     }
 
+    public boolean isTransfertProgress() {
+        return getState().isTransferProgress();
+    }
+
     public void removeFile(String id) {
         clientRpc.removeFile(id);
         queue.remove(id);

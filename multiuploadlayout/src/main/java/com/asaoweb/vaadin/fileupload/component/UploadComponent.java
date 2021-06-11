@@ -83,6 +83,7 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
      * @param evt the event details
      */
     protected void fireUploadSuccess(Events.SucceededEvent evt) {
+        preprocessOnSuccess(evt);
         fireEvent(evt);
     }
 
@@ -193,6 +194,8 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
     protected void fireStarted(Events.StartedEvent evt) {
         fireEvent(evt);
     }
+
+    protected void preprocessOnSuccess(Events.SucceededEvent evt) {}
 
     public abstract void removeFromQueue(String fileId); /*{
         if (queueId != null) {

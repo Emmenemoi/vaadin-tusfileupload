@@ -24,4 +24,8 @@
 			overflow: scroll;
 		}
 	}
+	@at-root {
+		// to hide thumbs from dom
+		body > img { display: none; }
+	}
 }

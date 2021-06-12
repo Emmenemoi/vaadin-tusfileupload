@@ -40,7 +40,7 @@ public class UppyUploaderComponent extends UploadComponent {
 
     private final static Logger logger = Logger.getLogger(UppyUploaderComponent.class.getName());
 
-    private Map<String, Object> metaProps;
+    private Map<String, Object> metaProps = new HashMap<>();
 
     private String companionUrl;
 
@@ -135,7 +135,7 @@ public class UppyUploaderComponent extends UploadComponent {
         getState(true).setDebug(logger.isLoggable(Level.FINE));
 
         if (meta != null) {
-            metaProps = toMap(meta);
+            metaProps.putAll(toMap(meta));
         }
         addStyleName("v-panel");
         registerRpc(serverRpc);
@@ -160,15 +160,16 @@ public class UppyUploaderComponent extends UploadComponent {
     public static Map<String, Object> toMap (Serializable t) {
 
         try {
+            Map<String, Object> p = new HashMap<>();
+            if(t != null) {
+                BeanInfo beanInfo = Introspector.getBeanInfo(t.getClass());
 
-            BeanInfo beanInfo = Introspector.getBeanInfo(t.getClass());
-            Map p = new HashMap();
-
-            for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
-                String name = pd.getName();
-                Object o = pd.getReadMethod().invoke(t);
-                if (o != null)
-                    p.put(name, o);
+                for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+                    String name = pd.getName();
+                    Object o = pd.getReadMethod().invoke(t);
+                    if (o != null)
+                        p.put(name, o);
+                }
             }
             return p;
         } catch (Throwable ex) {

@@ -269,6 +269,13 @@ public class Events {
         public void setFinalFileInfo(FileInfo finalFileInfo) {
             this.finalFileInfo = finalFileInfo;
         }
+
+        @Override
+        public String toString() {
+            return "SucceededEvent{" +
+                    "inputStreamPath=" + inputStreamPath +
+                    "} " + super.toString();
+        }
     }
 
     /**

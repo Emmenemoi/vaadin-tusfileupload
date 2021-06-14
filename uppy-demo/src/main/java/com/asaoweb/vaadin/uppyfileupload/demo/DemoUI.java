@@ -18,6 +18,8 @@ import com.vaadin.ui.VerticalLayout;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.asaoweb.vaadin.uppyfileupload.client.dashboard.AbstractDashboardParameters.DashboardPlugin.Links;
@@ -41,9 +43,10 @@ public class DemoUI extends UI
     protected void init(VaadinRequest request) {
 
         // Initialize our new UI component
-        UIUid metas = new UIUid();
-        metas.setId(UUID.randomUUID().toString());
-        metas.setUserId(23348L);
+        Map<String, Object> metas = new HashMap<>();
+        metas.put("Id", UUID.randomUUID().toString());
+        metas.put("userId", 23348L);
+
         final UppyMultiUpload component = new UppyMultiUpload(metas,
                 new ArrayList<FileInfo>(), null, true, "http://localhost:3020", Arrays.asList(Links), false, "240px");
 
@@ -94,7 +97,7 @@ public class DemoUI extends UI
         //timer.schedule(task, 7500L);
     }
 
-    public final class UIUid implements Serializable {
+    /*public final class UIUid implements Serializable {
         @JsonProperty("id")
         private String id;
 
@@ -116,5 +119,5 @@ public class DemoUI extends UI
         public void setUserId(Long userId) {
             this.userId = userId;
         }
-    }
+    }*/
 }

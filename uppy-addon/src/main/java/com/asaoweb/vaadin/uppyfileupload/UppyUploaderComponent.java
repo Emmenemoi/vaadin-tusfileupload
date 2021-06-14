@@ -12,6 +12,7 @@ import com.asaoweb.vaadin.uppyfileupload.client.UppyUploaderComponentState;
 import com.asaoweb.vaadin.uppyfileupload.client.domain.File;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gwt.json.client.JSONObject;
 import com.vaadin.annotations.JavaScript;
 import com.vaadin.annotations.StyleSheet;
 import com.vaadin.server.SizeWithUnit;
@@ -40,7 +41,7 @@ public class UppyUploaderComponent extends UploadComponent {
 
     private final static Logger logger = Logger.getLogger(UppyUploaderComponent.class.getName());
 
-    private Map<String, Object> metaProps = new HashMap<>();
+    //protected Map<String, Object> metaProps = new HashMap<>();
 
     private String companionUrl;
 
@@ -118,10 +119,10 @@ public class UppyUploaderComponent extends UploadComponent {
     };
     private final UppyComponentClientRpc clientRpc;
 
-    public UppyUploaderComponent(Serializable meta, String companionUrl) {
+    public UppyUploaderComponent(Map<String, Object> meta, String companionUrl) {
         this(meta, companionUrl, null, false, "550px");
     }
-    public UppyUploaderComponent(Serializable meta, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins, boolean transferProgress, String dashboardHeight) {
+    public UppyUploaderComponent(Map<String, Object> meta, String companionUrl, List<AbstractDashboardParameters.DashboardPlugin> plugins, boolean transferProgress, String dashboardHeight) {
         super();
         this.companionUrl = companionUrl;
         if(plugins != null) {
@@ -134,9 +135,8 @@ public class UppyUploaderComponent extends UploadComponent {
 
         getState(true).setDebug(logger.isLoggable(Level.FINE));
 
-        if (meta != null) {
-            metaProps.putAll(toMap(meta));
-        }
+        getState(true).coreOptions.setMeta(toJson(meta));
+
         addStyleName("v-panel");
         registerRpc(serverRpc);
         clientRpc = getRpcProxy(UppyComponentClientRpc.class);
@@ -177,6 +177,17 @@ public class UppyUploaderComponent extends UploadComponent {
         }
     }
 
+    public static JsonObject toJson (Map<String, Object> metaProps) {
+        JsonObject metasJson = Json.createObject();
+        if (metaProps != null) {
+            for (Map.Entry<String, Object> entry : metaProps.entrySet()) {
+                metasJson.put(entry.getKey(), String.valueOf(entry.getValue()));
+            }
+        }
+        return metasJson;
+    }
+
+
     @Override
     public void setHeight(float height, Unit unit) {
         super.setHeight(height, unit);
@@ -193,17 +204,10 @@ public class UppyUploaderComponent extends UploadComponent {
     public void attach() {
         super.attach();
         if (companionUrl != null) {
-            getState().setCompanionUrl(companionUrl);
+            getState(true).setCompanionUrl(companionUrl);
         }
         setSizeFull();
         clientRpc.initInline();
-        JsonObject metasJson = Json.createObject();
-        if (metaProps != null) {
-            for (Map.Entry<String, Object> entry : metaProps.entrySet()) {
-                metasJson.put(entry.getKey(), String.valueOf(entry.getValue()));
-            }
-        }
-        clientRpc.setMeta(metasJson);
     }
 
     @Override
@@ -302,21 +306,20 @@ public class UppyUploaderComponent extends UploadComponent {
         getState(true).dashboardparameters.putLocale("dropHint", caption);
     }
 
-    public void setMeta(Serializable meta) {
-        if (meta != null) {
-            metaProps = toMap(meta);
+    public void setMeta(Map<String, Object> meta) {
+        if (isAttached()) {
+            clientRpc.setMeta(toJson(meta));
+        } else {
+            getState(true).coreOptions.setMeta(toJson(meta));
         }
-        JsonObject metasJson = Json.createObject();
-        if (metaProps != null) {
-            for (Map.Entry<String, Object> entry : metaProps.entrySet()) {
-                metasJson.put(entry.getKey(), String.valueOf(entry.getValue()));
-            }
-        }
-        clientRpc.setMeta(metasJson);
+    }
+
+    public JsonObject getMeta() {
+        return getState().coreOptions.getMeta();
     }
 
     public void setDomain(String domain) {
-        getState().coreOptions.setEdomain(domain);
+        getState(true).coreOptions.setEdomain(domain);
     }
 
     public void hideSelector() {

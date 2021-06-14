@@ -131,10 +131,6 @@ public class CoreOptions {
         this.debug = debug;
     }
 
-    public JsonObject getMeta() {
-        return meta;
-    }
-
     public String getEdomain() {
         return edomain;
     }
@@ -147,5 +143,8 @@ public class CoreOptions {
         this.meta = meta;
     }
 
+    public JsonObject getMeta() {
+        return meta;
+    }
 
 }

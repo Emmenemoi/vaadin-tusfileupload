@@ -12,10 +12,12 @@ import com.vaadin.ui.UI;
 public class Events {
     public static abstract class AbstractTusUploadEvent extends Component.Event {
         private final FileInfo fileInfo;
+        private final UI ui;
 
         protected AbstractTusUploadEvent(UploadComponent source, FileInfo fileInfo) {
             super(source);
             this.fileInfo = fileInfo;
+            this.ui = source != null ? source.getUI() : null;
         }
 
         /**
@@ -72,6 +74,8 @@ public class Events {
             return fileInfo;
         }
 
+        public UI getUI() { return ui;}
+
         @Override
         public UploadComponent getComponent() {
             return (UploadComponent) super.getComponent();
@@ -84,6 +88,7 @@ public class Events {
                     ", source=" + source +
                     '}';
         }
+
     }
 
     /**

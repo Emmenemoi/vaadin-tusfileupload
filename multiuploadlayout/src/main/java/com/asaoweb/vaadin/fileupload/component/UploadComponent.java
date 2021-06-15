@@ -90,10 +90,11 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
                 .thenAccept(e -> {
                     LoggerFactory.getLogger(getClass()).info("before fireEvent {}", e);
                     try {
-                        if (getUI() != null) {
-                            getUI().access(() -> fireEvent(e));
+                        if (e.getUI() != null) {
+                            e.getUI().access(() -> fireEvent(e));
                         } else {
-                            fireEvent(e);
+                            //fireEvent(e); can't do that !! Thread concurrency and security on UI
+                            LoggerFactory.getLogger(getClass()).info("No UI available. Ignore {}", e);
                         }
                     } catch (Exception ex){
                         LoggerFactory.getLogger(getClass()).error("fireEvent {}:", e, ex);

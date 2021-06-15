@@ -18,6 +18,7 @@ import com.vaadin.annotations.StyleSheet;
 import com.vaadin.server.SizeWithUnit;
 import elemental.json.Json;
 import elemental.json.JsonObject;
+import org.slf4j.LoggerFactory;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -91,7 +92,7 @@ public class UppyUploaderComponent extends UploadComponent {
                 queue.remove(fi.queueId);
             } catch (Throwable ex) {
                 // TODO To process
-                ex.printStackTrace();
+                logger.warning("onUploadSuccess failed: " + ex);
             }
         }
 
@@ -253,6 +254,7 @@ public class UppyUploaderComponent extends UploadComponent {
     @Override
     public void setMaxFileCount(int maxFileCount) {
         getState(true).coreOptions.restrictions.setMaxNumberOfFiles(maxFileCount);
+        setMultiple(maxFileCount > 1);
     }
 
     @Override

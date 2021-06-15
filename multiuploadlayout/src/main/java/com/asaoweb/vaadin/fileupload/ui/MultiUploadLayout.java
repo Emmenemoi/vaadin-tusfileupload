@@ -590,6 +590,7 @@ public class MultiUploadLayout extends VerticalLayout {
 			try {
 				fileInfo.offset = value;
 				progress.setValue((float) value / (float) total);
+				progress.setVisible(value>0);
 				int pct = (int) ((float) value / (float) total * 100);
 				if (MultiUploadLayout.this.compactLayout) {
 					progressInfos.setValue(UploadComponent.readableFileSize(value) + "/" + pct + "%");

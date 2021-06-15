@@ -3,6 +3,7 @@ package com.asaoweb.vaadin.fileupload.component;
 import com.asaoweb.vaadin.fileupload.events.Events;
 import com.vaadin.shared.Registration;
 import com.vaadin.ui.AbstractJavaScriptComponent;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Upload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class UploadComponent extends AbstractJavaScriptComponent {
     private final static Method SUCCEEDED_METHOD;
@@ -83,8 +85,21 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
      * @param evt the event details
      */
     protected void fireUploadSuccess(Events.SucceededEvent evt) {
-        preprocessOnSuccess(evt);
-        fireEvent(evt);
+        LoggerFactory.getLogger(getClass()).info("fireUploadSuccess {}", evt);
+        preprocessOnSuccess(evt)
+                .thenAccept(e -> {
+                    LoggerFactory.getLogger(getClass()).info("before fireEvent {}", e);
+                    try {
+                        if (getUI() != null) {
+                            getUI().access(() -> fireEvent(e));
+                        } else {
+                            fireEvent(e);
+                        }
+                    } catch (Exception ex){
+                        LoggerFactory.getLogger(getClass()).error("fireEvent {}:", e, ex);
+                    }
+                });
+        //fireEvent(evt);
     }
 
     /**
@@ -195,7 +210,9 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
         fireEvent(evt);
     }
 
-    protected void preprocessOnSuccess(Events.SucceededEvent evt) {}
+    protected CompletableFuture<Events.SucceededEvent> preprocessOnSuccess(Events.SucceededEvent evt) {
+        return CompletableFuture.completedFuture(evt);
+    }
 
     public abstract void removeFromQueue(String fileId); /*{
         if (queueId != null) {

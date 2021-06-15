@@ -7,6 +7,7 @@ import java.net.URI;
 import com.asaoweb.vaadin.fileupload.component.UploadComponent;
 import com.asaoweb.vaadin.fileupload.FileInfo;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.UI;
 
 public class Events {
     public static abstract class AbstractTusUploadEvent extends Component.Event {

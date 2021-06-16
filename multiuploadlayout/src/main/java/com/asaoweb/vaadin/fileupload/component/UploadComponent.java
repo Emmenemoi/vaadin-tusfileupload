@@ -85,10 +85,10 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
      * @param evt the event details
      */
     protected void fireUploadSuccess(Events.SucceededEvent evt) {
-        LoggerFactory.getLogger(getClass()).info("fireUploadSuccess {}", evt);
+        LoggerFactory.getLogger(getClass()).debug("fireUploadSuccess {}", evt);
         preprocessOnSuccess(evt)
                 .thenAccept(e -> {
-                    LoggerFactory.getLogger(getClass()).info("before fireEvent {}", e);
+                    LoggerFactory.getLogger(getClass()).debug("before fireEvent {}", e);
                     try {
                         if (e.getUI() != null) {
                             e.getUI().access(() -> fireEvent(e));

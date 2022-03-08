@@ -61,7 +61,6 @@ public class MultiUploadLayout extends VerticalLayout {
 	  
 	  private static final Logger logger = LoggerFactory.getLogger(MultiUploadLayout.class.getName());
 
-	protected final UploadComponent uploadButton;
 	protected final Label infoLabel;
 	protected final Panel listPanel;
 	
@@ -81,11 +80,12 @@ public class MultiUploadLayout extends VerticalLayout {
 	protected boolean   cachedHTML5DnD = false;
 	protected HorizontalLayout infobar;
 
+	protected UploadComponent uploadButton;
+
 	protected Lock		updateLock = new ReentrantLock();
 	
 	public MultiUploadLayout(UploadComponent uploadComponent, List<FileInfo> existingFiles, FileInfoThumbProvider provider, boolean allowReorder) {
 		super();
-		uploadButton = uploadComponent;
 		infoLabel = new Label();
 		listPanel = new Panel();
 		listPanel.setSizeFull();
@@ -95,14 +95,12 @@ public class MultiUploadLayout extends VerticalLayout {
 		
 		this.setSizeFull();
 
-		setUploaderLocation();
-		this.addStyleName("tusmultiuploadlayout");
 
+		this.addStyleName("tusmultiuploadlayout");
 		files = existingFiles;
-		uploadButton.addFileQueuedListener(e -> {
-			addFileInfoItem(e.getFileInfo());
-			refreshFilesInfos();
-		});
+
+		setUploader(uploadComponent);
+
 		setThumbProvider(provider);
 		allowReorder(allowReorder);
 	}
@@ -321,7 +319,19 @@ public class MultiUploadLayout extends VerticalLayout {
 	public void setWithCredentials(boolean withCredentials) {
 		uploadButton.setWithCredentials(withCredentials);
 	}
-	
+
+	public void setUploader(UploadComponent uploadButton){
+		if(this.uploadButton != null){
+			this.uploadButton.detach();
+		}
+		this.uploadButton = uploadButton;
+		setUploaderLocation();
+		this.uploadButton.addFileQueuedListener(e -> {
+			addFileInfoItem(e.getFileInfo());
+			refreshFilesInfos();
+		});
+	}
+
 	public UploadComponent getUploader() {
 		return uploadButton;
 	}

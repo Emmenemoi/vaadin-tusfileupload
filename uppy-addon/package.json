@@ -25,6 +25,7 @@
     "@uppy/locales": "^1.17.2",
     "@uppy/onedrive": "^1.1.23",
     "@uppy/screen-capture": "^1.0.14",
+    "@uppy/tus": "^1.9.1",
     "@uppy/url": "^1.5.20",
     "@uppy/webcam": "^1.8.5",
     "ms": "^2.1.3"

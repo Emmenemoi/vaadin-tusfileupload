@@ -4,30 +4,36 @@
   <groupId>com.asaoweb.vaadin</groupId>
   <artifactId>tusfileupload</artifactId>
   <packaging>jar</packaging>
-  <version>2.0-SNAPSHOT</version>
   <name>tusfileupload-addon</name>
   <url>http://maven.apache.org</url>
-  
-      <properties>
-        <project.build.java.version>1.8</project.build.java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <vaadin.version>8.4.4</vaadin.version>
-		<jackson.version>2.10.3</jackson.version>
-		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
-		
-        <!-- ZIP Manifest fields -->
-        <Implementation-Version>${project.version}</Implementation-Version>
-        <!-- Must not change this because of the Directory -->
-        <Implementation-Title>${project.name}</Implementation-Title>
-        <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
-        <Vaadin-License-Title>Apache License 2.0</Vaadin-License-Title>
-        <Vaadin-Addon>${project.artifactId}-${project.version}.jar</Vaadin-Addon>
-        <Vaadin-Stylesheets>VAADIN/addons/tusfileupload/tusfileupload.scss</Vaadin-Stylesheets>
-        
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.source>1.8</maven.compiler.source>
-    </properties>
+
+	<parent>
+		<groupId>com.asaoweb.vaadin</groupId>
+		<artifactId>fileupload-root</artifactId>
+		<relativePath>../pom.xml</relativePath>
+		<version>${revision}${changelist}</version>
+	</parent>
+
+  <properties>
+	<project.build.java.version>1.8</project.build.java.version>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	<vaadin.version>8.4.4</vaadin.version>
+	<jackson.version>2.10.3</jackson.version>
+	<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+
+	<!-- ZIP Manifest fields -->
+	<Implementation-Version>${project.version}</Implementation-Version>
+	<!-- Must not change this because of the Directory -->
+	<Implementation-Title>${project.name}</Implementation-Title>
+	<Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+	<Vaadin-License-Title>Apache License 2.0</Vaadin-License-Title>
+	<Vaadin-Addon>${project.artifactId}-${project.version}.jar</Vaadin-Addon>
+	<Vaadin-Stylesheets>VAADIN/addons/tusfileupload/tusfileupload.scss</Vaadin-Stylesheets>
+
+	<maven.compiler.target>1.8</maven.compiler.target>
+	<maven.compiler.source>1.8</maven.compiler.source>
+  </properties>
     
   <dependencies>
     <dependency>
@@ -76,7 +82,6 @@
 	  <dependency>
 		  <groupId>com.asaoweb.vaadin</groupId>
 		  <artifactId>multiuploadlayout</artifactId>
-		  <version>2.0-SNAPSHOT</version>
 	  </dependency>
 
 	  <!-- The tus_servlet uses these jars for json marshaling:  -->

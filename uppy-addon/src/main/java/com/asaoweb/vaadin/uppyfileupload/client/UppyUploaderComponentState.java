@@ -21,6 +21,8 @@ public class UppyUploaderComponentState extends JavaScriptComponentState {
 
     private boolean transferProgress = false;
 
+    private String uploadModule = "TUS";
+
     public UppyUploaderComponentState() {
     }
 
@@ -47,4 +49,8 @@ public class UppyUploaderComponentState extends JavaScriptComponentState {
     public boolean isTransferProgress() { return transferProgress; }
 
     public void setTransferProgress(boolean transferProgress) { this.transferProgress = transferProgress; }
+
+    public String getUploadModule() { return uploadModule; }
+
+    public void setUploadModule(String uploadModule) { this.uploadModule = uploadModule; }
 }

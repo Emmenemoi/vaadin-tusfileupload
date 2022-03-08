@@ -9,6 +9,7 @@ import Webcam from '@uppy/webcam';
 import Url from '@uppy/url';
 import ImageEditor from '@uppy/image-editor';
 import AwsS3Multipart from '@uppy/aws-s3-multipart';
+import Tus from '@uppy/tus';
 import French from '@uppy/locales/lib/fr_FR';
 import Spanish from '@uppy/locales/lib/es_ES';
 import GoldenRetriever from '@uppy/golden-retriever';
@@ -155,9 +156,12 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 .use(Dashboard, dashboardparameters)
                 .use(Webcam, { target: Dashboard })
                 //.use(ScreenCapture, { target: Dashboard })
-                .use(ImageEditor, { target: Dashboard })
-                .use(AwsS3Multipart, { limit : 1000, companionUrl: companionUrl,
-                    createMultipartUpload (file) {
+                .use(ImageEditor, { target: Dashboard });
+
+            if(state.uploadModule == 'S3') {
+                uppy.use(AwsS3Multipart, {
+                    limit: 1000, companionUrl: companionUrl,
+                    createMultipartUpload(file) {
                         // Only stings are allowes in metadata, we're settings in the s3 metadata only the ui id and the user id
                         return fetch(`${companionUrl}/s3/multipart`, {
                             method: 'post',
@@ -174,6 +178,14 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                         }).then((response) => response.json())
                     }
                 });
+            } else if(state.uploadModule == 'TUS') {
+                uppy.use(Tus, {
+                    endpoint: `${companionUrl}/tus/files/`, // use your tus endpoint here
+                    resume: true,
+                    retryDelays: state.retryDelays
+                });
+            }
+
             if(dashboardparameters.plugins.includes("GoogleDrive")) uppy.use(GoogleDrive, { target: Dashboard, companionUrl: companionUrl });
             if(dashboardparameters.plugins.includes("Dropbox")) uppy.use(Dropbox, { target: Dashboard, companionUrl: companionUrl });
             if(dashboardparameters.plugins.includes("Instagram")) uppy.use(Instagram, { target: Dashboard, companionUrl: companionUrl });

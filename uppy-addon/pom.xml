@@ -5,12 +5,18 @@
 	<groupId>com.asaoweb.vaadin</groupId>
 	<artifactId>uppy</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0-SNAPSHOT</version>
 	<name>UppyComponent Add-on</name>
 
 	<prerequisites>
 		<maven>3</maven>
 	</prerequisites>
+
+	<parent>
+		<groupId>com.asaoweb.vaadin</groupId>
+		<artifactId>fileupload-root</artifactId>
+		<relativePath>../pom.xml</relativePath>
+		<version>${revision}${changelist}</version>
+	</parent>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -86,7 +92,6 @@
 		<dependency>
 			<groupId>com.asaoweb.vaadin</groupId>
 			<artifactId>multiuploadlayout</artifactId>
-			<version>2.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

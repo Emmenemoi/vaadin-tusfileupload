@@ -5,12 +5,20 @@
 	<groupId>com.asaoweb.vaadin</groupId>
 	<artifactId>fileupload-root</artifactId>
 	<packaging>pom</packaging>
-	<version>2.0-SNAPSHOT</version>
+	<version>${revision}${changelist}</version>
 	<name>fileupload-addon</name>
 
 	<prerequisites>
 		<maven>3</maven>
 	</prerequisites>
+
+	<properties>
+		<revision>2.1.1</revision>
+		<changelist>-SNAPSHOT</changelist>
+		<multiuploadlayout.version>${revision}${changelist}</multiuploadlayout.version>
+		<tusfileupload.version>${revision}${changelist}</tusfileupload.version>
+		<uppy.version>${revision}${changelist}</uppy.version>
+	</properties>
 
 	<modules>
 		<module>uppy-addon</module>
@@ -18,6 +26,65 @@
 		<module>multiuploadlayout</module>
 		<module>tusfileupload-addon</module>
 	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.asaoweb.vaadin</groupId>
+				<artifactId>multiuploadlayout</artifactId>
+				<version>${multiuploadlayout.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.asaoweb.vaadin</groupId>
+				<artifactId>tusfileupload</artifactId>
+				<version>${tusfileupload.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.asaoweb.vaadin</groupId>
+				<artifactId>uppy</artifactId>
+				<version>${uppy.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>flatten-maven-plugin</artifactId>
+					<version>1.2.2</version>
+					<configuration>
+						<updatePomFile>true</updatePomFile>
+						<flattenMode>resolveCiFriendliesOnly</flattenMode>
+					</configuration>
+					<executions>
+						<execution>
+							<id>flatten</id>
+							<phase>process-resources</phase>
+							<goals>
+								<goal>flatten</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>flatten.clean</id>
+							<phase>clean</phase>
+							<goals>
+								<goal>clean</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 
 	<profiles>
 		<profile>

@@ -86,21 +86,12 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
      */
     protected void fireUploadSuccess(Events.SucceededEvent evt) {
         LoggerFactory.getLogger(getClass()).debug("fireUploadSuccess {}", evt);
-        preprocessOnSuccess(evt)
-                .thenAccept(e -> {
-                    LoggerFactory.getLogger(getClass()).debug("before fireEvent {}", e);
-                    try {
-                        if (e.getUI() != null) {
-                            e.getUI().access(() -> fireEvent(e));
-                        } else {
-                            //fireEvent(e); can't do that !! Thread concurrency and security on UI
-                            LoggerFactory.getLogger(getClass()).info("No UI available. Ignore {}", e);
-                        }
-                    } catch (Exception ex){
-                        LoggerFactory.getLogger(getClass()).error("fireEvent {}:", e, ex);
-                    }
-                });
-        //fireEvent(evt);
+        if(preprocessOnSuccess(evt)) {
+                    LoggerFactory.getLogger(getClass()).debug("before fireEvent {}", evt);
+                    fireEvent(evt);
+        } else {
+            LoggerFactory.getLogger(getClass()).debug("ignore fireEvent {}", evt);
+        }
     }
 
     /**
@@ -211,8 +202,8 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
         fireEvent(evt);
     }
 
-    protected CompletableFuture<Events.SucceededEvent> preprocessOnSuccess(Events.SucceededEvent evt) {
-        return CompletableFuture.completedFuture(evt);
+    protected boolean preprocessOnSuccess(Events.SucceededEvent evt) {
+        return true;
     }
 
     public abstract void removeFromQueue(String fileId); /*{

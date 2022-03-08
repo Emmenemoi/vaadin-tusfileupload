@@ -4,10 +4,16 @@
   <groupId>com.asaoweb.vaadin</groupId>
   <artifactId>multiuploadlayout</artifactId>
   <packaging>jar</packaging>
-  <version>2.0-SNAPSHOT</version>
   <name>multiuploadlayout-addon</name>
   <url>http://maven.apache.org</url>
-  
+
+	<parent>
+		<groupId>com.asaoweb.vaadin</groupId>
+		<artifactId>fileupload-root</artifactId>
+		<relativePath>../pom.xml</relativePath>
+		<version>${revision}${changelist}</version>
+	</parent>
+
       <properties>
         <project.build.java.version>1.8</project.build.java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

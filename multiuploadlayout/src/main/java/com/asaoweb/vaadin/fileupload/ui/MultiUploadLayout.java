@@ -2,12 +2,10 @@ package com.asaoweb.vaadin.fileupload.ui;
 
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 import com.asaoweb.vaadin.fileupload.data.FileInfoThumbProvider;
 import com.asaoweb.vaadin.fileupload.FileInfo;
@@ -61,6 +59,9 @@ public class MultiUploadLayout extends VerticalLayout {
 	  
 	  private static final Logger logger = LoggerFactory.getLogger(MultiUploadLayout.class.getName());
 
+	protected Map<Component, Consumer<Long>> addExtraComponents(){
+		return new HashMap();
+	}
 	protected final Label infoLabel;
 	protected final Panel listPanel;
 	
@@ -335,24 +336,20 @@ public class MultiUploadLayout extends VerticalLayout {
 	public UploadComponent getUploader() {
 		return uploadButton;
 	}
-	
 	public void allowReorder(boolean allowReorder) {
 		this.allowReorder = allowReorder;
 		if (fileListLayout != null && fileListLayout.isAttached()) {
 			refreshFileList();
 		}
 	}
-	
 	public void setCompactLayout(boolean compactLayout) {
 		this.compactLayout = compactLayout;
 		if (fileListLayout != null && fileListLayout.isAttached()) {
 			refreshFileList();
 		}
 	}
-	
 	/**
 	 * Display file list in reverse order (last as first component)
-	 * 
 	 */
 	public void setReverseOrder(boolean reverseOrder) {
 		this.reverseOrder = reverseOrder;
@@ -360,14 +357,12 @@ public class MultiUploadLayout extends VerticalLayout {
 			refreshFileList();
 		}
 	}
-	
 	public void setAllowDelete(boolean allowDelete) {
 		this.allowDelete = allowDelete;
 		if (fileListLayout != null && fileListLayout.isAttached()) {
 			refreshFileList();
 		}
 	}
-	
 	protected class FileListComponent extends HorizontalLayout implements FailedListener, ProgressListener, SucceededListener, StartedListener {
 		protected static final String PROGRESS_STYLE = "progress";
 		protected static final String FAILED_STYLE = "failed";
@@ -382,7 +377,6 @@ public class MultiUploadLayout extends VerticalLayout {
 		protected final Label progressInfos = new Label();
 		protected final AbstractOrderedLayout progressBarWrapper;
 		protected final Button action = new Button();
-
 		protected final Lock flcUpdateLock = new ReentrantLock();
 
         protected FileInfo fileInfo;
@@ -452,6 +446,18 @@ public class MultiUploadLayout extends VerticalLayout {
 				thumbWrapper.addStyleName("tusmultiuploadlayout-filelistcomponent-compact-thumbwrapper");
 				thumbWrapper.addComponent(thumb);
 				thumbWrapper.addComponent(action);
+
+				Map<Component, Consumer<Long>> extraComponentsToAdd = addExtraComponents();
+				if(!extraComponentsToAdd.isEmpty()){
+					for(Component c : extraComponentsToAdd.keySet()) {
+						c.addListener(evt -> {
+							extraComponentsToAdd.get(c).accept(Long.valueOf(fileInfo.id));
+						});
+						thumbWrapper.addComponent(c);
+					}
+				}
+
+
 				thumbWrapper.addComponent(statusWrapper);
 				thumbWrapper.addComponent( fileSize);
 				fileSize.setWidth("100%");
@@ -689,6 +695,4 @@ public class MultiUploadLayout extends VerticalLayout {
 		
 		
 	}
-	
-	
 }

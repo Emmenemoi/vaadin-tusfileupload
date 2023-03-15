@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.asaoweb.vaadin.fileupload.data.FileInfoThumbProvider;
 import com.asaoweb.vaadin.fileupload.FileInfo;
@@ -71,6 +73,8 @@ public class MultiUploadLayout extends VerticalLayout {
 	protected boolean 	reverseOrder = false;
 	protected boolean 	compactLayout = false;
 	protected FileInfoThumbProvider provider;
+
+	protected Function<FileInfo, String> filelistItemStyleProvider;
 	protected String 	infoLabelMessagePattern = "{0,,filenb} uploaded files / {2,,totalSize} (+{1,,queueSize} queued)";
 	protected String	fileMinCountErrorMessagePattern = "Can't delete any file: {0,,minCount} files must be attached. Upload new files first.";
 	protected String 	noFilesUploaded = "No files uploaded yet.";
@@ -133,7 +137,11 @@ public class MultiUploadLayout extends VerticalLayout {
 	public void setThumbProvider(FileInfoThumbProvider provider) {
 		this.provider = provider;
 	}
-	
+
+	public void setFilelistItemStyleProvider(Function<FileInfo, String> filelistItemStyleProvider) {
+		this.filelistItemStyleProvider = filelistItemStyleProvider;
+	}
+
 	public Registration addSucceededListener(SucceededListener listener) {
 		return uploadButton.addSucceededListener(listener);
 	}
@@ -267,12 +275,16 @@ public class MultiUploadLayout extends VerticalLayout {
     }
 
     private void addFileInfoItem(FileInfo fi) {
-		if (reverseOrder) {
-			fileListLayout.addComponentAsFirst(new FileListComponent(fi, uploadButton));
-		} else {
-			fileListLayout.addComponent(new FileListComponent(fi, uploadButton));
+			FileListComponent f = new FileListComponent(fi, uploadButton);
+			if (filelistItemStyleProvider != null) {
+				f.addStyleName(filelistItemStyleProvider.apply(fi));
+			}
+			if (reverseOrder) {
+				fileListLayout.addComponentAsFirst(f);
+			} else {
+				fileListLayout.addComponent(f);
+			}
 		}
-	}
 
 	public void cancelSucceededEvent(SucceededEvent event) {
 		updateLock.lock();

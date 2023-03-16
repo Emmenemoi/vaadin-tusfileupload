@@ -70,12 +70,12 @@
 		<dependency>
 			<groupId>com.asaoweb.vaadin</groupId>
 			<artifactId>multiuploadlayout</artifactId>
-			<version>2.1.1-SNAPSHOT</version>
+			<version>2.1.2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.asaoweb.vaadin</groupId>
 			<artifactId>uppy</artifactId>
-			<version>2.1.1-SNAPSHOT</version>
+			<version>2.1.2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin</groupId>
@@ -107,7 +107,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.3.2</version>
 				<configuration>
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>

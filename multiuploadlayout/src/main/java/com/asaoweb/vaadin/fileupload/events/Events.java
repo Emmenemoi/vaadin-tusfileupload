@@ -91,6 +91,61 @@ public class Events {
 
     }
 
+    public static abstract class AbstractFileListEvent<FILE> extends Component.Event {
+        private final FILE file;
+
+        private boolean userGenerated = true;
+        protected AbstractFileListEvent(UploadComponent source, FILE file) {
+            super(source);
+            this.file = file;
+        }
+
+        public boolean isUserGenerated() {
+            return userGenerated;
+        }
+
+        public void setUserGenerated(boolean userGenerated) {
+            this.userGenerated = userGenerated;
+        }
+
+        /**
+         * Returns the full FileInfo object.
+         *
+         * @return the FileInfo
+         */
+        public FILE getFile() {
+            return file;
+        }
+
+        @Override
+        public UploadComponent getComponent() {
+            return (UploadComponent) super.getComponent();
+        }
+
+        @Override
+        public String toString() {
+            return this.getClass().getSimpleName() + "{" +
+                "file=" + file +
+                ", source=" + source +
+                '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof AbstractFileListEvent)) return false;
+
+            AbstractFileListEvent<?> that = (AbstractFileListEvent<?>) o;
+
+            return getFile().equals(that.getFile());
+        }
+
+        @Override
+        public int hashCode() {
+            return getFile().hashCode();
+        }
+    }
+
     /**
      * The event fired when an upload completes, both success or failure.
      */
@@ -233,7 +288,7 @@ public class Events {
         final InputStream inputStream;
         URI inputStreamPath;
         //final int remainingQueueSize;
-        boolean addFileToList = true;
+        //boolean addFileToList = true;
         FileInfo finalFileInfo;
 
         /**
@@ -259,7 +314,7 @@ public class Events {
         }
 
         //public int getRemainingQueueSize() { return remainingQueueSize; }
-
+/*
         public boolean shouldAddFileToList() {
             return addFileToList;
         }
@@ -267,7 +322,7 @@ public class Events {
         public void setAddFileToList(boolean addFileToList) {
             this.addFileToList = addFileToList;
         }
-
+*/
         public FileInfo getFinalFileInfo() {
             return finalFileInfo;
         }
@@ -330,32 +385,16 @@ public class Events {
     /**
      * An event describing a deleted upload.
      */
-    public static class FileDeletedClickEvent extends AbstractTusUploadEvent {
+    public static class FileDeletedClickEvent<FILE> extends AbstractFileListEvent<FILE> {
 
         /**
          * Constructs the event.
          *
          * @param source   the source component
-         * @param fileInfo File information provided by the client
+         * @param file File information provided by the client
          */
-        public FileDeletedClickEvent(UploadComponent source, FileInfo fileInfo) {
-            super(source, fileInfo);
-        }
-
-    }
-
-    /**
-     * An event describing a deleted upload.
-     */
-    public static class InternalDeleteClickEvent extends AbstractTusUploadEvent {
-
-        /**
-         * Constructs the event.
-         *
-         * @param fileInfo File information provided by the client
-         */
-        public InternalDeleteClickEvent(UploadComponent source, FileInfo fileInfo) {
-            super(source, fileInfo);
+        public FileDeletedClickEvent(UploadComponent source, FILE file) {
+            super(source, file);
         }
 
     }
@@ -363,33 +402,21 @@ public class Events {
     /**
      * A listener that receives file deleted click events.
      */
-    public interface FileDeletedClickListener extends Serializable  {
+    public interface FileDeletedClickListener<FILE> extends Serializable  {
 
         /**
          * Called when is added to the queue.
          *
          * @param evt the event details
          */
-        void fileDeletedClick(FileDeletedClickEvent evt);
+        void fileDeletedClick(FileDeletedClickEvent<FILE> evt);
     }
 
-    /**
-     * A listener that receives file deleted click events.
-     */
-    public interface InternalDeleteClickListener extends Serializable  {
-
-        /**
-         * Called when is added to the queue.
-         *
-         * @param evt the event details
-         */
-        void internalDeleteClick(InternalDeleteClickEvent evt);
-    }
 
     /**
      * An event describing a deleted upload.
      */
-    public static class FileIndexMovedEvent extends AbstractTusUploadEvent {
+    public static class FileIndexMovedEvent<FILE> extends AbstractFileListEvent<FILE> {
         protected final int newIndex;
         protected final int oldIndex;
 
@@ -399,7 +426,7 @@ public class Events {
          * @param source   the source component
          * @param fileInfo File information provided by the client
          */
-        public FileIndexMovedEvent(UploadComponent source, FileInfo fileInfo, int oldIndex, int newIndex) {
+        public FileIndexMovedEvent(UploadComponent source, FILE fileInfo, int oldIndex, int newIndex) {
             super(source, fileInfo);
             this.oldIndex = oldIndex;
             this.newIndex = newIndex;
@@ -423,13 +450,13 @@ public class Events {
     /**
      * A listener that receives file deleted click events.
      */
-    public interface FileIndexMovedListener extends Serializable {
+    public interface FileIndexMovedListener<FILE> extends Serializable {
 
         /**
          * Called when is added to the queue.
          *
          * @param evt the event details
          */
-        void fileIndexMoved(FileIndexMovedEvent evt);
+        void fileIndexMoved(FileIndexMovedEvent<FILE> evt);
     }
 }

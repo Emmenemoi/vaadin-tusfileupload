@@ -21,6 +21,6 @@ public class TusMultiuploadState extends UploaderComponentState {
 	public String 	buttonCaption;
 	public String 	mimeAccept = "*/*";
 	public boolean 	multiple = true;
-	public int 		remainingQueueSeats = 0;
+	public long 		remainingQueueSeats = 0;
 
 }

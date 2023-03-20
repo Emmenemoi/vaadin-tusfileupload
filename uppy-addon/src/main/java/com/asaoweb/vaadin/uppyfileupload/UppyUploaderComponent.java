@@ -217,7 +217,7 @@ public class UppyUploaderComponent extends UploadComponent {
     }
 
     @Override
-    public void setRemainingQueueSeats(int remainingQueueSeats) {
+    public void setRemainingQueueSeats(long remainingQueueSeats) {
 
     }
 

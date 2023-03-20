@@ -1,7 +1,10 @@
 package com.asaoweb.vaadin.fileupload;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -26,6 +29,7 @@ public class FileInfo implements Serializable {
 	public long entityLength = -1;
 	public String id;
 	public long offset = -1;
+	public long index;
 	public String metadata;
 	public String suggestedFilename;
 	public String suggestedFiletype;
@@ -47,6 +51,7 @@ public class FileInfo implements Serializable {
 		// See if client sent suggested filename in metadata and log it.
 		this.suggestedFilename = decodedMetadata.get("filename");
 		this.suggestedFiletype = decodedMetadata.get("filetype");
+		this.index = System.currentTimeMillis();
 		log.debug("New file ID = {}, filename={}, queueId={}, username={}", id, suggestedFilename, queueId, username);
 	}
 	public FileInfo(String queueId, long entityLength, long offset, String filename, String filetype) {
@@ -57,6 +62,7 @@ public class FileInfo implements Serializable {
 		this.offset = offset;
 		this.suggestedFilename = filename;
 		this.suggestedFiletype = filetype;
+		this.index = System.currentTimeMillis();
 	}
 
 	// This is used by jackson to deserialize from file
@@ -77,7 +83,11 @@ public class FileInfo implements Serializable {
 	public boolean isUploading() {
 		return entityLength > 0 && offset < entityLength && offset > 0 ;
 	}
-	
+
+	public long getIndex() {
+		return index;
+	}
+
 	/*
 	 * Metadata is transmitted as comma separated key/value pairs, where key and
 	 * value are separated by a space and value is base64 encoded. TODO: not sure if
@@ -107,9 +117,24 @@ public class FileInfo implements Serializable {
 		}
 		return map;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("FileInfo(%s) - name: %s, type: %s, queueId: %s, length: %d, offset: %d", id, suggestedFilename, suggestedFiletype, queueId, entityLength, offset );
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof FileInfo)) return false;
+
+		FileInfo fileInfo = (FileInfo) o;
+
+		return id.equals(fileInfo.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return id.hashCode();
 	}
 }

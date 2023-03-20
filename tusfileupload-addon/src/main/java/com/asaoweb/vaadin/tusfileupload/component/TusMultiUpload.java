@@ -357,14 +357,14 @@ public class TusMultiUpload extends UploadComponent {
 	  }
 
 	  @Override
-	  public void setRemainingQueueSeats(int remainingQueueSeats) {
+	  public void setRemainingQueueSeats(long remainingQueueSeats) {
 		  remainingQueueSeats = Math.max(0,  remainingQueueSeats);
 		  if (remainingQueueSeats <= getMaxFileCount()) {
 			  getState().remainingQueueSeats = remainingQueueSeats;	
 		  }
 	  }
 	  
-	  public int getRemainingQueueSeats() {
+	  public long getRemainingQueueSeats() {
 		  return getState().remainingQueueSeats;
 	  }
 

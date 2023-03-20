@@ -217,7 +217,7 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
         }
     }*/
 
-    public abstract void setRemainingQueueSeats(int remainingQueueSeats); /* {
+    public abstract void setRemainingQueueSeats(long remainingQueueSeats); /* {
         remainingQueueSeats = Math.max(0,  remainingQueueSeats);
         if (remainingQueueSeats <= getMaxFileCount()) {
             getState().remainingQueueSeats = remainingQueueSeats;

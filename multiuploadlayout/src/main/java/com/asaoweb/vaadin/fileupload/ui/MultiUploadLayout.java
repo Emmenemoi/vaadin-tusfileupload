@@ -7,11 +7,20 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
+import com.asaoweb.vaadin.fileupload.component.AbstractFileListComponent;
+import com.asaoweb.vaadin.fileupload.data.FileDataProvider;
 import com.asaoweb.vaadin.fileupload.data.FileInfoThumbProvider;
 import com.asaoweb.vaadin.fileupload.FileInfo;
 import com.asaoweb.vaadin.fileupload.component.UploadComponent;
+import com.asaoweb.vaadin.fileupload.data.FileListComponentProvider;
 import com.asaoweb.vaadin.fileupload.events.Events;
+import com.vaadin.data.provider.DataChangeEvent;
+import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.DataProviderListener;
+import com.vaadin.data.provider.Query;
+import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,17 +48,14 @@ import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.dnd.DragSourceExtension;
 import com.vaadin.ui.dnd.DropTargetExtension;
 
-public class MultiUploadLayout extends VerticalLayout {
+public class MultiUploadLayout<FILES> extends VerticalLayout implements DataProviderListener<FILES>, FileDeletedClickListener<FILES> {
 	  private final static Method FILE_DELETED_METHOD;
 	  private final static Method FILE_MOVED_METHOD;
-	private final static Method INTERNAL_DELETE_METHOD;
 
 	  static {
 		    try {
 		    	FILE_DELETED_METHOD = FileDeletedClickListener.class.getMethod(
 		          "fileDeletedClick", FileDeletedClickEvent.class);
-				INTERNAL_DELETE_METHOD = Events.InternalDeleteClickListener.class.getMethod(
-						"internalDeleteClick", Events.InternalDeleteClickEvent.class);
 		    	FILE_MOVED_METHOD = FileIndexMovedListener.class.getMethod(
 				  "fileIndexMoved", FileIndexMovedEvent.class);
 		    }
@@ -60,21 +66,19 @@ public class MultiUploadLayout extends VerticalLayout {
 	  
 	  private static final Logger logger = LoggerFactory.getLogger(MultiUploadLayout.class.getName());
 
-	protected Map<Component, Consumer<Long>> addExtraComponents(){
-		return new HashMap();
-	}
 	protected final Label infoLabel;
 	protected final Panel listPanel;
-	
-	protected final List<FileInfo> files;
-	
+
+	protected final SortedSet<FileInfo> queuedfiles = new TreeSet<>(Comparator.comparingLong(FileInfo::getIndex));
+	protected final FileListComponentProvider<FILES> filelistItemComponentProvider;
+
+
+	protected FileDataProvider<FILES> filesProvider;
 	protected AbstractOrderedLayout fileListLayout;
 	protected boolean 	allowReorder = false;
 	protected boolean 	reverseOrder = false;
 	protected boolean 	compactLayout = false;
-	protected FileInfoThumbProvider provider;
 
-	protected Function<FileInfo, String> filelistItemStyleProvider;
 	protected String 	infoLabelMessagePattern = "{0,,filenb} uploaded files / {2,,totalSize} (+{1,,queueSize} queued)";
 	protected String	fileMinCountErrorMessagePattern = "Can't delete any file: {0,,minCount} files must be attached. Upload new files first.";
 	protected String 	noFilesUploaded = "No files uploaded yet.";
@@ -88,8 +92,12 @@ public class MultiUploadLayout extends VerticalLayout {
 
 	protected Lock		updateLock = new ReentrantLock();
 	
-	public MultiUploadLayout(UploadComponent uploadComponent, List<FileInfo> existingFiles, FileInfoThumbProvider provider, boolean allowReorder) {
+	public MultiUploadLayout(UploadComponent uploadComponent,
+													 FileDataProvider<FILES> existingFiles,
+													 FileListComponentProvider<FILES> filelistItemComponentProvider,
+													 boolean allowReorder) {
 		super();
+		this.filelistItemComponentProvider = filelistItemComponentProvider;
 		infoLabel = new Label();
 		listPanel = new Panel();
 		listPanel.setSizeFull();
@@ -101,18 +109,36 @@ public class MultiUploadLayout extends VerticalLayout {
 
 
 		this.addStyleName("tusmultiuploadlayout");
-		files = existingFiles;
-
 		setUploader(uploadComponent);
-
-		setThumbProvider(provider);
+		setFilesProvider(existingFiles);
 		allowReorder(allowReorder);
+	}
+
+	public FileDataProvider<FILES> getFilesProvider() {
+		return filesProvider;
+	}
+
+	public void setFilesProvider(FileDataProvider<FILES> filesProvider) {
+		this.filesProvider = filesProvider;
+		filesProvider.addDataProviderListener(this);
+		refreshFileList();
+	}
+
+	@Override
+	public void onDataChange(DataChangeEvent<FILES> dataChangeEvent) {
+		if (dataChangeEvent instanceof DataChangeEvent.DataRefreshEvent){
+			refreshFileList();
+		} else {
+			refreshFileList();
+		}
 	}
 
 	public void setUploaderLocation() {
 		infobar.addComponentAsFirst(uploadButton);
 		this.setExpandRatio(listPanel, 0.5f);
 	}
+
+
 	
 	@Override
 	public void attach() {
@@ -133,14 +159,6 @@ public class MultiUploadLayout extends VerticalLayout {
             getUI().setMobileHtml5DndEnabled(cachedHTML5DnD);
         }
     }
-	
-	public void setThumbProvider(FileInfoThumbProvider provider) {
-		this.provider = provider;
-	}
-
-	public void setFilelistItemStyleProvider(Function<FileInfo, String> filelistItemStyleProvider) {
-		this.filelistItemStyleProvider = filelistItemStyleProvider;
-	}
 
 	public Registration addSucceededListener(SucceededListener listener) {
 		return uploadButton.addSucceededListener(listener);
@@ -150,14 +168,16 @@ public class MultiUploadLayout extends VerticalLayout {
 	    return addListener(FileDeletedClickEvent.class, listener, FILE_DELETED_METHOD);
 	}
 
-	public Registration addInternalDeleteClickListener(Events.InternalDeleteClickListener listener) {
-		return addListener(Events.InternalDeleteClickEvent.class, listener, INTERNAL_DELETE_METHOD);
-	}
-
 	public Registration addFileIndexMovedListener(FileIndexMovedListener listener) {
 	    return addListener(FileIndexMovedEvent.class, listener, FILE_MOVED_METHOD);
 	}
-	
+
+	@Override
+	public void fileDeletedClick(FileDeletedClickEvent<FILES> evt) {
+		fireEvent(evt);
+		getFilesProvider().refreshAll();
+	}
+
 	public void refreshFileList() {
 		if (compactLayout && (fileListLayout == null || fileListLayout instanceof VerticalLayout )) {
 			fileListLayout = new HorizontalLayout();
@@ -172,15 +192,27 @@ public class MultiUploadLayout extends VerticalLayout {
 		fileListLayout.removeAllComponents();
 		updateLock.lock();
 		try {
-			files.forEach(this::addFileInfoItem);
+			files().forEach(f -> addFileListComponent(filelistItemComponentProvider.getComponent(f, this)));
+			queuedfiles.removeIf(f -> {
+				if (f.isFinished()) {
+					uploadButton.removeFromQueue(f.id);
+					return true;
+				}
+				return false;
+			});
+			queuedfiles.forEach(this::addFileInfoItem);
 		} finally {
 			updateLock.unlock();
 		}
 		refreshFilesInfos();
 	}
+
+	protected Stream<FILES> files(){
+		return filesProvider.fetch(new Query<>());
+	}
 	
 	public void refreshFilesInfos() {
-		int fileNB = files.size();
+		long fileNB = files().count() + queuedfiles.size();
 		int last = fileListLayout.getComponentCount()-1;
 		if (fileNB == 0 && fileListLayout.getComponentCount() == 0) {
 			fileListLayout.addComponent(new Label(noFilesUploaded));
@@ -194,13 +226,13 @@ public class MultiUploadLayout extends VerticalLayout {
 			}
 		}
 		last = fileListLayout.getComponentCount()-1;
-		int queueNB = fileListLayout.getComponentCount() - fileNB;
+		long queueNB = fileListLayout.getComponentCount() - fileNB;
 		if (last >= 0  && fileListLayout.getComponent(last) instanceof Label) {
 			queueNB--;
 		}
 		uploadButton.setRemainingQueueSeats(uploadButton.getMaxFileCount() != null ?
 				uploadButton.getMaxFileCount()-fileNB : Integer.MAX_VALUE);
-		long totalUploadedSize = files.stream().mapToLong(fi -> fi.entityLength).sum();
+		long totalUploadedSize = queuedfiles.stream().mapToLong(fi -> fi.entityLength).sum();
 		infoLabel.setValue( MessageFormat.format(infoLabelMessagePattern, fileNB, queueNB, UploadComponent.readableFileSize(totalUploadedSize) ));
 
 	}
@@ -221,11 +253,7 @@ public class MultiUploadLayout extends VerticalLayout {
 		return getQueueCount() > 0;
 	}
 
-    /**
-     * To replace with final files wrapper after upload succeeded
-     * @param originalFi
-     * @param newFi
-     */
+	/*
     public void replaceFileInfoItem(FileInfo originalFi, FileInfo newFi) {
 	    if (originalFi == null || newFi == null) {
 	        return;
@@ -273,23 +301,45 @@ public class MultiUploadLayout extends VerticalLayout {
 		}
         tbd.forEach(fileListLayout::removeComponent);
     }
-
+*/
     private void addFileInfoItem(FileInfo fi) {
-			FileListComponent f = new FileListComponent(fi, uploadButton);
-			if (filelistItemStyleProvider != null) {
-				f.addStyleName(filelistItemStyleProvider.apply(fi));
-			}
+			FileListComponent f = new FileListComponent(fi, this);
+			addFileListComponent(f);
+		}
+
+		protected void addFileListComponent(Component c) {
 			if (reverseOrder) {
-				fileListLayout.addComponentAsFirst(f);
+				fileListLayout.addComponentAsFirst(c);
 			} else {
-				fileListLayout.addComponent(f);
+				fileListLayout.addComponent(c);
 			}
 		}
+
+		public void onFileComponentMoveIndex(AbstractFileListComponent<FILES> source, AbstractFileListComponent<FILES> destination){
+			int targetIndex = fileListLayout.getComponentIndex(source);
+			int currentIndex = fileListLayout.getComponentIndex(destination);
+			if (targetIndex > currentIndex) {
+				fileListLayout.addComponent(destination, targetIndex+1);
+			} else {
+				fileListLayout.addComponent(destination, targetIndex);
+			}
+
+			if (isReverseOrder()) {
+				int maxIndex = fileListLayout.getComponentCount() - 1;
+				fireEvent(new Events.FileIndexMovedEvent<>( uploadButton, source.getFile(), maxIndex - currentIndex, maxIndex - targetIndex));
+			} else {
+				fireEvent(new Events.FileIndexMovedEvent<>( uploadButton, source.getFile(), currentIndex, targetIndex));
+			}
+		}
+
+	public AbstractOrderedLayout getFileListLayout() {
+		return fileListLayout;
+	}
 
 	public void cancelSucceededEvent(SucceededEvent event) {
 		updateLock.lock();
 		try {
-			this.files.removeIf(f -> f.id != null && f.id.equals(event.getId()));
+			this.queuedfiles.removeIf(f -> f.id != null && f.id.equals(event.getId()));
 		} finally {
 			updateLock.unlock();
 		}
@@ -374,51 +424,54 @@ public class MultiUploadLayout extends VerticalLayout {
 			refreshFileList();
 		}
 	}
-	protected class FileListComponent extends HorizontalLayout implements FailedListener, ProgressListener, SucceededListener, StartedListener {
+
+	public boolean isAllowReorder() {
+		return allowReorder;
+	}
+
+	public boolean isAllowDelete() {
+		return allowDelete;
+	}
+
+	public boolean isReverseOrder() {
+		return reverseOrder;
+	}
+
+	public boolean isCompactLayout() {
+		return compactLayout;
+	}
+
+	public static class FileListComponent extends AbstractFileListComponent implements FailedListener, ProgressListener, SucceededListener, StartedListener {
 		protected static final String PROGRESS_STYLE = "progress";
 		protected static final String FAILED_STYLE = "failed";
 
-		protected final Image thumb = new Image();
-		protected final Label filename = new Label();
-		protected final Label mimeType = new Label();
-		protected final Label fileSize = new Label();
+
 		protected final Label errorMessage = new Label();
 		protected final ProgressBar progress = new ProgressBar();
 		protected final VerticalLayout statusWrapper;
 		protected final Label progressInfos = new Label();
 		protected final AbstractOrderedLayout progressBarWrapper;
-		protected final Button action = new Button();
 		protected final Lock flcUpdateLock = new ReentrantLock();
 
         protected FileInfo fileInfo;
         protected Registration rFailed, rStarted, rProgress, rSucceeded;
-						
-		public FileListComponent(FileInfo fileInfo, UploadComponent uploader) {
-			super();
-			this.fileInfo = fileInfo;	
-			
-			thumb.addStyleName("thumb");
-			filename.setValue(fileInfo.suggestedFilename);
-			filename.addStyleName("filename");
-			mimeType.setValue(fileInfo.suggestedFiletype);
-			mimeType.addStyleName("filetype");
-			if (fileInfo.entityLength > 0) {
-				fileSize.setValue( UploadComponent.readableFileSize(fileInfo.entityLength));
-			} else {
-				fileSize.setVisible(false);
-			}
-			fileSize.addStyleName("filesize");
+
+		public FileListComponent(FileInfo fileInfo, MultiUploadLayout layout) {
+			super(layout);
+			this.fileInfo = fileInfo;
+			setValues(fileInfo.suggestedFilename, fileInfo.suggestedFiletype, fileInfo.entityLength);
+
 			progress.setWidth("100%");
 			progress.setStyleName("progress-bar");
 			errorMessage.setVisible(false);
 			errorMessage.setWidth("100%");
 			progressInfos.addStyleName("progress-infos");
 
-            progressBarWrapper = MultiUploadLayout.this.compactLayout ? new VerticalLayout() : new HorizontalLayout();
+			progressBarWrapper = layout.compactLayout ? new VerticalLayout() : new HorizontalLayout();
 			progressBarWrapper.addComponents(progress, progressInfos);
 			progressBarWrapper.setVisible(false);
-            progressBarWrapper.setMargin(false);
-            progressBarWrapper.setSpacing(false);
+			progressBarWrapper.setMargin(false);
+			progressBarWrapper.setSpacing(false);
 			progressBarWrapper.setWidth("100%");
 			progressBarWrapper.setExpandRatio(progress, 1.0f);
 
@@ -426,128 +479,31 @@ public class MultiUploadLayout extends VerticalLayout {
 			statusWrapper.setWidth("100%");
 			statusWrapper.setMargin(false);
 			statusWrapper.addStyleName("progress-wrapper");
-			
+			thumbWrapper.addComponent(statusWrapper);
+
 			action.addClickListener((e) -> {
-				boolean canDelete = MultiUploadLayout.this.minFileCount <= MultiUploadLayout.this.files.size() - 1;
 				if (this.fileInfo.isQueued()) {
-					uploadButton.removeFromQueue(this.fileInfo.queueId);
-					MultiUploadLayout.this.fireEvent(new Events.InternalDeleteClickEvent(MultiUploadLayout.this.uploadButton, this.fileInfo));
-				} else if ( canDelete ) {
-					MultiUploadLayout.this.fireEvent(new FileDeletedClickEvent(MultiUploadLayout.this.uploadButton, this.fileInfo));
-				} else {
-					Notification.show(MessageFormat.format(MultiUploadLayout.this.fileMinCountErrorMessagePattern, MultiUploadLayout.this.minFileCount), Type.ERROR_MESSAGE);
+					layout.getUploader().removeFromQueue(this.fileInfo.queueId);
 				}
-				if (canDelete || this.fileInfo.isQueued()) {
-					MultiUploadLayout.this.updateLock.lock();
+				if (this.fileInfo.isQueued()) {
+					layout.updateLock.lock();
 					try {
-						MultiUploadLayout.this.files.remove(this.fileInfo);
+						layout.queuedfiles.remove(this.fileInfo);
 					} finally {
-						MultiUploadLayout.this.updateLock.unlock();
+						layout.updateLock.unlock();
 					}
-					MultiUploadLayout.this.fileListLayout.removeComponent(this);
-					MultiUploadLayout.this.refreshFilesInfos();
+					//layout.fileListLayout.removeComponent(this);
+					layout.refreshFilesInfos();
 				}
 			});
 			
-			if (MultiUploadLayout.this.compactLayout) {
-				VerticalLayout compactWrapper = new VerticalLayout();
-                compactWrapper.setMargin(false);
-                compactWrapper.addStyleName("tusmultiuploadlayout-filelistcomponent-compact-wrapper");
-				CssLayout thumbWrapper = new CssLayout();
-				thumbWrapper.addStyleName("tusmultiuploadlayout-filelistcomponent-compact-thumbwrapper");
-				thumbWrapper.addComponent(thumb);
-				thumbWrapper.addComponent(action);
 
-				Map<Component, Consumer<Long>> extraComponentsToAdd = addExtraComponents();
-				if(!extraComponentsToAdd.isEmpty()){
-					for(Component c : extraComponentsToAdd.keySet()) {
-						c.addListener(evt -> {
-							extraComponentsToAdd.get(c).accept(Long.valueOf(fileInfo.id));
-						});
-						thumbWrapper.addComponent(c);
-					}
-				}
-
-
-				thumbWrapper.addComponent(statusWrapper);
-				thumbWrapper.addComponent( fileSize);
-				fileSize.setWidth("100%");
-				statusWrapper.setWidth("100%");
-				
-				thumb.setSizeFull();				
-				filename.setWidth("100%");
-				//action.setWidth("auto");
-				//action.setHeight("auto");
-
-				compactWrapper.addComponents(thumbWrapper, filename);
-				//this.setHeight(compactSize+20, Unit.PIXELS);
-				this.addComponents(compactWrapper);
-				this.addStyleName("tusmultiuploadlayout-filelistcomponent-compact");
-				
-			} else {
-				/*thumb.setWidth(30, Unit.PIXELS);
-				filename.setWidth(150, Unit.PIXELS);
-				mimeType.setWidth(80, Unit.PIXELS);
-				fileSize.setWidth(80, Unit.PIXELS);*/
-				this.setDefaultComponentAlignment(Alignment.MIDDLE_LEFT);
-				VerticalLayout vLayout = new VerticalLayout();
-                vLayout.setMargin(false);
-                vLayout.setWidth("100%");
-				HorizontalLayout infosLine = new HorizontalLayout(thumb, filename, mimeType, fileSize, action);
-				infosLine.setWidth("100%");
-				infosLine.setExpandRatio(filename, 1f);
-				vLayout.addComponents(infosLine, statusWrapper);
-				this.addComponents(vLayout);
-				this.setExpandRatio(vLayout, 1.0f);
-				this.setWidth("100%");
-				this.addStyleName("tusmultiuploadlayout-filelistcomponent");
-			}
 			
 			if (fileInfo.isQueued()) {
-				rFailed = uploader.addFailedListener(this);
-				rStarted = uploader.addStartedListener(this);
-				rProgress = uploader.addProgressListener(this);
-				rSucceeded = uploader.addSucceededListener(this);
-			}
-			
-			if (MultiUploadLayout.this.allowReorder) {
-				if (!MultiUploadLayout.this.compactLayout) {
-					Label picker = new Label(VaadinIcons.ELLIPSIS_DOTS_V.getHtml());
-					picker.setContentMode(ContentMode.HTML);
-					this.addComponentAsFirst(picker);
-				}
-				
-				DragSourceExtension<FileListComponent> dragSourceExt = new DragSourceExtension<>(this);
-				// set the allowed effect
-				dragSourceExt.setEffectAllowed(EffectAllowed.MOVE);
-				
-				if (allowReorder) {
-					DropTargetExtension<FileListComponent> dropTarget = new DropTargetExtension<>(this);
-					dropTarget.setDropEffect(DropEffect.MOVE);
-					dropTarget.addDropListener(event -> {
-					    // if the drag source is in the same UI as the target
-					    Optional<AbstractComponent> dragSource = event.getDragSourceComponent();
-						logger.debug("addDropListener {} for source {}", event, dragSource);
-					    if (dragSource.isPresent() && dragSource.get() instanceof FileListComponent) {
-					    	FileListComponent sourceFlc = (FileListComponent) dragSource.get();
-
-					    	int targetIndex = MultiUploadLayout.this.fileListLayout.getComponentIndex(this);
-					    	int currentIndex = MultiUploadLayout.this.fileListLayout.getComponentIndex(sourceFlc);
-					    	if (targetIndex > currentIndex) {
-					    		MultiUploadLayout.this.fileListLayout.addComponent(sourceFlc, targetIndex+1);
-					    	} else {
-					    		MultiUploadLayout.this.fileListLayout.addComponent(sourceFlc, targetIndex);
-					    	}
-					    	
-					    	if (reverseOrder) {
-					    		int maxIndex = MultiUploadLayout.this.fileListLayout.getComponentCount() - 1;
-						    	MultiUploadLayout.this.fireEvent(new FileIndexMovedEvent(MultiUploadLayout.this.uploadButton, sourceFlc.getFileInfo(), maxIndex - currentIndex, maxIndex - targetIndex));
-					    	} else {
-					    		MultiUploadLayout.this.fireEvent(new FileIndexMovedEvent(MultiUploadLayout.this.uploadButton, sourceFlc.getFileInfo(), currentIndex, targetIndex));
-					    	}
-					    }
-					});
-				}
+				rFailed = layout.uploadButton.addFailedListener(this);
+				rStarted = layout.uploadButton.addStartedListener(this);
+				rProgress = layout.uploadButton.addProgressListener(this);
+				rSucceeded = layout.uploadButton.addSucceededListener(this);
 			}
 			
 			update();
@@ -595,15 +551,11 @@ public class MultiUploadLayout extends VerticalLayout {
 				this.addStyleName("ui-finished");
 				action.setIcon(VaadinIcons.TRASH);
 				progressBarWrapper.setVisible(false);
-				action.setVisible(MultiUploadLayout.this.allowDelete);
+				action.setVisible(this.layout.allowDelete);
 			}
 			statusWrapper.setVisible(progressBarWrapper.isVisible() || errorMessage.isVisible());
-			Resource thumbRsc;
-			
-			if ( provider != null && (thumbRsc = provider.getThumb(fileInfo)) != null ) {
-				thumb.setIcon(null);
-				thumb.setSource(thumbRsc);
-			} else if ( isImage() ) {
+
+			if ( isImage() ) {
 				thumb.setIcon(VaadinIcons.FILE_PICTURE);						
 			} else if ( isVideo() ) {
 				thumb.setIcon(VaadinIcons.FILE_MOVIE);
@@ -619,7 +571,7 @@ public class MultiUploadLayout extends VerticalLayout {
 				progress.setValue((float) value / (float) total);
 				progress.setVisible(value>0);
 				int pct = (int) ((float) value / (float) total * 100);
-				if (MultiUploadLayout.this.compactLayout) {
+				if (this.layout.compactLayout) {
 					progressInfos.setValue(UploadComponent.readableFileSize(value) + "/" + pct + "%");
 				} else {
 					progressInfos.setValue(UploadComponent.readableFileSize(value) + " / " + UploadComponent.readableFileSize(total) + " (" + pct + "%)");
@@ -670,18 +622,20 @@ public class MultiUploadLayout extends VerticalLayout {
 						fileInfo.id = evt.getId();
 						fileInfo.offset = evt.getFileInfo().offset;
 					}
+					/*
 					if (evt.shouldAddFileToList()) {
-						MultiUploadLayout.this.updateLock.lock();
+						this.layout.updateLock.lock();
 						try {
-							MultiUploadLayout.this.files.add(this.fileInfo);
+							this.layout.queuedfiles.add(this.fileInfo);
 						} finally {
-							MultiUploadLayout.this.updateLock.unlock();
+							this.layout.updateLock.unlock();
 						}
-					}
+					}*/
 				} finally {
 					flcUpdateLock.unlock();
 				}
-				MultiUploadLayout.this.refreshFilesInfos();
+				this.layout.queuedfiles.remove(this.fileInfo);
+				this.layout.refreshFilesInfos();
 				update();
 				unregisterListeners();
 				this.removeStyleName(PROGRESS_STYLE);

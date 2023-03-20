@@ -2,14 +2,19 @@ package com.asaoweb.vaadin.uppyfileupload.demo;
 
 import javax.servlet.annotation.WebServlet;
 
+import com.asaoweb.vaadin.fileupload.data.ListFileDataProvider;
+import com.asaoweb.vaadin.fileupload.ui.MultiUploadLayout;
 import com.asaoweb.vaadin.uppyfileupload.ui.UppyMultiUpload;
 import com.asaoweb.vaadin.fileupload.FileInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vaadin.annotations.*;
+import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
@@ -19,8 +24,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 import static com.asaoweb.vaadin.uppyfileupload.client.dashboard.AbstractDashboardParameters.DashboardPlugin.Links;
 
@@ -46,9 +53,12 @@ public class DemoUI extends UI
         Map<String, Object> metas = new HashMap<>();
         metas.put("Id", UUID.randomUUID().toString());
         metas.put("userId", 23348L);
+        List<FileInfo> files = new ArrayList<>();
+        ListFileDataProvider<FileInfo> filesProvider = new ListFileDataProvider<>(files);
 
-        final UppyMultiUpload component = new UppyMultiUpload(metas,
-                new ArrayList<FileInfo>(), null, true, "http://localhost:3020", Arrays.asList(Links), false, "240px");
+        final UppyMultiUpload<FileInfo> component = new UppyMultiUpload<>(metas, filesProvider,
+            MultiUploadLayout.FileListComponent::new,
+            true, "http://localhost:3020", Arrays.asList(Links), false, "240px");
 
         // Show it in the middle of the screen
         final VerticalLayout layout = new VerticalLayout();
@@ -58,8 +68,9 @@ public class DemoUI extends UI
         layout.addComponent(component);
         layout.setComponentAlignment(component, Alignment.MIDDLE_CENTER);
 
-        final UppyMultiUpload component2 = new UppyMultiUpload(metas,
-                new ArrayList<FileInfo>(), null, true, "http://localhost:3020", Arrays.asList(Links), false, "240px") {
+        final UppyMultiUpload<FileInfo> component2 = new UppyMultiUpload<FileInfo>(metas, filesProvider,
+            MultiUploadLayout.FileListComponent::new,
+            true, "http://localhost:3020", Arrays.asList(Links), false, "240px") {
 
             @Override
             public void setUploaderLocation() {
@@ -70,6 +81,7 @@ public class DemoUI extends UI
                 infobar.setHeight("30px");
             }
         };
+
         component2.getUploader().setThumbnailWidth(100);
         component2.getUploader().setMultiple(false);
         component2.getUploader().setButtonCaption("test caption");

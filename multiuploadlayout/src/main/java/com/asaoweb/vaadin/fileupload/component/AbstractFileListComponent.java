@@ -55,6 +55,7 @@ public abstract class AbstractFileListComponent<FILE> extends HorizontalLayout {
         fileSize.addStyleName("filesize");
         action.setIcon(VaadinIcons.TRASH);
         action.setVisible(this.layout.isAllowDelete());
+        action.addStyleName("action");
 
         if (layout.isCompactLayout()) {
             VerticalLayout compactWrapper = new VerticalLayout();
@@ -102,13 +103,12 @@ public abstract class AbstractFileListComponent<FILE> extends HorizontalLayout {
             thumbWrapper = new HorizontalLayout(thumb, filename, mimeType, fileSize, action);
             thumbWrapper.setWidth("100%");
             ((HorizontalLayout)thumbWrapper).setExpandRatio(filename, 1f);
-           // vLayout.addComponents(thumbWrapper, statusWrapper);
-            this.addComponents(vLayout);
-            this.setExpandRatio(vLayout, 1.0f);
+            //vLayout.addComponents(thumbWrapper, statusWrapper);
+            this.addComponents(thumbWrapper);
+            this.setExpandRatio(thumbWrapper, 1.0f);
             this.setWidth("100%");
             this.addStyleName("tusmultiuploadlayout-filelistcomponent");
         }
-
     }
 
     public FILE getFile() {

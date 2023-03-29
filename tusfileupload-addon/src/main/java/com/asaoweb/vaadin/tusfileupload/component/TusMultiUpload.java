@@ -521,7 +521,7 @@ public class TusMultiUpload extends UploadComponent {
 					queue.remove(currentQueuedFileId);
 					if (TusMultiUpload.this.getUI() != null && !TusMultiUpload.this.getUI().isClosing()) {
                         TusMultiUpload.this.getUI().access(() -> {
-							fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is, path));
+							fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is, path, queue.size()));
 							try {
 								dataStore.terminate(id);
 							} catch (Exception e) {
@@ -529,7 +529,7 @@ public class TusMultiUpload extends UploadComponent {
 							}
 						});
 					} else {
-						fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is, path));
+						fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is, path, queue.size()));
 						dataStore.terminate(id);
 					}
 				} catch (Exception e) {

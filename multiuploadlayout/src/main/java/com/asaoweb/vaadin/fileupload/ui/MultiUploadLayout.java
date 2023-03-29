@@ -91,7 +91,8 @@ public class MultiUploadLayout<FILES> extends VerticalLayout implements DataProv
 	protected UploadComponent uploadButton;
 
 	protected Lock		updateLock = new ReentrantLock();
-	
+	private Registration dataListener = null;
+
 	public MultiUploadLayout(UploadComponent uploadComponent,
 													 FileDataProvider<FILES> existingFiles,
 													 FileListComponentProvider<FILES> filelistItemComponentProvider,
@@ -120,7 +121,10 @@ public class MultiUploadLayout<FILES> extends VerticalLayout implements DataProv
 
 	public void setFilesProvider(FileDataProvider<FILES> filesProvider) {
 		this.filesProvider = filesProvider;
-		filesProvider.addDataProviderListener(this);
+		if (dataListener != null){
+			dataListener.remove();
+		}
+		this.dataListener = filesProvider.addDataProviderListener(this);
 		refreshFileList();
 	}
 

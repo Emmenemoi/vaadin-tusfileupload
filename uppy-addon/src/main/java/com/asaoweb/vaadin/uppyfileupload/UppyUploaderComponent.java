@@ -87,9 +87,9 @@ public class UppyUploaderComponent extends UploadComponent {
             addFileToQueue(fi);
             fi.offset=Double.valueOf(file.getNumber("size")).longValue();
             try {
-                fireUploadSuccess(new Events.SucceededEvent(UppyUploaderComponent.this, fi, null,
-                        new URI(response.getString("uploadURL"))));
                 queue.remove(fi.queueId);
+                fireUploadSuccess(new Events.SucceededEvent(UppyUploaderComponent.this, fi, null,
+                        new URI(response.getString("uploadURL")), queue.size()));
             } catch (Throwable ex) {
                 // TODO To process
                 logger.warning("onUploadSuccess failed: " + ex);

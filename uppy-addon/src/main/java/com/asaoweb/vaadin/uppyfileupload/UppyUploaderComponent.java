@@ -92,7 +92,7 @@ public class UppyUploaderComponent extends UploadComponent {
                         new URI(response.getString("uploadURL")), queue.size()));
             } catch (Throwable ex) {
                 // TODO To process
-                logger.warning("onUploadSuccess failed: " + ex);
+                logger.log(Level.WARNING,"onUploadSuccess failed: ", ex);
             }
         }
 

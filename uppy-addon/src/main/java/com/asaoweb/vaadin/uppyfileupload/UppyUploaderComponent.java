@@ -51,16 +51,18 @@ public class UppyUploaderComponent extends UploadComponent {
     private final UppyComponentServerRpc serverRpc = new UppyComponentServerRpc() {
         @Override
         public void onFileAdded(JsonObject file) {
-            FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
+                FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
                     0L, file.getString("name"), file.getString("type"));
-            this.addFileToQueue(fi);
+                this.addFileToQueue(fi);
         }
 
         private void addFileToQueue(FileInfo fi) {
-            if (!queue.contains(fi.queueId)) {
-                queue.add(fi.queueId);
-                fireQueued(new Events.FileQueuedEvent(UppyUploaderComponent.this, fi));
-            }
+            getUI().access(() -> {
+                if (!queue.contains(fi.queueId)) {
+                    queue.add(fi.queueId);
+                    fireQueued(new Events.FileQueuedEvent(UppyUploaderComponent.this, fi));
+                }
+            });
         }
 
         @Override
@@ -85,50 +87,56 @@ public class UppyUploaderComponent extends UploadComponent {
         @Override
         public void onUploadSuccess(JsonObject file, JsonObject response) {
             FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
-            0, file.getString("name"), file.getString("type"));
+                0, file.getString("name"), file.getString("type"));
             addFileToQueue(fi);
             fi.offset=Double.valueOf(file.getNumber("size")).longValue();
-            try {
-                queue.remove(fi.queueId);
-                fireUploadSuccess(new Events.SucceededEvent(UppyUploaderComponent.this, fi, null,
-                        new URI(response.getString("uploadURL")), queue.size()));
-            } catch (Throwable ex) {
-                // TODO To process
-                logger.log(Level.WARNING,"onUploadSuccess failed: ", ex);
-            }
+            getUI().access(() -> {
+                try {
+                    queue.remove(fi.queueId);
+                    fireUploadSuccess(new Events.SucceededEvent(UppyUploaderComponent.this, fi, null,
+                            new URI(response.getString("uploadURL")), queue.size()));
+                } catch (Throwable ex) {
+                    // TODO To process
+                    logger.log(Level.WARNING,"onUploadSuccess failed: ", ex);
+                }
+            });
         }
 
         @Override
         public void onUploadComplete(JsonObject[] successfull, JsonObject[] failed) {
             logger.log(Level.FINEST, successfull.length + " files successfully uploaded ; " + failed.length + " files failed to upload.");
-            Set<FileInfo> successFI = new HashSet<>();
-            Set<FileInfo> failFI = new HashSet<>();
-            for(JsonObject file : successfull){
-                FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
-                    0, file.getString("name"), file.getString("type"));
-                successFI.add(fi);
-            }
-            for(JsonObject file : failed){
-                FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
-                    0, file.getString("name"), file.getString("type"));
-                failFI.add(fi);
-            }
-            try {
-                fireUploadComplete(new Events.CompleteEvent(UppyUploaderComponent.this, successFI, failFI));
-            } catch (Throwable ex) {
-                // TODO To process
-                logger.log(Level.WARNING,"onUploadComplete failed: ", ex);
-            }
+            getUI().access(() -> {
+                Set<FileInfo> successFI = new HashSet<>();
+                Set<FileInfo> failFI = new HashSet<>();
+                for (JsonObject file : successfull) {
+                    FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
+                        0, file.getString("name"), file.getString("type"));
+                    successFI.add(fi);
+                }
+                for (JsonObject file : failed) {
+                    FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
+                        0, file.getString("name"), file.getString("type"));
+                    failFI.add(fi);
+                }
+                try {
+                    fireUploadComplete(new Events.CompleteEvent(UppyUploaderComponent.this, successFI, failFI));
+                } catch (Throwable ex) {
+                    // TODO To process
+                    logger.log(Level.WARNING, "onUploadComplete failed: ", ex);
+                }
+            });
         }
 
         @Override
         public void onUploadError(JsonObject file, JsonObject error, JsonObject response) {
             logger.log(Level.FINEST, "File " + file.getClass().getName() + " failed to upload.");
-            FileInfo fi = new FileInfo(file.getString("id"), 0L,
+            getUI().access(() -> {
+                FileInfo fi = new FileInfo(file.getString("id"), 0L,
                     0L, file.getString("name"), file.getString("type"));
-            queue.remove(fi.queueId);
-            fireFailed(new Events.FailedEvent(UppyUploaderComponent.this, fi, new Exception(error.getString("error"))));
-            hasUploadInProgress = false;
+                queue.remove(fi.queueId);
+                fireFailed(new Events.FailedEvent(UppyUploaderComponent.this, fi, new Exception(error.getString("error"))));
+                hasUploadInProgress = false;
+            });
         }
 
         @Override

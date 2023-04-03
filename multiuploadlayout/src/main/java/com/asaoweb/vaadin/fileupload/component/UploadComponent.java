@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class UploadComponent extends AbstractJavaScriptComponent {
     private final static Method SUCCEEDED_METHOD;
+    private final static Method COMPLETE_METHOD;
     private final static Method STARTED_METHOD;
     private final static Method QUEUED_METHOD;
     private final static Method PROGRESS_METHOD;
@@ -25,6 +26,8 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
         try {
             SUCCEEDED_METHOD = Events.SucceededListener.class.getMethod(
                     "uploadSucceeded", Events.SucceededEvent.class);
+            COMPLETE_METHOD = Events.CompleteListener.class.getMethod(
+                "uploadsComplete", Events.CompleteEvent.class);
             FAILED_METHOD = Events.FailedListener.class.getMethod(
                     "uploadFailed", Events.FailedEvent.class);
             STARTED_METHOD = Events.StartedListener.class.getMethod(
@@ -214,7 +217,7 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
      * @param listener the listener to add
      */
     public Registration addCompleteListener(Events.CompleteListener listener) {
-        return addListener(Events.CompleteEvent.class, listener, SUCCEEDED_METHOD);
+        return addListener(Events.CompleteEvent.class, listener, COMPLETE_METHOD);
     }
 
     /**

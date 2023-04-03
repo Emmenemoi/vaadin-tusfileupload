@@ -27,8 +27,10 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -97,9 +99,26 @@ public class UppyUploaderComponent extends UploadComponent {
         }
 
         @Override
-        public void onUploadComplete(JsonObject[] successfull, File[] failed) {
+        public void onUploadComplete(JsonObject[] successfull, JsonObject[] failed) {
             logger.log(Level.FINEST, successfull.length + " files successfully uploaded ; " + failed.length + " files failed to upload.");
-
+            Set<FileInfo> successFI = new HashSet<>();
+            Set<FileInfo> failFI = new HashSet<>();
+            for(JsonObject file : successfull){
+                FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
+                    0, file.getString("name"), file.getString("type"));
+                successFI.add(fi);
+            }
+            for(JsonObject file : failed){
+                FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
+                    0, file.getString("name"), file.getString("type"));
+                failFI.add(fi);
+            }
+            try {
+                fireUploadComplete(new Events.CompleteEvent(UppyUploaderComponent.this, successFI, failFI));
+            } catch (Throwable ex) {
+                // TODO To process
+                logger.log(Level.WARNING,"onUploadComplete failed: ", ex);
+            }
         }
 
         @Override

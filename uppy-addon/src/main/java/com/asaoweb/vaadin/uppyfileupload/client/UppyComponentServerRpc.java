@@ -57,7 +57,7 @@ public interface UppyComponentServerRpc extends ServerRpc {
      * @param successfull Array of succesfully uploaded files
      * @param failed Array of file which failed to upload.
      */
-    void onUploadComplete(JsonObject[] successfull, File[] failed);
+    void onUploadComplete(JsonObject[] successfull, JsonObject[] failed);
 
     /**
      * Fired each time a single upload has errored.

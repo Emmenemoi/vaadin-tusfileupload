@@ -95,6 +95,21 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
     }
 
     /**
+     * Fires the upload complete event to all registered listeners.
+     *
+     * @param evt the event details
+     */
+    protected void fireUploadComplete(Events.CompleteEvent evt) {
+        LoggerFactory.getLogger(getClass()).debug("fireUploadComplete {}", evt);
+        if(preprocessOnComplete(evt)) {
+            LoggerFactory.getLogger(getClass()).debug("before fireEvent {}", evt);
+            fireEvent(evt);
+        } else {
+            LoggerFactory.getLogger(getClass()).debug("ignore fireEvent {}", evt);
+        }
+    }
+
+    /**
      * Fires the upload queued event to all registered listeners.
      *
      * @param evt the event details
@@ -194,6 +209,15 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
     }
 
     /**
+     * Adds the given listener for upload complete events.
+     *
+     * @param listener the listener to add
+     */
+    public Registration addCompleteListener(Events.CompleteListener listener) {
+        return addListener(Events.CompleteEvent.class, listener, SUCCEEDED_METHOD);
+    }
+
+    /**
      * Fires the upload started event to all registered listeners.
      *
      * @param evt the started event to fire
@@ -203,6 +227,9 @@ public abstract class UploadComponent extends AbstractJavaScriptComponent {
     }
 
     protected boolean preprocessOnSuccess(Events.SucceededEvent evt) {
+        return true;
+    }
+    protected boolean preprocessOnComplete(Events.CompleteEvent evt) {
         return true;
     }
 

@@ -167,6 +167,9 @@ public class MultiUploadLayout<FILES> extends VerticalLayout implements DataProv
 	public Registration addSucceededListener(SucceededListener listener) {
 		return uploadButton.addSucceededListener(listener);
 	}
+	public Registration addCompleteListener(Events.CompleteListener listener) {
+		return uploadButton.addCompleteListener(listener);
+	}
 	
 	public Registration addFileDeletedClickListener(FileDeletedClickListener listener) {
 	    return addListener(FileDeletedClickEvent.class, listener, FILE_DELETED_METHOD);

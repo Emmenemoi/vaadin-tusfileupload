@@ -3,6 +3,7 @@ package com.asaoweb.vaadin.fileupload.events;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Set;
 
 import com.asaoweb.vaadin.fileupload.component.UploadComponent;
 import com.asaoweb.vaadin.fileupload.FileInfo;
@@ -363,6 +364,58 @@ public class Events {
          */
         void uploadSucceeded(SucceededEvent evt);
     }
+
+    /**
+     * An event describing a successful upload.
+     */
+    public static class CompleteEvent extends FinishedEvent {
+
+        final Set<FileInfo> fileInfosSucceeded;
+        final Set<FileInfo> fileInfosFailed;
+
+        /**
+         * Constructs the event.
+         *
+         * @param source   the source component
+         * @param fileInfosSucceeded File information provided by the client
+         * @param fileInfosFailed File information provided by the client
+         */
+        public CompleteEvent(UploadComponent source, Set<FileInfo> fileInfosSucceeded, Set<FileInfo> fileInfosFailed) {
+            super(source, null);
+            this.fileInfosSucceeded = fileInfosSucceeded;
+            this.fileInfosFailed = fileInfosFailed;
+        }
+
+        public Set<FileInfo> getFileInfosSucceeded() {
+            return fileInfosSucceeded;
+        }
+
+        public Set<FileInfo> getFileInfosFailed() {
+            return fileInfosFailed;
+        }
+
+        @Override
+        public String toString() {
+            return "CompleteEvent{" +
+                "fileInfosSucceeded=" + fileInfosSucceeded +
+                "fileInfosFailed=" + fileInfosFailed +
+                "} " + super.toString();
+        }
+    }
+
+    /**
+     * A listener that receives upload success events.
+     */
+    public interface CompleteListener extends Serializable {
+
+        /**
+         * Called when an upload is successful.
+         *
+         * @param evt the event details
+         */
+        void uploadsComplete(CompleteEvent evt);
+    }
+
 
     /**
      * An event describing a queued upload.

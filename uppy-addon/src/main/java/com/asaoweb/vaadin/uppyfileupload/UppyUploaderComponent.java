@@ -101,9 +101,9 @@ public class UppyUploaderComponent extends UploadComponent {
                 }
             });
 
-            if(autoResetAfterComplete) {
-                clientRpc.resetDashboard();
-            }
+            //if(autoResetAfterComplete) {
+            //    clientRpc.resetDashboard();
+            //}
         }
 
         @Override

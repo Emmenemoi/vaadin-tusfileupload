@@ -33,7 +33,7 @@ public class UppyMultiUpload<FILES> extends MultiUploadLayout<FILES> {
         if (component.isTransfertProgress()) {
             getUploader().hideSelector();
         }
-        getUploader().setHideProgressAfterFinish(true);
+        //getUploader().setHideProgressAfterFinish(true);
     }
 
     @Override

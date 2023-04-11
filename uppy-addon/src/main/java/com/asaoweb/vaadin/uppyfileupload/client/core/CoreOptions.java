@@ -29,6 +29,8 @@ public class CoreOptions {
 
     private boolean allowMultipleUploads = true;
 
+    private boolean allowMultipleUploadBatches = true;
+
     private boolean debug = false;
 
     public final CoreRestrictions restrictions = new CoreRestrictions();
@@ -131,6 +133,14 @@ public class CoreOptions {
 
     public void setAllowMultipleUploads(boolean allowMultipleUploads) {
         this.allowMultipleUploads = allowMultipleUploads;
+    }
+
+    public boolean isAllowMultipleUploadBatches() {
+        return allowMultipleUploadBatches;
+    }
+
+    public void setAllowMultipleUploadBatches(boolean allowMultipleUploadBatches) {
+        this.allowMultipleUploadBatches = allowMultipleUploadBatches;
     }
 
     public boolean isDebug() {

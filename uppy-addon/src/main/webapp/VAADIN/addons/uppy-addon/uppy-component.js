@@ -1,5 +1,6 @@
 import Uppy from '@uppy/core';
-import ThumbnailGenerator from '@uppy/thumbnail-generator'
+import ThumbnailGenerator from '@uppy/thumbnail-generator';
+import StatusBar from '@uppy/status-bar';
 import Dashboard from '@uppy/dashboard';
 import GoogleDrive from '@uppy/google-drive';
 import Dropbox from '@uppy/dropbox';
@@ -176,6 +177,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 .use(ThumbnailGenerator, {
                     thumbnailWidth: dashboardparameters.thumbnailWidth
                 });
+
             if (state.allowImageEditor) {
                 //.use(ScreenCapture, { target: Dashboard })
                 uppy.use(ImageEditor, {target: Dashboard});
@@ -329,8 +331,15 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
             }
         },
         resetDashboard: function () {
-            if (uppy != undefined) {
+            /*if (uppy != undefined) {
                 uppy.cancelAll();
+            }*/
+            if (container) {
+                try {
+                    container.getElementsByClassName("uppy-StatusBar-actionBtn--done")[0].click();
+                } catch (ex) {
+                    console.log(ex);
+                }
             }
         },
         // safely handles circular references

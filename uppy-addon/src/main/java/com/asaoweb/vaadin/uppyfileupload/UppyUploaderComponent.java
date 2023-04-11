@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 // This is the server-side UI component that provides public API 
 // for UppyComponent
 @JavaScript({
-        "vaadin://addons/uppy-addon/bundle.uppy.min.js?20230411"
+        "vaadin://addons/uppy-addon/bundle.uppy.min.js?202304112"
         //"bundle.uppy.min.js"
 })
 public class UppyUploaderComponent extends UploadComponent {
@@ -100,6 +100,10 @@ public class UppyUploaderComponent extends UploadComponent {
                     logger.log(Level.WARNING,"onUploadSuccess failed: ", ex);
                 }
             });
+
+            if(autoResetAfterComplete) {
+                clientRpc.resetDashboard();
+            }
         }
 
         @Override
@@ -146,6 +150,8 @@ public class UppyUploaderComponent extends UploadComponent {
 
     };
     private final UppyComponentClientRpc clientRpc;
+
+    private boolean autoResetAfterComplete = true;
 
     public UppyUploaderComponent(Map<String, Object> meta, String companionUrl) {
         this(meta, companionUrl, null, false, "550px");
@@ -228,6 +234,24 @@ public class UppyUploaderComponent extends UploadComponent {
         getState(true).dashboardparameters.setThumbnailWidth(thumbnailWidth);
     }
 
+    public void setHideProgressAfterFinish(boolean value){
+        getState(true).dashboardparameters.setHideProgressAfterFinish(value);
+    }
+
+    // See hideSelector
+    /*
+    public void setShowSelectedFiles(boolean value){
+        getState(true).dashboardparameters.setShowSelectedFiles(value);
+    }*/
+
+    public void setDisableThumbnailGenerator(boolean value){
+        getState(true).dashboardparameters.setDisableThumbnailGenerator(value);
+    }
+
+    public void setAutoResetAfterComplete(boolean autoResetAfterComplete) {
+        this.autoResetAfterComplete = autoResetAfterComplete;
+    }
+
     @Override
     public void attach() {
         super.attach();
@@ -235,7 +259,7 @@ public class UppyUploaderComponent extends UploadComponent {
             getState(true).setCompanionUrl(companionUrl);
         }
         setSizeFull();
-        clientRpc.initInline();
+        clientRpc.initInline(getState());
     }
 
     @Override

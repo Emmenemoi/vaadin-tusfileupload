@@ -1,4 +1,5 @@
 import Uppy from '@uppy/core';
+import ThumbnailGenerator from '@uppy/thumbnail-generator'
 import Dashboard from '@uppy/dashboard';
 import GoogleDrive from '@uppy/google-drive';
 import Dropbox from '@uppy/dropbox';
@@ -54,6 +55,8 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
      */
     var isUploading = false;
 
+    var autoHideThumbs = true;
+
     var lastTime = [];
 
     var lastPercentProgress = [];
@@ -100,12 +103,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
             }
         } else {
             if (uppy) {
-                uppy.setOptions(s.coreOptions);
-                let dashboard = uppy.getPlugin('Dashboard')
-                if (uppy) {
-                    s.dashboardparameters.target = "#" + containerId;
-                    dashboard.setOptions(s.dashboardparameters);
-                }
+                applyState(s);
             }
         }
     };
@@ -127,9 +125,26 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
         }
     }
 
+    this.applyState = function(state){
+        if (uppy) {
+            uppy.setOptions(s.coreOptions);
+            let dashboard = uppy.getPlugin('Dashboard')
+            if (dashboard) {
+                s.dashboardparameters.target = "#" + containerId;
+                dashboard.setOptions(s.dashboardparameters);
+            }
+            let thumbnailGenerator = uppy.getPlugin('ThumbnailGenerator')
+            if (thumbnailGenerator) {
+                thumbnailGenerator.setOptions({
+                    thumbnailWidth: s.dashboardparameters.thumbnailWidth
+                });
+            }
+        }
+    }
+
     this.registerRpc({
-        init: function () {
-            let state = t.getState();
+        init: function (state) {
+            //let state = t.getState();
             let companionUrl = state.companionUrl;
             let dashboardparameters = state.dashboardparameters;
             dashboardparameters.target = "#" + containerId;
@@ -151,12 +166,20 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
             }
             coreoptions.edomain = null;
 
+            autoHideThumbs = coreoptions.autoHideThumbs;
+            coreoptions.autoHideThumbs = null;
+
             t.log("Initializing uppy");
             uppy = new Uppy(coreoptions)
                 .use(Dashboard, dashboardparameters)
-                .use(Webcam, { target: Dashboard })
+                .use(Webcam, {target: Dashboard})
+                .use(ThumbnailGenerator, {
+                    thumbnailWidth: dashboardparameters.thumbnailWidth
+                });
+            if (state.allowImageEditor) {
                 //.use(ScreenCapture, { target: Dashboard })
-                .use(ImageEditor, { target: Dashboard });
+                uppy.use(ImageEditor, {target: Dashboard});
+            }
 
             if(state.uploadModule == 'S3') {
                 uppy.use(AwsS3Multipart, {
@@ -266,7 +289,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
             uppy.on( 'upload-success', (file, response) => {
                 t.log('File successfully uploaded ' + file.id);
                 rpcProxy.onUploadSuccess(file, this.safeSerialize(response));
-                uppy.removeFile(file.id);
+                // uppy.removeFile(file.id); // no complete fired
             });
 
             uppy.on('complete', (result) => {
@@ -294,15 +317,20 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
         cancelAll: function () {
             uppy.cancelAll();
         },
-        initModal: function () {
-            this.init();
+        initModal: function (opts) {
+            this.init(opts);
         },
-        initInline: function () {
-            this.init();
+        initInline: function (opts) {
+            this.init(opts);
         },
         setMeta: function (data) {
             if (uppy != undefined) {
                 uppy.setMeta(data);
+            }
+        },
+        resetDashboard: function () {
+            if (uppy != undefined) {
+                uppy.cancelAll();
             }
         },
         // safely handles circular references

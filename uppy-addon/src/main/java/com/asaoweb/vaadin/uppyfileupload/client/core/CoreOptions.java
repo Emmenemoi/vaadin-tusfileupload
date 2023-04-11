@@ -25,6 +25,8 @@ public class CoreOptions {
 
     private boolean autoProceed = true;
 
+    private boolean autoHideThumbs = true;
+
     private boolean allowMultipleUploads = true;
 
     private boolean debug = false;
@@ -113,6 +115,14 @@ public class CoreOptions {
 
     public void setAutoProceed(boolean autoProceed) {
         this.autoProceed = autoProceed;
+    }
+
+    public boolean isAutoHideThumbs() {
+        return autoHideThumbs;
+    }
+
+    public void setAutoHideThumbs(boolean autoHideThumbs) {
+        this.autoHideThumbs = autoHideThumbs;
     }
 
     public boolean isAllowMultipleUploads() {

@@ -10,12 +10,12 @@ public interface UppyComponentClientRpc extends ClientRpc {
     /**
      * Init an inline uploader.
      */
-    void initInline();
+    void initInline(UppyUploaderComponentState opt);
 
     /**
      * Init a modal uploader
      */
-    void initModal();
+    void initModal(UppyUploaderComponentState opt);
 
     /**
      * Alters global meta object in state, the one that can be set in Uppy options and gets merged with all newly added files.
@@ -31,4 +31,6 @@ public interface UppyComponentClientRpc extends ClientRpc {
     void removeFile(String fileid);
 
     void cancelAll();
+
+    void resetDashboard();
 }

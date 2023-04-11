@@ -620,7 +620,7 @@ public class MultiUploadLayout<FILES> extends VerticalLayout implements DataProv
 		@Override
 		public void uploadSucceeded(SucceededEvent evt) {
 			if ( isEventOwner(evt) ) {
-			    logger.debug("uploadSucceeded for evt {}", evt);
+			    logger.debug("uploadSucceeded for evt {} (queue: {})", evt,this.layout.queuedfiles );
 				flcUpdateLock.lock();
 				try {
 					if (evt.getFinalFileInfo() != null) {

@@ -23,6 +23,8 @@ public class UppyUploaderComponentState extends JavaScriptComponentState {
 
     private String uploadModule = "TUS";
 
+    private boolean allowImageEditor = true;
+
     public UppyUploaderComponentState() {
     }
 
@@ -53,4 +55,12 @@ public class UppyUploaderComponentState extends JavaScriptComponentState {
     public String getUploadModule() { return uploadModule; }
 
     public void setUploadModule(String uploadModule) { this.uploadModule = uploadModule; }
+
+    public boolean isAllowImageEditor() {
+        return allowImageEditor;
+    }
+
+    public void setAllowImageEditor(boolean allowImageEditor) {
+        this.allowImageEditor = allowImageEditor;
+    }
 }

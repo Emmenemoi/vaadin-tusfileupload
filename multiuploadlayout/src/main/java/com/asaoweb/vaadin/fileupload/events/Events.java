@@ -346,8 +346,8 @@ public class Events {
         @Override
         public String toString() {
             return "SucceededEvent{" +
-                    "queueSize=" + queueSize +
-                    "inputStreamPath=" + inputStreamPath +
+                    " queueSize=" + queueSize +
+                    " inputStreamPath=" + inputStreamPath +
                     "} " + super.toString();
         }
     }

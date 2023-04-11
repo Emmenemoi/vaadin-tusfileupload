@@ -18,6 +18,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<vaadin.version>8.12.3</vaadin.version>
 		<jetty.plugin.version>9.3.9.v20160517</jetty.plugin.version>
+		<jetty.plugin.version>9.4.36.v20210114</jetty.plugin.version>
 	</properties>
 
     <!--
@@ -96,6 +97,11 @@
 			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.11</version>
+		</dependency>
 	<!--	<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-continuation</artifactId>
@@ -153,6 +159,46 @@
 	</build>
 
 	<profiles>
+		<profile>
+			<id>docker</id>
+			<build>
+				<plugins>
+					<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>3.0.0</version>
+					<executions>
+						<execution>
+							<!-- Run our version calculation script -->
+							<id>tus-stop</id>
+							<goals>
+								<goal>exec</goal>
+							</goals>
+							<configuration>
+								<executable>docker</executable>
+								<commandlineArgs>stop tusd</commandlineArgs>
+								<successCodes>
+									<successCode>0</successCode>
+									<successCode>1</successCode>
+								</successCodes>
+							</configuration>
+						</execution>
+						<execution>
+							<!-- Run our version calculation script -->
+							<id>tus</id>
+							<goals>
+								<goal>exec</goal>
+							</goals>
+							<configuration>
+								<executable>docker</executable>
+								<commandlineArgs>run -d --name tusd --rm -p 1080:1080 tusproject/tusd -base-path /tus/files/</commandlineArgs>
+							</configuration>
+						</execution>
+					</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<!-- Vaadin pre-release repositories -->
 			<id>vaadin-prerelease</id>

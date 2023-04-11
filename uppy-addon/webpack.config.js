@@ -1,7 +1,7 @@
 var path = require('path');
 
-module.exports = {
-    devtool: 'inline-source-map',
+var config = {
+    devtool: 'source-map',
     entry: './src/main/webapp/VAADIN/addons/uppy-addon/uppy-component.js',
     output: {
         //path: path.resolve(__dirname, 'src/main/resources/com/asaoweb/client'),
@@ -23,4 +23,13 @@ module.exports = {
             },
         ]
     },
+};
+
+module.exports = (env, argv) => {
+    if (argv.mode === 'development') {
+        //config.output.filename = 'bundle.uppy.js';
+        config.devtool = 'inline-source-map';
+    }
+
+    return config;
 };

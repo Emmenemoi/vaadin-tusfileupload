@@ -46,6 +46,9 @@ public class DemoUI extends UI
         String hello2 = "dffd";
     }
 
+    static String TUS_HOST = "127.0.0.1";
+    static String TUS_PORT = "1080";
+
     @Override
     protected void init(VaadinRequest request) {
 
@@ -58,7 +61,7 @@ public class DemoUI extends UI
 
         final UppyMultiUpload<FileInfo> component = new UppyMultiUpload<>(metas, filesProvider,
             MultiUploadLayout.FileListComponent::new,
-            true, "http://localhost:3020", Arrays.asList(Links), false, "240px");
+            true, "http://"+TUS_HOST+":"+TUS_PORT, Arrays.asList(Links), false, "240px");
 
         // Show it in the middle of the screen
         final VerticalLayout layout = new VerticalLayout();
@@ -70,7 +73,7 @@ public class DemoUI extends UI
 
         final UppyMultiUpload<FileInfo> component2 = new UppyMultiUpload<FileInfo>(metas, filesProvider,
             MultiUploadLayout.FileListComponent::new,
-            true, "http://localhost:3020", Arrays.asList(Links), false, "240px") {
+            true, "http://"+TUS_HOST+":"+TUS_PORT, Arrays.asList(Links), false, "240px") {
 
             @Override
             public void setUploaderLocation() {

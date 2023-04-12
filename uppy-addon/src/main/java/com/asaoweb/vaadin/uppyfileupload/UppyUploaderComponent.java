@@ -86,15 +86,24 @@ public class UppyUploaderComponent extends UploadComponent {
 
         @Override
         public void onUploadSuccess(JsonObject file, JsonObject response) {
-            FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
-                0, file.getString("name"), file.getString("type"));
+            FileInfo fi = new FileInfo(
+                file.getString("id"),
+                Double.valueOf(file.getNumber("size")).longValue(),
+                Double.valueOf(file.getNumber("size")).longValue(),
+                file.getString("name"),
+                file.getString("type"));
             addFileToQueue(fi);
             fi.offset=Double.valueOf(file.getNumber("size")).longValue();
             getUI().access(() -> {
                 try {
+                    if (response.hasKey("uploadURL")) {
+                        fi.setUploadURL(new URI(response.getString("uploadURL")));
+                    }
+                    if (response.hasKey("preview")) {
+                        fi.setPreview(new URI(response.getString("preview")));
+                    }
                     queue.remove(fi.queueId);
-                    fireUploadSuccess(new Events.SucceededEvent(UppyUploaderComponent.this, fi, null,
-                            new URI(response.getString("uploadURL")), queue.size()));
+                    fireUploadSuccess(new Events.SucceededEvent(UppyUploaderComponent.this, fi, queue.size()));
                 } catch (Throwable ex) {
                     // TODO To process
                     logger.log(Level.WARNING,"onUploadSuccess failed: ", ex);
@@ -113,13 +122,40 @@ public class UppyUploaderComponent extends UploadComponent {
                 Set<FileInfo> successFI = new HashSet<>();
                 Set<FileInfo> failFI = new HashSet<>();
                 for (JsonObject file : successfull) {
-                    FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
-                        0, file.getString("name"), file.getString("type"));
+                    FileInfo fi = new FileInfo(
+                        file.getString("id"),
+                        Double.valueOf(file.getNumber("size")).longValue(),
+                        Double.valueOf(file.getNumber("size")).longValue(),
+                        file.getString("name"),
+                        file.getString("type"));
+                    try {
+                        if (file.hasKey("uploadURL")) {
+                            fi.setUploadURL(new URI(file.getString("uploadURL")));
+                        }
+                        if (file.hasKey("preview")) {
+                            fi.setPreview(new URI(file.getString("preview")));
+                        }
+                    } catch (Exception ex) {
+                        logger.log(Level.WARNING,"set uploadURL to "+file+" failed:", ex);
+                    }
                     successFI.add(fi);
                 }
                 for (JsonObject file : failed) {
-                    FileInfo fi = new FileInfo(file.getString("id"), Double.valueOf(file.getNumber("size")).longValue(),
-                        0, file.getString("name"), file.getString("type"));
+                    FileInfo fi = new FileInfo(file.getString("id"),
+                        Double.valueOf(file.getNumber("size")).longValue(),
+                        Double.valueOf(file.getObject("progress").getNumber("bytesUploaded")).longValue(),
+                        file.getString("name"),
+                        file.getString("type"));
+                    try {
+                        if (file.hasKey("uploadURL")) {
+                            fi.setUploadURL(new URI(file.getString("uploadURL")));
+                        }
+                        if (file.hasKey("preview")) {
+                            fi.setPreview(new URI(file.getString("preview")));
+                        }
+                    } catch (Exception ex) {
+                        logger.log(Level.WARNING,"set uploadURL to "+file+" failed:", ex);
+                    }
                     failFI.add(fi);
                 }
                 try {

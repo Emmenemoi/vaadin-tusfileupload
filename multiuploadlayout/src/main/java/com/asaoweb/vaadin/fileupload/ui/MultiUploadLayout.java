@@ -20,6 +20,7 @@ import com.vaadin.data.provider.DataChangeEvent;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.DataProviderListener;
 import com.vaadin.data.provider.Query;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.*;
 import org.slf4j.Logger;
@@ -220,23 +221,24 @@ public class MultiUploadLayout<FILES> extends VerticalLayout implements DataProv
 	
 	public void refreshFilesInfos() {
 		long fileNB = files().count() + queuedfiles.size();
-		int last = fileListLayout.getComponentCount()-1;
+		long queueNB = 0;
 		if (fileNB == 0 && fileListLayout.getComponentCount() == 0) {
 			fileListLayout.addComponent(new Label(noFilesUploaded));
+			queueNB = queueNB - 1;
 		} else if (fileNB > 0 && fileListLayout.getComponentCount() >= 1) {
-			if (last >= 0 && fileListLayout.getComponent(last) instanceof Label) {
-				fileListLayout.removeComponent(fileListLayout.getComponent(last));
-			}
-			last = fileListLayout.getComponentCount()-1;
-			if (last >= 0 && fileListLayout.getComponent(last) instanceof Label) {
-				fileListLayout.removeComponent(fileListLayout.getComponent(last));
+			Iterator<Component> iter = fileListLayout.iterator();
+			while (iter.hasNext()){
+				Component elem = iter.next();
+				if (elem instanceof Label){
+					iter.remove();
+				}
 			}
 		}
-		last = fileListLayout.getComponentCount()-1;
-		long queueNB = fileListLayout.getComponentCount() - fileNB;
-		if (last >= 0  && fileListLayout.getComponent(last) instanceof Label) {
+		//last = fileListLayout.getComponentCount()-1;
+		queueNB = queueNB + fileListLayout.getComponentCount() - fileNB;
+		/*if (last >= 0  && fileListLayout.getComponent(last) instanceof Label) {
 			queueNB--;
-		}
+		}*/
 		uploadButton.setRemainingQueueSeats(uploadButton.getMaxFileCount() != null ?
 				uploadButton.getMaxFileCount()-fileNB : Integer.MAX_VALUE);
 		long totalUploadedSize = queuedfiles.stream().mapToLong(fi -> fi.entityLength).sum();
@@ -315,6 +317,9 @@ public class MultiUploadLayout<FILES> extends VerticalLayout implements DataProv
 		}
 
 		protected void addFileListComponent(Component c) {
+			if (fileListLayout.getComponentCount() > 0 && fileListLayout.getComponent(0) instanceof Label) {
+				fileListLayout.removeComponent(fileListLayout.getComponent(0));
+			}
 			if (reverseOrder) {
 				fileListLayout.addComponentAsFirst(c);
 			} else {
@@ -562,7 +567,9 @@ public class MultiUploadLayout<FILES> extends VerticalLayout implements DataProv
 			}
 			statusWrapper.setVisible(progressBarWrapper.isVisible() || errorMessage.isVisible());
 
-			if ( isImage() ) {
+			if( fileInfo.preview != null) {
+				thumb.setSource(new ExternalResource(fileInfo.preview.toString()));
+			} else if ( isImage() ) {
 				thumb.setIcon(VaadinIcons.FILE_PICTURE);						
 			} else if ( isVideo() ) {
 				thumb.setIcon(VaadinIcons.FILE_MOVIE);

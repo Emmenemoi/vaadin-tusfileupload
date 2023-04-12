@@ -1,6 +1,7 @@
 package com.asaoweb.vaadin.fileupload;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Base64;
@@ -34,6 +35,8 @@ public class FileInfo implements Serializable {
 	public String suggestedFilename;
 	public String suggestedFiletype;
 	public String username;
+	public URI 		preview;
+	public URI		uploadURL;
 	public Map<String, String> decodedMetadata;
 	
 	@JsonIgnore
@@ -88,6 +91,22 @@ public class FileInfo implements Serializable {
 		return index;
 	}
 
+	public URI getPreview() {
+		return preview;
+	}
+
+	public void setPreview(URI preview) {
+		this.preview = preview;
+	}
+
+	public URI getUploadURL() {
+		return uploadURL;
+	}
+
+	public void setUploadURL(URI uploadURL) {
+		this.uploadURL = uploadURL;
+	}
+
 	/*
 	 * Metadata is transmitted as comma separated key/value pairs, where key and
 	 * value are separated by a space and value is base64 encoded. TODO: not sure if
@@ -120,7 +139,8 @@ public class FileInfo implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("FileInfo(%s) - name: %s, type: %s, queueId: %s, length: %d, offset: %d", id, suggestedFilename, suggestedFiletype, queueId, entityLength, offset );
+		return String.format("FileInfo(%s) - name: %s, type: %s, queueId: %s, length: %d, offset: %d, uploadURL: %s",
+			id, suggestedFilename, suggestedFiletype, queueId, entityLength, offset, uploadURL );
 	}
 
 	@Override

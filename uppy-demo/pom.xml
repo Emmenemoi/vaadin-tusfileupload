@@ -152,6 +152,14 @@
 						<webInfIncludeJarPattern>.*/^(asm-all-repackaged)[^/]*\.jar$</webInfIncludeJarPattern>
 					</webApp>
 				</configuration>
+				<executions>
+					<execution>
+						<phase>site</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 		</plugins>
@@ -174,6 +182,7 @@
 							<goals>
 								<goal>exec</goal>
 							</goals>
+							<phase>pre-site</phase>
 							<configuration>
 								<executable>docker</executable>
 								<commandlineArgs>stop tusd</commandlineArgs>
@@ -189,6 +198,7 @@
 							<goals>
 								<goal>exec</goal>
 							</goals>
+							<phase>pre-site</phase>
 							<configuration>
 								<executable>docker</executable>
 								<commandlineArgs>run -d --name tusd --rm -p 1080:1080 tusproject/tusd -base-path /tus/files/</commandlineArgs>

@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.*;
 
+import com.asaoweb.vaadin.fileupload.events.Events;
 import com.asaoweb.vaadin.tusfileupload.TUSFileUploadHandler;
 import com.asaoweb.vaadin.tusfileupload.data.Datastore;
 import com.asaoweb.vaadin.tusfileupload.events.StreamingEvents;
@@ -53,8 +54,11 @@ public class TusMultiUpload extends UploadComponent {
 	   */
 	  protected Datastore receiverDataStore;
 	  protected Config receiverConfig;
-	  
-	  private final TusMultiuploadServerRpc serverRpc = new ServerRpcImpl();
+
+	protected Set<FileInfo> queueBatch = Collections.synchronizedSet(new HashSet<>());
+	protected Set<FileInfo> queueFailedBatch = Collections.synchronizedSet(new HashSet<>());
+
+	private final TusMultiuploadServerRpc serverRpc = new ServerRpcImpl();
 	  private final TusMultiuploadClientRpc clientRpc;
 
 	  private StreamVariable streamVariable;
@@ -518,10 +522,12 @@ public class TusMultiUpload extends UploadComponent {
 					logger.debug("streamingFinished(StreamingEndEvent) for file info {}", tevt.getFileInfo());
 					InputStream is = dataStore.getInputStream(id);
 					URI path = dataStore.getInputStreamPath(id).toUri();
+					tevt.getFileInfo().setUploadURL(path);
 					queue.remove(currentQueuedFileId);
+					queueBatch.add(tevt.getFileInfo());
 					if (TusMultiUpload.this.getUI() != null && !TusMultiUpload.this.getUI().isClosing()) {
                         TusMultiUpload.this.getUI().access(() -> {
-							fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is, path, queue.size()));
+							fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), queue.size()));
 							try {
 								dataStore.terminate(id);
 							} catch (Exception e) {
@@ -529,8 +535,29 @@ public class TusMultiUpload extends UploadComponent {
 							}
 						});
 					} else {
-						fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), is, path, queue.size()));
+						fireUploadSuccess(new SucceededEvent(TusMultiUpload.this, tevt.getFileInfo(), queue.size()));
 						dataStore.terminate(id);
+					}
+
+					if(queue.isEmpty()) {
+						if (TusMultiUpload.this.getUI() != null && !TusMultiUpload.this.getUI().isClosing()) {
+							TusMultiUpload.this.getUI().access(() -> {
+
+								fireUploadComplete(new Events.CompleteEvent(TusMultiUpload.this, new HashSet<>(queueBatch), new HashSet<>(queueFailedBatch)));
+								queueBatch.clear();
+								queueFailedBatch.clear();
+								try {
+									dataStore.terminate(id);
+								} catch (Exception e) {
+									logger.warn("dataStore terminate pb for file info {}", tevt.getFileInfo(), e);
+								}
+							});
+						} else {
+							fireUploadComplete(new Events.CompleteEvent(TusMultiUpload.this, new HashSet<>(queueBatch), new HashSet<>(queueFailedBatch)));
+							queueBatch.clear();
+							queueFailedBatch.clear();
+							dataStore.terminate(id);
+						}
 					}
 				} catch (Exception e) {
 					logger.warn("streamingFinished pb for file info {}", tevt.getFileInfo(), e);
@@ -545,6 +572,7 @@ public class TusMultiUpload extends UploadComponent {
 			tevt.getFileInfo().queueId = currentQueuedFileId;
 			lastProgress = 0;
 			queue.remove(currentQueuedFileId);
+			queueFailedBatch.add(tevt.getFileInfo());
 			logger.debug("streamingFailed(StreamingErrorEvent) for file info {}", tevt.getFileInfo());
 			if (TusMultiUpload.this.getUI() != null && !TusMultiUpload.this.getUI().isClosing()) {
                 TusMultiUpload.this.getUI().access(() -> fireFailed(new FailedEvent(TusMultiUpload.this, tevt.getFileInfo(), event.getException())) );

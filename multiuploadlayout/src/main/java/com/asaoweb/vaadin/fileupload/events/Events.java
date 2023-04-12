@@ -286,8 +286,6 @@ public class Events {
      */
     public static class SucceededEvent extends FinishedEvent {
 
-        final InputStream inputStream;
-        URI inputStreamPath;
         //final int remainingQueueSize;
         //boolean addFileToList = true;
         FileInfo finalFileInfo;
@@ -300,21 +298,9 @@ public class Events {
          * @param source   the source component
          * @param fileInfo File information provided by the client
          */
-        public SucceededEvent(UploadComponent source, FileInfo fileInfo, InputStream inputStream, URI inputStreamPath, int queueSize) {
+        public SucceededEvent(UploadComponent source, FileInfo fileInfo, int queueSize) {
             super(source, fileInfo);
-            this.inputStream = inputStream;
-            this.inputStreamPath = inputStreamPath;
             this.queueSize = queueSize;
-        }
-
-        public InputStream getInputStream() {
-            return inputStream;
-        }
-
-        public URI getInputStreamPath() { return inputStreamPath; }
-
-        public void setInputStreamPath(URI inputStreamPath) {
-            this.inputStreamPath = inputStreamPath;
         }
 
         //public int getRemainingQueueSize() { return remainingQueueSize; }
@@ -347,7 +333,6 @@ public class Events {
         public String toString() {
             return "SucceededEvent{" +
                     " queueSize=" + queueSize +
-                    " inputStreamPath=" + inputStreamPath +
                     "} " + super.toString();
         }
     }

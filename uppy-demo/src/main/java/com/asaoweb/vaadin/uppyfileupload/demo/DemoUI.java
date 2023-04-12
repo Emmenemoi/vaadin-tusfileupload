@@ -63,6 +63,7 @@ public class DemoUI extends UI
             MultiUploadLayout.FileListComponent::new,
             true, "http://"+TUS_HOST+":"+TUS_PORT, Arrays.asList(Links), false, "240px");
 
+        component.addSucceededListener(evt -> files.add(evt.getFileInfo()));
         // Show it in the middle of the screen
         final VerticalLayout layout = new VerticalLayout();
         layout.setStyleName("demoContentLayout");
@@ -85,6 +86,10 @@ public class DemoUI extends UI
             }
         };
 
+        component2.addSucceededListener(evt -> {
+            filesProvider.getItems().add(evt.getFileInfo());
+            filesProvider.refreshAll();
+        });
         component2.getUploader().setThumbnailWidth(100);
         component2.getUploader().setMultiple(false);
         component2.getUploader().setButtonCaption("test caption");

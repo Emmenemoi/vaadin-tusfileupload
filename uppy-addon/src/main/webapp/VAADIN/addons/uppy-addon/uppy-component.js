@@ -103,9 +103,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 console.log(ex);
             }
         } else {
-            if (uppy) {
-                applyState(s);
-            }
+            applyState(s);
         }
     };
 
@@ -128,16 +126,16 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
 
     this.applyState = function(state){
         if (uppy) {
-            uppy.setOptions(s.coreOptions);
+            uppy.setOptions(state.coreOptions);
             let dashboard = uppy.getPlugin('Dashboard')
             if (dashboard) {
-                s.dashboardparameters.target = "#" + containerId;
-                dashboard.setOptions(s.dashboardparameters);
+                state.dashboardparameters.target = "#" + containerId;
+                dashboard.setOptions(state.dashboardparameters);
             }
             let thumbnailGenerator = uppy.getPlugin('ThumbnailGenerator')
             if (thumbnailGenerator) {
                 thumbnailGenerator.setOptions({
-                    thumbnailWidth: s.dashboardparameters.thumbnailWidth
+                    thumbnailWidth: state.dashboardparameters.thumbnailWidth
                 });
             }
         }

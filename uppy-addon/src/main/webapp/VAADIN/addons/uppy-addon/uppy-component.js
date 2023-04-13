@@ -103,7 +103,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 console.log(ex);
             }
         } else {
-            applyState(s);
+            this.applyState(s);
         }
     };
 

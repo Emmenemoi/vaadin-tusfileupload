@@ -520,7 +520,7 @@ public class TusMultiUpload extends UploadComponent {
 					String id = tevt.getFileInfo().id;
 					tevt.getFileInfo().queueId = currentQueuedFileId;
 					logger.debug("streamingFinished(StreamingEndEvent) for file info {}", tevt.getFileInfo());
-					InputStream is = dataStore.getInputStream(id);
+					//InputStream is = dataStore.getInputStream(id);
 					URI path = dataStore.getInputStreamPath(id).toUri();
 					tevt.getFileInfo().setUploadURL(path);
 					queue.remove(currentQueuedFileId);

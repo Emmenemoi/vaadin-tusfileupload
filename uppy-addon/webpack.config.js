@@ -2,7 +2,7 @@ var path = require('path');
 
 var config = {
     devtool: 'source-map',
-    entry: './src/main/webapp/VAADIN/addons/uppy-addon/uppy-component.js',
+    entry: './src/frontend/uppy-component.js',
     output: {
         //path: path.resolve(__dirname, 'src/main/resources/com/asaoweb/client'),
         path: path.resolve(__dirname, 'src/main/webapp/VAADIN/addons/uppy-addon'),

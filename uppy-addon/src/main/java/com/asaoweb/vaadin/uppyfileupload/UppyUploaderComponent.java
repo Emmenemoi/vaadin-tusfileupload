@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 // This is the server-side UI component that provides public API 
 // for UppyComponent
 @JavaScript({
-        "vaadin://addons/uppy-addon/bundle.uppy.min.js?20230413"
+        "vaadin://addons/uppy-addon/bundle.uppy.min.js?20230515"
         //"bundle.uppy.min.js"
 })
 public class UppyUploaderComponent extends UploadComponent {

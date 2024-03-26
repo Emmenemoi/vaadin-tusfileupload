@@ -216,16 +216,16 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
             if(dashboardparameters.plugins.includes("OneDrive")) uppy.use(OneDrive, { target: Dashboard, companionUrl: companionUrl });
             if(dashboardparameters.plugins.includes("Links")) uppy.use(Url, {target: Dashboard, companionUrl: companionUrl});
 
-            uppy.use(GoldenRetriever, {serviceWorker: true})
+            uppy.use(GoldenRetriever, {serviceWorker: true});
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker
-                    .register('/sw.js') // path to your bundled service worker with GoldenRetriever service worker
+                    .register(new URL('./serviceWorker.js', import.meta.url)) // path to your bundled service worker with GoldenRetriever service worker
                     .then((registration) => {
                         t.log('ServiceWorker registration successful with scope: ', registration.scope)
                     })
                     .catch((error) => {
                         console.log('Registration failed with ' + error)
-                    })
+                    });
             }
 
             uppy.on('restriction-failed', (file, error) => {

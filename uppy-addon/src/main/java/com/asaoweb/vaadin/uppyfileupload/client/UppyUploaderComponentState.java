@@ -16,6 +16,7 @@ public class UppyUploaderComponentState extends JavaScriptComponentState {
      * TODO Set in parameters the companion Url;
      */
     private String companionUrl = "http://localhost:3020";
+    private String tusUrl = "http://localhost:1080";
 
     private boolean debug = false;
 
@@ -35,6 +36,10 @@ public class UppyUploaderComponentState extends JavaScriptComponentState {
     public void setCompanionUrl(String companionUrl) {
         this.companionUrl = companionUrl;
     }
+
+    public String getTusUrl() {return tusUrl;}
+
+    public void setTusUrl(String tusUrl) {this.tusUrl = tusUrl;}
 
     public int[] getRetryDelays() {
         return retryDelays;

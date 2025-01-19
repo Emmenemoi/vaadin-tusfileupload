@@ -145,6 +145,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
         init: function (state) {
             //let state = t.getState();
             let companionUrl = state.companionUrl;
+            let tusUrl = state.tusUrl;
             let dashboardparameters = state.dashboardparameters;
             dashboardparameters.target = "#" + containerId;
             let coreoptions = state.coreOptions;
@@ -203,7 +204,7 @@ window.com_asaoweb_vaadin_uppyfileupload_UppyUploaderComponent  = function() {
                 });
             } else if(state.uploadModule == 'TUS') {
                 uppy.use(Tus, {
-                    endpoint: `${companionUrl}/tus/files/`, // use your tus endpoint here
+                    endpoint: tusUrl, // use your tus endpoint here
                     resume: true,
                     retryDelays: state.retryDelays
                 });

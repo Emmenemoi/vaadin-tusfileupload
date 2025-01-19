@@ -47,6 +47,7 @@ public class UppyUploaderComponent extends UploadComponent {
     //protected Map<String, Object> metaProps = new HashMap<>();
 
     private String companionUrl;
+    private String tusdUrl;
 
     private final UppyComponentServerRpc serverRpc = new UppyComponentServerRpc() {
         @Override
@@ -294,6 +295,9 @@ public class UppyUploaderComponent extends UploadComponent {
         if (companionUrl != null) {
             getState(true).setCompanionUrl(companionUrl);
         }
+        if (tusdUrl != null) {
+            getState(true).setTusUrl(tusdUrl);
+        }
         setSizeFull();
         clientRpc.initInline(getState());
     }
@@ -386,6 +390,13 @@ public class UppyUploaderComponent extends UploadComponent {
     public void abortAll() {
         clientRpc.cancelAll();
         queue.clear();
+    }
+
+    public void setTusdUrl(String tusdUrl) {
+        this.tusdUrl = tusdUrl;
+        if (isAttached() && tusdUrl != null) {
+            getState(true).setTusUrl(tusdUrl);
+        }
     }
 
     @Override

@@ -126,8 +126,14 @@ public class Store implements Datastore {
 	 */
 	public void terminate(String id) throws Exception {
 		log.debug("terminate: cleaning {}", id);
-		new File(getInfoPath(id)).delete();
-		new File(getBinPath(id)).delete();
+		File infoFile = new File(getInfoPath(id));
+		if (infoFile.isFile()) {
+			infoFile.delete();
+		}
+		File binFile = new File(getBinPath(id));
+		if (binFile.isFile()) {
+			binFile.delete();
+		}
 	}
 
 	/*

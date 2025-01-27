@@ -13,7 +13,7 @@
 	</prerequisites>
 
 	<properties>
-		<revision>2.1.5</revision>
+		<revision>2.1.6</revision>
 		<changelist>-SNAPSHOT</changelist>
 		<multiuploadlayout.version>${revision}${changelist}</multiuploadlayout.version>
 		<tusfileupload.version>${revision}${changelist}</tusfileupload.version>
